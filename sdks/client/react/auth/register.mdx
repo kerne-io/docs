@@ -1,0 +1,49 @@
+---
+title: "Register"
+description: "Create a new user account"
+---
+
+The `register` method creates a new user account. Depending on your tenant's configuration, this may require an invitation code or token.
+
+For more information on registration modes, see the [Registration modes](/concepts/identity/registration-modes) page.
+
+## Signature
+
+```typescript
+kerne.auth.register(params: RegisterParams): Promise<AuthResponse>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `email` | `string` | Yes | The user's email address. |
+| `password` | `string` | Yes | A secure password (minimum 8 characters). |
+| `invitationCode` | `string` | No | Required if registration mode is set to "Invitation Only". |
+| `invitationToken` | `string` | No | Required if accepting a specific email invitation. |
+
+## Response
+
+Returns the same `AuthResponse` as the [login](/sdks/client/nextjs/auth/login) method.
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1001` | 403 | **Registration disabled**: Public registration is currently disabled for this tenant. |
+| `K1002` | 403 | **Maximum users reached**: The tenant has reached the maximum number of allowed users. |
+| `K1008` | 409 | **Email already taken**: The email address is already registered. |
+| `K1004` | 400 | **Invalid invitation code**: The provided code is invalid or expired. |
+| `K1003` | 400 | **Invalid invitation token**: The provided token is invalid or expired. |
+| `K1010` | 400 | **Password too weak**: The password does not meet security requirements. |
+| `K2001` | 400 | **Invalid payload**: One or more fields are missing or incorrectly formatted. |
+
+## Example
+
+```typescript
+await kerne.auth.register({
+  email: 'newuser@example.com',
+  password: 'SecurePassword123!',
+  invitationCode: 'EARLY_ACCESS'
+});
+```

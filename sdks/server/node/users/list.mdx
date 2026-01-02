@@ -1,0 +1,54 @@
+---
+title: "List users"
+description: "Retrieve a paginated list of users"
+---
+
+The `list` method returns a list of users within your tenant. This is useful for building administrative dashboards or user management interfaces.
+
+## Signature
+
+```typescript
+kerne.users.list(params?: ListUsersParams): Promise<User[]>
+```
+
+## Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `limit` | `number` | The maximum number of users to return (max 100). Defaults to 20. |
+| `search` | `string` | Filter users by email or name. |
+| `role` | `string` | Filter users by their assigned role. |
+
+## Response
+
+Returns a `Promise` that resolves to an array of `User` objects.
+
+```typescript
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role: string;
+  createdAt: string;
+}
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | **Insufficient permissions**: The provided secret key does not have permission to list users. |
+| `K9001` | 500 | **Internal server error**: An unexpected error occurred on the server. |
+
+## Example
+
+```typescript
+const users = await kerne.users.list({
+  limit: 50,
+  search: '@gmail.com'
+});
+
+users.forEach(user => {
+  console.log(`${user.email} (${user.role})`);
+});
+```

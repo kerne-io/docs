@@ -1,0 +1,29 @@
+---
+title: "List projects"
+description: "Retrieve user projects"
+---
+
+The `list` method returns all projects associated with the current user.
+
+## Signature
+
+```typescript
+kerne.projects.list(): Promise<Project[]>
+```
+
+## Response
+
+Returns an array of `Project` objects. Each project contains:
+- `id`: Unique identifier
+- `name`: Display name
+- `slug`: URL-friendly identifier
+
+## Example
+
+```typescript
+const projects = await kerne.projects.list();
+
+projects.map(project => (
+  <div key={project.id}>{project.name}</div>
+));
+```

@@ -1,122 +1,387 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+  "name": "Kerne",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#164AA3",
+    "light": "#0783C9",
+    "dark": "#05803D"
+  },
+  "anchors": [
+    {
+      "name": "Community",
+      "icon": "discord",
+      "url": "https://discord.gg/kerne"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
+        "icon": "book-open",
         "groups": [
           {
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "quickstart"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Platform foundations",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "concepts/overview",
+              {
+                "group": "Identity & access",
+                "pages": [
+                  "concepts/identity/index",
+                  "concepts/identity/registration-modes",
+                  "concepts/identity/authorization"
+                ]
+              },
+              {
+                "group": "Monetization",
+                "pages": [
+                  "concepts/monetization/index",
+                  "concepts/monetization/products-and-plans",
+                  "concepts/monetization/entitlements"
+                ]
+              },
+              "concepts/error-codes"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Server SDK",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "sdks/server/overview",
+              {
+                "group": "Node.js",
+                "pages": [
+                  "sdks/server/node/overview",
+                  {
+                    "group": "Users",
+                    "pages": [
+                      "sdks/server/node/users/list",
+                      "sdks/server/node/users/get",
+                      "sdks/server/node/users/create",
+                      "sdks/server/node/users/update",
+                      "sdks/server/node/users/delete"
+                    ]
+                  },
+                  "sdks/server/node/waitlist",
+                  "sdks/server/node/invitations",
+                  {
+                    "group": "Billing",
+                    "pages": [
+                      {
+                        "group": "Configuration",
+                        "pages": [
+                          "sdks/server/node/billing/configuration/products",
+                          "sdks/server/node/billing/configuration/plans",
+                          "sdks/server/node/billing/configuration/features"
+                        ]
+                      },
+                      {
+                        "group": "Consumption",
+                        "pages": [
+                          "sdks/server/node/billing/consumption/usage-reporting"
+                        ]
+                      }
+                    ]
+                  },
+                  "sdks/server/node/subscriptions",
+                  {
+                    "group": "Settings",
+                    "pages": [
+                      "sdks/server/node/settings/auth-config"
+                    ]
+                  },
+                  {
+                    "group": "Webhooks",
+                    "pages": [
+                      "sdks/server/node/webhooks/handling-events"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Python",
+                "pages": [
+                  "sdks/server/python/overview"
+                ]
+              }
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Client SDK",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "sdks/client/overview",
+              {
+                "group": "React",
+                "pages": [
+                  "sdks/client/react/overview",
+                  {
+                    "group": "Authentication",
+                    "pages": [
+                      "sdks/client/react/auth/login",
+                      "sdks/client/react/auth/register",
+                      "sdks/client/react/auth/magic-link",
+                      "sdks/client/react/auth/session",
+                      "sdks/client/react/auth/email-verification",
+                      "sdks/client/react/auth/password-reset"
+                    ]
+                  },
+                  {
+                    "group": "Billing",
+                    "pages": [
+                      {
+                        "group": "Consumption",
+                        "pages": [
+                          "sdks/client/react/billing/consumption/check-entitlement",
+                          "sdks/client/react/billing/consumption/usage"
+                        ]
+                      },
+                      {
+                        "group": "Checkout",
+                        "pages": [
+                          "sdks/client/react/billing/checkout/checkout",
+                          "sdks/client/react/billing/checkout/portal"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Projects",
+                    "pages": [
+                      "sdks/client/react/projects/list",
+                      "sdks/client/react/projects/get",
+                      "sdks/client/react/projects/create",
+                      "sdks/client/react/projects/update",
+                      "sdks/client/react/projects/delete"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              {
+                "group": "Authentication",
+                "pages": [
+                  "guides/auth/choose-your-auth-model",
+                  "guides/auth/implement-invite-only-saas"
+                ]
+              },
+              {
+                "group": "Billing strategy",
+                "pages": [
+                  "guides/billing/enforcing-limits-without-breaking-ux"
+                ]
+              }
             ]
           }
         ]
       },
       {
         "tab": "API reference",
+        "icon": "square-terminal",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Authentication",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/auth/register",
+              "api-reference/auth/login",
+              "api-reference/auth/me",
+              "api-reference/auth/update-me",
+              "api-reference/auth/config",
+              {
+                "group": "Email verification",
+                "pages": [
+                  "api-reference/auth/verify-email",
+                  "api-reference/auth/resend-verification"
+                ]
+              },
+              {
+                "group": "Password",
+                "pages": [
+                  "api-reference/auth/forgot-password",
+                  "api-reference/auth/reset-password",
+                  "api-reference/auth/change-password"
+                ]
+              },
+              "api-reference/auth/request-deletion"
+            ]
+          },
+          {
+            "group": "Waitlist (public)",
+            "pages": [
+              "api-reference/waitlist/join"
+            ]
+          },
+          {
+            "group": "Invitations (public)",
+            "pages": [
+              "api-reference/invitations/validate-token",
+              "api-reference/invitations/validate-code"
+            ]
+          },
+          {
+            "group": "Pricing (public)",
+            "pages": [
+              "api-reference/pricing/list-plans"
+            ]
+          },
+          {
+            "group": "Billing (user)",
+            "pages": [
+              "api-reference/billing/user/subscription",
+              "api-reference/billing/user/entitlements",
+              "api-reference/billing/user/usage",
+              "api-reference/billing/user/checkout",
+              "api-reference/billing/user/portal"
+            ]
+          },
+          {
+            "group": "Projects",
+            "pages": [
+              "api-reference/projects/list",
+              "api-reference/projects/get",
+              "api-reference/projects/create",
+              "api-reference/projects/update",
+              "api-reference/projects/delete"
+            ]
+          },
+          {
+            "group": "Admin",
+            "pages": [
+              {
+                "group": "Usage management",
+                "pages": [
+                  "api-reference/billing/admin/report-usage",
+                  "api-reference/billing/admin/set-usage",
+                  "api-reference/billing/admin/reset-usage"
+                ]
+              },
+              {
+                "group": "Settings",
+                "pages": [
+                  "api-reference/admin/get-auth-config",
+                  "api-reference/admin/auth-config"
+                ]
+              },
+              {
+                "group": "Users",
+                "pages": [
+                  "api-reference/users/list",
+                  "api-reference/users/get",
+                  "api-reference/users/create",
+                  "api-reference/users/update",
+                  "api-reference/users/delete"
+                ]
+              },
+              {
+                "group": "Invitations",
+                "pages": [
+                  "api-reference/invitations/create-token",
+                  "api-reference/invitations/create-code",
+                  "api-reference/invitations/list",
+                  "api-reference/invitations/revoke"
+                ]
+              },
+              {
+                "group": "Waitlist",
+                "pages": [
+                  "api-reference/waitlist/list",
+                  "api-reference/waitlist/remove"
+                ]
+              },
+              {
+                "group": "Products",
+                "pages": [
+                  "api-reference/products/list",
+                  "api-reference/products/get",
+                  "api-reference/products/create",
+                  "api-reference/products/update",
+                  "api-reference/products/delete",
+                  "api-reference/products/sync-stripe"
+                ]
+              },
+              {
+                "group": "Plans",
+                "pages": [
+                  "api-reference/plans/list",
+                  "api-reference/plans/get",
+                  "api-reference/plans/create",
+                  "api-reference/plans/update",
+                  "api-reference/plans/delete",
+                  {
+                    "group": "Plan pricing",
+                    "pages": [
+                      "api-reference/plans/list-prices",
+                      "api-reference/plans/create-price",
+                      "api-reference/plans/update-price",
+                      "api-reference/plans/delete-price"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Packs",
+                "pages": [
+                  "api-reference/packs/list",
+                  "api-reference/packs/get",
+                  "api-reference/packs/get-active",
+                  "api-reference/packs/create",
+                  "api-reference/packs/activate",
+                  "api-reference/packs/update-entitlements",
+                  "api-reference/packs/delete"
+                ]
+              },
+              {
+                "group": "Features",
+                "pages": [
+                  "api-reference/features/list",
+                  "api-reference/features/get",
+                  "api-reference/features/create",
+                  "api-reference/features/update",
+                  "api-reference/features/delete"
+                ]
+              },
+              {
+                "group": "Subscriptions",
+                "pages": [
+                  "api-reference/subscriptions/list",
+                  "api-reference/subscriptions/get",
+                  "api-reference/subscriptions/create",
+                  "api-reference/subscriptions/update",
+                  "api-reference/subscriptions/cancel"
+                ]
+              },
+              {
+                "group": "Overrides",
+                "pages": [
+                  "api-reference/billing/admin/overrides/list",
+                  "api-reference/billing/admin/overrides/create",
+                  "api-reference/billing/admin/overrides/update",
+                  "api-reference/billing/admin/overrides/delete"
+                ]
+              }
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  }
+  "theme": "mint"
 }

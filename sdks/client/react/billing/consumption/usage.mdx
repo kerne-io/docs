@@ -1,0 +1,50 @@
+---
+title: "Usage"
+description: "Retrieve consumption data"
+---
+
+The `getUsage` method returns the current consumption data for the user's metered entitlements. This is useful for displaying usage bars or limits in your UI.
+
+For more information on metered features, see the [Entitlements](/concepts/monetization/entitlements) concept page.
+
+## Signature
+
+```typescript
+kerne.billing.getUsage(featureKey?: string): Promise<Usage[]>
+```
+
+## Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `featureKey` | `string` | (Optional) Filter usage by a specific feature key. |
+
+## Response
+
+Returns a `Promise` that resolves to an array of `Usage` objects.
+
+```typescript
+interface Usage {
+  featureKey: string;
+  used: number;
+  limit: number | null; // null if unlimited
+  resetAt: string;      // ISO date string
+}
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Token not provided**: The user must be logged in to check usage. |
+| `K4001` | 404 | **Resource not found**: The specified feature key does not exist. |
+
+## Example
+
+```typescript
+const usage = await kerne.billing.getUsage();
+
+usage.forEach(item => {
+  console.log(`${item.featureKey}: ${item.used} / ${item.limit ?? '∞'}`);
+});
+```

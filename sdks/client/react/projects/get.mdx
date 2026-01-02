@@ -1,0 +1,25 @@
+---
+title: "Get project"
+description: "Retrieve a specific project by ID"
+---
+
+The `get` method retrieves detailed information about a specific project using its unique identifier.
+
+## Signature
+
+```typescript
+kerne.projects.get(id: string): Promise<Project>
+```
+
+## Parameters
+
+<ResponseField name="id" type="string" required>
+  The unique identifier of the project (e.g., `proj_...`).
+</ResponseField>
+
+## Example
+
+```typescript
+const project = await kerne.projects.get('proj_12345');
+console.log(`Working on: ${project.name}`);
+```

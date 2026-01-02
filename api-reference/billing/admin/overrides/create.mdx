@@ -1,0 +1,37 @@
+---
+title: "Create override"
+api: "POST /v1/admin/billing/overrides"
+description: "Create a custom entitlement override for a scope"
+---
+
+## Request body
+
+<ParamField body="scopeId" type="string" required>
+  The ID of the user or project
+</ParamField>
+
+<ParamField body="featureId" type="string" required>
+  The ID of the feature to override
+</ParamField>
+
+<ParamField body="limit" type="number">
+  The custom limit (-1 for unlimited)
+</ParamField>
+
+<ParamField body="value" type="string">
+  The custom value (for static features)
+</ParamField>
+
+## Response
+
+<ResponseField name="override" type="Override">
+  The created override record.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Unauthorized**: Invalid or missing secret key. |
+| `K4002` | 404 | **Tenant not found**: The specified tenant slug is invalid. |
+| `K3001` | 404 | **Feature not found**: The specified feature ID does not exist. |

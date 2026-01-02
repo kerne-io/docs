@@ -1,0 +1,19 @@
+---
+title: "Create project"
+description: "Create a new project"
+---
+
+## Signature
+
+```typescript
+kerne.projects.create(data: CreateProjectDto): Promise<Project>
+```
+
+## Example
+
+```typescript
+const project = await kerne.projects.create({
+  name: 'My New Project',
+  description: 'A project for testing'
+});
+```

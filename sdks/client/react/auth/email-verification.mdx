@@ -1,0 +1,64 @@
+---
+title: "Email verification"
+description: "Verify user email addresses"
+---
+
+Email verification confirms that users own the email address they registered with.
+
+## Verify email
+
+Verify an email using the token from the verification email.
+
+### Signature
+
+```typescript
+await kerne.auth.verifyEmail(token: string): Promise<void>
+```
+
+### Example
+
+```typescript
+// Token comes from URL query param
+const token = new URLSearchParams(window.location.search).get('token');
+
+await kerne.auth.verifyEmail(token);
+console.log('Email verified!');
+```
+
+---
+
+## Resend verification
+
+Request a new verification email if the first one expired or was lost.
+
+### Signature
+
+```typescript
+await kerne.auth.resendVerification(): Promise<void>
+```
+
+> [!IMPORTANT]
+> This requires the user to be authenticated. Use the JWT token from login.
+
+### Example
+
+```typescript
+// User must be logged in
+await kerne.auth.resendVerification();
+console.log('Verification email sent!');
+```
+
+---
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1006` | 401 | **Token expired**: The verification token has expired. |
+| `K1007` | 401 | **Invalid token**: The verification token is invalid. |
+| `K6001` | 429 | **Rate limited**: Too many resend requests. |
+
+## Related
+
+- [Register](/sdks/client/nextjs/auth/register)
+- [Session](/sdks/client/nextjs/auth/session)

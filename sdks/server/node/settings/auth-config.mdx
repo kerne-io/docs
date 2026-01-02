@@ -1,0 +1,41 @@
+---
+title: "Auth config"
+description: "Manage tenant authentication settings"
+---
+
+The `settings` module allows you to manage the configuration of your own tenant.
+
+## Get config
+
+Retrieves the current authentication settings for your tenant.
+
+```typescript
+const config = await kerne.settings.getAuthConfig();
+```
+
+## Update config
+
+Updates the authentication settings. These changes take effect immediately.
+
+```typescript
+await kerne.settings.updateAuthConfig({
+  registrationMode: 'INVITATION_ONLY',
+  allowMagicLink: true,
+  passwordRequired: false
+});
+```
+
+### Configuration parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `registrationMode` | `string` | `OPEN`, `WAITLIST`, or `INVITATION_ONLY`. |
+| `allowMagicLink` | `boolean` | Enable or disable passwordless login. |
+| `passwordRequired` | `boolean` | Whether a password is required for registration. |
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K2001` | 400 | Invalid configuration values. |
+| `K3001` | 403 | Unauthorized to update settings. |

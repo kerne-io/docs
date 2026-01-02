@@ -1,0 +1,37 @@
+---
+title: "Products and plans"
+description: "Designing your pricing model"
+---
+
+Kerne aligns its data model with Stripe to ensure a seamless sync between your application code and your billing provider.
+
+## The hierarchy
+
+Understanding how Kerne maps to Stripe is key to designing your pricing model.
+
+### 1. Product (The "Container")
+A **Product** in Kerne represents your application or service line.
+- Most SaaS apps have a single product.
+- **Maps to**: Conceptually a "Product Family" (internal to Kerne).
+
+### 2. Plan (The "Tier")
+A **Plan** represents a specific level of service (e.g., "Free", "Pro", "Enterprise").
+- **Maps to**: **Stripe Product**.
+- Each Plan contains specific [entitlements](/concepts/monetization/entitlements) (features).
+
+### 3. Price (The "Billing Option")
+A **Price** is a specific billing configuration for a Plan (e.g., "$29/month", "$290/year").
+- **Maps to**: **Stripe Price**.
+- You can have multiple prices for the same plan (monthly, yearly, regional).
+
+<Info>
+**Why this matters**: In Stripe, a "Product" is what you see on the invoice line item (e.g., "Pro Plan"). Kerne matches this mental model so you don't get confused when looking at your Stripe dashboard.
+</Info>
+
+## Example configuration
+
+| Kerne Concept | Example Value | Stripe Equivalent |
+|:---|:---|:---|
+| **Plan** | "Pro Tier" | **Stripe Product** (`prod_...`) |
+| **Price** | "$29 / Month" | **Stripe Price** (`price_...`) |
+| **Price** | "$290 / Year" | **Stripe Price** (`price_...`) |

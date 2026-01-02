@@ -1,97 +1,79 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "The infrastructure for monetized software"
 ---
 
-## Setting up
+## What is Kerne?
 
-Get your documentation site up and running in minutes.
+Kerne provides the infrastructure you need to build and scale monetized software. It unifies authentication and billing into a single, developer-first platform.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+Instead of stitching together disparate auth and billing providers, Kerne gives you a unified data model. Your users and their subscriptions are deeply integrated from day one.
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="5-minute quickstart" icon="rocket" href="/quickstart">
+    Deploy your first monetized app in minutes.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Node.js SDK" icon="node" href="/sdks/server/node/overview">
+    `@kerne/server` for your secure backend operations.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
+    `@kerne/react` for your frontend user experience.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="API reference" icon="terminal" href="/api-reference/introduction">
+    Complete REST API documentation for custom integrations.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## The Kerne difference
 
-Everything you need to create world-class documentation.
+<CardGroup cols={3}>
+  <Card title="Secure identity" icon="fingerprint">
+    Authentication that just works. We handle HttpOnly cookies and session management automatically.
+  </Card>
+  <Card title="Native monetization" icon="credit-card">
+    Don't just bill users—entitle them. Use feature flags driven directly by subscription status.
+  </Card>
+  <Card title="Developer first" icon="code">
+    Clean APIs and type-safe SDKs designed to fit into your modern development workflow.
+  </Card>
+</CardGroup>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## SDK example
 
-## Need inspiration?
+<CodeGroup>
+```typescript Server (@kerne/server)
+import { Kerne } from '@kerne/server';
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID,
+  secretKey: process.env.KERNE_SECRET_KEY
+});
+
+// Create a user and grant access
+const user = await kerne.users.create({
+  email: 'user@example.com',
+  password: 'SecurePassword123'
+});
+```
+
+```typescript Client (@kerne/react)
+import { KerneProvider, useAuth } from '@kerne/react';
+
+// 1. Wrap your application
+function Root() {
+  return (
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+      <App />
+    </KerneProvider>
+  );
+}
+
+// 2. Use the hook in your components
+function Profile() {
+  const { user, login } = useAuth();
+  
+  if (!user) return <button onClick={login}>Login</button>;
+  return <div>Welcome, {user.email}</div>;
+}
+```
+</CodeGroup>

@@ -1,0 +1,22 @@
+---
+title: "Delete override"
+api: "DELETE /v1/admin/billing/overrides/{id}"
+description: "Remove an entitlement override"
+---
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The ID of the override to delete
+</ParamField>
+
+## Response
+
+Returns `204 No Content` on success.
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Unauthorized**: Invalid or missing secret key. |
+| `K4002` | 404 | **Tenant not found**: The specified tenant slug is invalid. |

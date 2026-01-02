@@ -1,0 +1,41 @@
+---
+title: "Get user"
+description: "Retrieve a single user profile"
+---
+
+The `get` method retrieves the full profile of a specific user.
+
+## Signature
+
+```typescript
+kerne.users.get(id: string): Promise<User>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | `string` | Yes | The unique ID of the user (e.g., `usr_123`). |
+
+## Response
+
+Returns a `Promise` that resolves to a `User` object.
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3001` | 404 | The user ID was not found in your tenant. |
+
+## Example
+
+```typescript
+try {
+  const user = await kerne.users.get('usr_123');
+  console.log(`User email: ${user.email}`);
+} catch (error) {
+  if (error.statusCode === 404) {
+    console.log('User not found');
+  }
+}
+```

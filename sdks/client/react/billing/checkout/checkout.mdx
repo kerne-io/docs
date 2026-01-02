@@ -1,0 +1,57 @@
+---
+title: "Checkout"
+description: "Start a subscription flow"
+---
+
+The `createCheckout` method initiates a Stripe Checkout session, allowing users to subscribe to a plan.
+
+For more information on products and plans, see the [Products and plans](/concepts/monetization/products-and-plans) concept page.
+
+## Signature
+
+```typescript
+kerne.billing.createCheckout(params: CheckoutParams): Promise<CheckoutResponse>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `planId` | `string` | Yes | The unique ID of the plan (found in the dashboard). |
+| `successUrl` | `string` | No | The URL to redirect to after a successful payment. |
+| `cancelUrl` | `string` | No | The URL to redirect to if the user cancels the process. |
+
+## Response
+
+Returns a `Promise` that resolves to a `CheckoutResponse`.
+
+```typescript
+interface CheckoutResponse {
+  checkoutUrl: string; // The URL to redirect the user to
+}
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified plan ID does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K3004` | 403 | **Operation not allowed**: The tenant is not permitted to create checkout sessions. |
+
+## Example
+
+```typescript
+try {
+  const { checkoutUrl } = await kerne.billing.createCheckout({
+    planId: 'plan_pro_monthly',
+    successUrl: `${window.location.origin}/billing/success`,
+    cancelUrl: `${window.location.origin}/billing`
+  });
+
+  // Redirect the user to the Stripe-hosted checkout page
+  window.location.href = checkoutUrl;
+} catch (error) {
+  console.error('Failed to create checkout session:', error.message);
+}
+```

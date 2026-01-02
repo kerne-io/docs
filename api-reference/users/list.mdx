@@ -1,0 +1,52 @@
+---
+title: "List users"
+api: "GET /v1/admin/users"
+---
+
+List all users in your tenant with optional filtering and pagination.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Query parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `limit` | `integer` | Maximum number of users to return (default: 50, max: 100). |
+| `offset` | `integer` | Number of users to skip for pagination. |
+| `search` | `string` | Search by email or name. |
+| `role` | `string` | Filter by role (e.g., `admin`, `member`). |
+| `status` | `string` | Filter by status (e.g., `active`, `suspended`). |
+
+## Response
+
+```json
+{
+  "users": [
+    {
+      "id": "usr_01234567890abcdef",
+      "email": "user@example.com",
+      "name": "John Doe",
+      "role": "member",
+      "status": "active",
+      "created_at": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "limit": 50,
+    "offset": 0,
+    "hasMore": false
+  }
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | Insufficient permissions (requires secret key). |
+| `K9001` | 500 | Internal server error. |

@@ -1,0 +1,20 @@
+---
+title: "Delete project"
+api: "DELETE /v1/projects/:id"
+description: "Remove a project"
+---
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the project was successfully deleted.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified project ID does not exist. |
+| `K4008` | 500 | **Resource deletion failed**: An error occurred while deleting the project. |
+| `K3003` | 403 | **Resource not accessible**: You do not have access to this project. |
+| `K1007` | 401 | **Token not provided**: The user must be logged in to delete a project. |

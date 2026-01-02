@@ -1,0 +1,67 @@
+---
+title: "Login"
+description: "Authenticate with email and password"
+---
+
+The `login` method authenticates a user using their email and password. This is the primary entry point for users to access your application.
+
+For more information on authentication flows, see the [Identity overview](/concepts/identity/index) page.
+
+## Signature
+
+```typescript
+kerne.auth.login(params: LoginParams): Promise<AuthResponse>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `email` | `string` | Yes | The user's email address. |
+| `password` | `string` | Yes | The user's password. |
+
+## Response
+
+Returns a `Promise` that resolves to an `AuthResponse` object.
+
+```typescript
+interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+  };
+  session: {
+    expiresAt: string;
+  };
+}
+```
+
+<Note>
+The session cookie is set automatically by the browser upon a successful login.
+</Note>
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1005` | 401 | **Invalid credentials**: The email or password provided is incorrect. |
+| `K6002` | 429 | **Too many login attempts**: The user has been temporarily blocked due to multiple failed attempts. |
+| `K3002` | 403 | **Insufficient permissions**: The user account is deactivated or banned. |
+| `K1009` | 400 | **Invalid email format**: The provided email address is not valid. |
+
+## Example
+
+```typescript
+try {
+  const { user } = await kerne.auth.login({
+    email: 'user@example.com',
+    password: 'password123'
+  });
+  console.log(`Welcome back, ${user.email}!`);
+} catch (error) {
+  if (error.code === 'K1005') {
+    // Handle invalid credentials
+  }
+}
+```

@@ -1,0 +1,64 @@
+---
+title: "Magic link"
+description: "Passwordless authentication"
+---
+
+Magic links allow users to log in by clicking a link sent to their email. This flow is entirely passwordless and highly secure.
+
+For more information on authentication flows, see the [Identity overview](/concepts/identity/index) page.
+
+## 1. Send link
+
+Sends a unique, short-lived login link to the user's email address.
+
+### Signature
+```typescript
+kerne.auth.signInWithMagicLink(params: MagicLinkParams): Promise<void>
+```
+
+### Parameters
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `email` | `string` | Yes | The user's email address. |
+| `redirectUrl` | `string` | Yes | The URL to redirect the user to after they click the link. |
+
+## 2. Verify token
+
+Completes the authentication process. This method should be called on the page specified in the `redirectUrl`.
+
+### Signature
+```typescript
+kerne.auth.verifyMagicLink(token?: string): Promise<AuthResponse>
+```
+
+### Parameters
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `token` | `string` | No | The token from the URL. If omitted, the SDK automatically extracts it from `window.location.search`. |
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1006` | 401 | **Token expired**: The magic link token has expired. |
+| `K1007` | 401 | **Token not provided**: No token was provided or found in the URL. |
+| `K1003` | 400 | **Invalid token**: The provided token is invalid or has already been used. |
+| `K7002` | 502 | **Email service error**: Failed to send the magic link email. |
+
+## Example
+
+```typescript
+// Step 1: Request the link
+await kerne.auth.signInWithMagicLink({
+  email: 'user@example.com',
+  redirectUrl: 'https://myapp.com/auth/callback'
+});
+
+// Step 2: In your callback component
+try {
+  const { user } = await kerne.auth.verifyMagicLink();
+  router.push('/dashboard');
+} catch (error) {
+  console.error('Login failed:', error.message);
+}
+```

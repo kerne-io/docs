@@ -1,0 +1,65 @@
+---
+title: "Session"
+description: "Manage the active session"
+---
+
+The `session` module provides methods to manage the authenticated state of the user. It handles the retrieval of user profiles and the termination of sessions.
+
+For more information on how sessions are managed, see the [Identity overview](/concepts/identity/index) page.
+
+## Get current user
+
+Retrieves the profile of the currently logged-in user.
+
+### Signature
+```typescript
+kerne.auth.me(): Promise<User | null>
+```
+
+### Response
+Returns a `User` object if a valid session exists, or `null` otherwise.
+
+## Logout
+
+Terminated the current session and clears the `httpOnly` cookie.
+
+### Signature
+```typescript
+kerne.auth.logout(): Promise<void>
+```
+
+## Check authentication
+
+A synchronous helper to check if a session token is present.
+
+### Signature
+```typescript
+kerne.auth.isAuthenticated(): boolean
+```
+
+<Note>
+`isAuthenticated()` only checks for the presence of a token. To ensure the token is still valid, use `kerne.auth.me()`.
+</Note>
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1006` | 401 | **Token expired**: The session token has expired. |
+| `K1007` | 401 | **Token not provided**: No active session was found. |
+
+## Example
+
+```typescript
+const user = await kerne.auth.me();
+
+if (user) {
+  console.log(`Logged in as ${user.email}`);
+} else {
+  console.log('No active session');
+}
+
+// Perform logout
+await kerne.auth.logout();
+window.location.reload();
+```

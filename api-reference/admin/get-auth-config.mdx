@@ -1,0 +1,38 @@
+---
+title: "Get auth config"
+api: "GET /v1/admin/auth-config"
+description: "Retrieve full tenant authentication settings"
+---
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Response
+
+<ResponseField name="config" type="AuthConfig">
+  The full authentication configuration for the tenant.
+</ResponseField>
+
+### AuthConfig
+
+<ResponseField name="registrationMode" type="string">
+  The current registration mode (`OPEN`, `WAITLIST`, `INVITATION_ONLY`).
+</ResponseField>
+
+<ResponseField name="allowMagicLink" type="boolean">
+  Whether magic link login is enabled.
+</ResponseField>
+
+<ResponseField name="requiresEmailVerification" type="boolean">
+  Whether users must verify their email after registration.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Unauthorized**: Invalid or missing secret key. |
+| `K4002` | 404 | **Tenant not found**: The specified tenant slug is invalid. |

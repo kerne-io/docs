@@ -1,0 +1,68 @@
+---
+title: "Enforcing limits"
+description: "Soft limits vs Hard limits and UX best practices"
+---
+
+Enforcing billing limits is a delicate balance between protecting your infrastructure and providing a friction-free experience for your customers.
+
+## Soft vs. hard limits
+
+### Hard limits
+
+A hard limit (the "wall") blocks the user's action immediately upon hitting a threshold.
+- **Example**: "You have reached your 5 team member limit. Upgrade to add more."
+- **Use for**: Team seats, database storage, or expensive infrastructure resources.
+
+### Soft limits
+
+A soft limit (the "nudge") allows the user to proceed but triggers a notification or overage charge.
+- **Example**: "You have exceeded 10,000 monthly views. We will charge $5 for the next 1,000."
+- **Use for**: Bandwidth, email sends, or usage-based metrics.
+
+## Where to enforce
+
+### 1. Backend middleware (Hard limits)
+
+The safest place to enforce limits is your API layer. If `checkEntitlement` returns `has_access: false`, return a `403 Forbidden`.
+
+```typescript
+// Backend middleware example
+const { has_access } = await kerne.billing.checkEntitlement('api-calls');
+
+if (!has_access) {
+  throw new ForbiddenError('You have reached your monthly API quota.');
+}
+```
+
+### 2. The client UI (Soft limits and UX)
+
+Don't wait for a "Save" click to inform users they've hit a limit. Proactively disable buttons or show upgrade nudges in the UI.
+
+```tsx
+// React component example
+import { useBilling } from '@kerne/react';
+
+function AddTeamMember() {
+  const { checkEntitlement } = useBilling();
+  const [canAdd, setCanAdd] = useState(true);
+
+  useEffect(() => {
+    checkEntitlement('team_seats').then(setCanAdd);
+  }, []);
+
+  return (
+    <button disabled={!canAdd}>
+      Add member { !canAdd && ' (Upgrade required)' }
+    </button>
+  );
+}
+```
+
+## Preventing "rage quit"
+
+Nothing drives churn faster than losing data due to a billing limit.
+- **Scenario**: A user spends 30 minutes writing a report, only to be blocked when clicking "Save".
+- **Bad**: "Error: Storage limit reached." (User loses their work).
+- **Good**: "Draft saved locally. You've reached your storage limit—upgrade your plan to publish this report."
+
+Always check limits **before** the user begins a resource-intensive task.

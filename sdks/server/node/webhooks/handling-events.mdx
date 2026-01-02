@@ -1,0 +1,63 @@
+---
+title: "Handling events"
+description: "Verify and process webhooks"
+---
+
+Webhooks allow Kerne to notify your application when important events occur (e.g., `subscription.created`, `user.registered`). This is essential for keeping your local database in sync with Kerne.
+
+For a list of all available event types, see the [Webhooks concept](/concepts/architecture/index) (Coming soon) or check the dashboard.
+
+## Security
+
+Kerne signs every webhook request to ensure it originates from our servers. You **must** verify this signature to prevent spoofing attacks.
+
+## Construct event
+
+The `constructEvent` method verifies the signature and returns a typed event object.
+
+### Signature
+```typescript
+kerne.webhooks.constructEvent(payload: string | Buffer, signature: string, secret: string): KerneEvent
+```
+
+## Example
+
+Here is an example using Express:
+
+```typescript
+import express from 'express';
+import { Kerne } from '@kerne/node';
+
+const app = express();
+const kerne = new Kerne({ secretKey: process.env.KERNE_SECRET_KEY });
+
+app.post('/webhooks/kerne', express.raw({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['kerne-signature'] as string;
+  const secret = process.env.KERNE_WEBHOOK_SECRET;
+
+  try {
+    const event = kerne.webhooks.constructEvent(req.body, signature, secret);
+
+    switch (event.type) {
+      case 'subscription.created':
+        console.log(`New subscription for user ${event.data.userId}`);
+        break;
+      case 'user.registered':
+        console.log(`New user registered: ${event.data.email}`);
+        break;
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+```
+
+## Possible errors
+
+| Error | Description |
+|-------|-------------|
+| `SignatureVerificationError` | The signature does not match the payload or the secret is invalid. |
+| `PayloadParsingError` | The request body is not valid JSON. |
+| `K9003` | **Invalid configuration**: The webhook secret is missing or misconfigured. |

@@ -1,0 +1,33 @@
+---
+title: "Login"
+api: "POST /v1/auth/login"
+description: "Authenticate with email and password"
+---
+
+## Body
+
+<ParamField body="email" type="string" required>
+  The user's email address.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The user's password.
+</ParamField>
+
+## Response
+
+<ResponseField name="user" type="User">
+  The authenticated user profile.
+</ResponseField>
+
+<ResponseField name="session" type="Session">
+  Session metadata. Note that an `httpOnly` cookie is set automatically.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1005` | 401 | **Invalid credentials**: The email or password provided is incorrect. |
+| `K6002` | 429 | **Too many login attempts**: The user has been temporarily blocked. |
+| `K1009` | 400 | **Invalid email format**: The provided email address is not valid. |

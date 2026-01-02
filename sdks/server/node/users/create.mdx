@@ -1,0 +1,44 @@
+---
+title: "Create user"
+description: "Manually create a user"
+---
+
+The `create` method allows you to manually add a user to your tenant without going through the public registration flow.
+
+## Signature
+
+```typescript
+kerne.users.create(params: CreateUserParams): Promise<User>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `email` | `string` | Yes | The user's email address. |
+| `password` | `string` | Yes | The user's password. |
+| `name` | `string` | No | The user's full name. |
+| `role` | `string` | No | The role to assign (defaults to `MEMBER`). |
+| `emailVerified` | `boolean` | No | Whether to mark the email as verified. Defaults to `false`. |
+
+## Response
+
+Returns a `Promise` that resolves to the newly created `User` object.
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1008` | 409 | Email already registered. |
+| `K2001` | 400 | Invalid request payload. |
+
+## Example
+
+```typescript
+const user = await kerne.users.create({
+  email: 'admin@mycompany.com',
+  password: 'SuperSecretPassword123!',
+  role: 'ADMIN',
+  emailVerified: true
+});
+```

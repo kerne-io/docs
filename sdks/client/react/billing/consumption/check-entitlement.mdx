@@ -1,0 +1,69 @@
+---
+title: "Check entitlement"
+description: "Verify feature access"
+---
+
+The `canConsume` method checks if the user has access to a specific feature based on their current subscription and usage limits.
+
+For more information on how entitlements work, see the [Entitlements concept](/concepts/monetization/entitlements) page.
+
+## Signature
+
+```typescript
+kerne.billing.canConsume(featureKey: string, options?: ConsumeOptions): Promise<ConsumeResult>
+```
+
+## Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `featureKey` | `string` | The unique key of the feature (defined in the dashboard). |
+| `options.quantity` | `number` | The amount to consume (for metered features). Defaults to 0 (check only). |
+
+## Response
+
+```typescript
+interface ConsumeResult {
+  allowed: boolean;
+  remaining?: number; // Only for metered features
+  reason?: string;    // Why access was denied (e.g., "QUOTA_EXCEEDED")
+}
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K5001` | 403 | **Resource quota exceeded**: The user has reached their limit for this feature. |
+| `K5002` | 402 | **Plan upgrade required**: The feature is not included in the current plan. |
+| `K3004` | 403 | **Operation not allowed**: The tenant is not permitted to perform this action. |
+| `K3002` | 403 | **Insufficient permissions**: The user lacks the required role to consume this feature. |
+| `K4001` | 404 | **Resource not found**: The specified feature key does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+
+## Examples
+
+### Boolean check
+Check if a user has access to a specific module.
+
+```typescript
+const { allowed } = await kerne.billing.canConsume('pro_analytics');
+
+if (allowed) {
+  showAnalytics();
+}
+```
+
+### Metered check
+Check if a user has enough quota to perform an action.
+
+```typescript
+const { allowed, remaining } = await kerne.billing.canConsume('api_calls', { quantity: 1 });
+
+if (allowed) {
+  makeApiCall();
+  console.log(`You have ${remaining} calls left.`);
+} else {
+  showUpgradeModal();
+}
+```

@@ -1,0 +1,149 @@
+---
+title: "Subscriptions"
+description: "Manage user subscriptions programmatically"
+---
+
+The `subscriptions` module allows you to create, update, and manage user subscriptions. This is useful for programmatic subscription management, such as creating subscriptions for enterprise customers or handling custom billing flows.
+
+For more information on billing concepts, see the [Products and plans](/concepts/monetization/products-and-plans) page.
+
+## Create subscription
+
+Create a subscription for a user or account.
+
+### Signature
+
+```typescript
+kerne.subscriptions.create(params: CreateSubscriptionParams): Promise<Subscription>
+```
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `account_id` | `string` | Yes | The account to create the subscription for. |
+| `plan_id` | `string` | Yes | The plan to subscribe to. |
+| `status` | `string` | No | Initial status (default: `active`). |
+
+### Example
+
+```typescript
+const subscription = await kerne.subscriptions.create({
+  account_id: 'acc_01234567890abcdef',
+  plan_id: 'plan_pro_monthly',
+});
+
+console.log(`Subscription created: ${subscription.id}`);
+```
+
+---
+
+## List subscriptions
+
+Retrieve all subscriptions with optional filters.
+
+### Signature
+
+```typescript
+kerne.subscriptions.list(params?: ListSubscriptionsParams): Promise<Subscription[]>
+```
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `account_id` | `string` | No | Filter by account ID. |
+| `status` | `string` | No | Filter by status. |
+
+### Example
+
+```typescript
+const subscriptions = await kerne.subscriptions.list({
+  status: 'active',
+});
+
+subscriptions.forEach(sub => {
+  console.log(`${sub.id} - ${sub.plan_id}`);
+});
+```
+
+---
+
+## Retrieve subscription
+
+Get a single subscription by ID.
+
+### Signature
+
+```typescript
+kerne.subscriptions.retrieve(id: string): Promise<Subscription>
+```
+
+### Example
+
+```typescript
+const subscription = await kerne.subscriptions.retrieve('sub_01234567890abcdef');
+console.log(`Status: ${subscription.status}`);
+```
+
+---
+
+## Update subscription
+
+Update subscription properties.
+
+### Signature
+
+```typescript
+kerne.subscriptions.update(id: string, params: UpdateSubscriptionParams): Promise<Subscription>
+```
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `plan_id` | `string` | No | Change to a different plan. |
+| `status` | `string` | No | Update status (e.g., `paused`). |
+
+### Example
+
+```typescript
+const updated = await kerne.subscriptions.update('sub_01234567890abcdef', {
+  plan_id: 'plan_enterprise_annual',
+});
+```
+
+---
+
+## Cancel subscription
+
+Cancel a subscription by ID.
+
+### Signature
+
+```typescript
+kerne.subscriptions.cancel(id: string): Promise<void>
+```
+
+### Example
+
+```typescript
+await kerne.subscriptions.cancel('sub_01234567890abcdef');
+```
+
+---
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Plan not found**: The specified plan ID does not exist. |
+| `K4002` | 404 | **Subscription not found**: The subscription ID does not exist. |
+| `K3002` | 403 | **Insufficient permissions**: Secret key required. |
+| `K7001` | 502 | **Stripe error**: Failed to sync with Stripe. |
+
+## Related
+
+- [Products and plans](/concepts/monetization/products-and-plans)
+- [Plans SDK](/sdks/server/node/billing/configuration/plans)
+- [Checkout](/sdks/client/nextjs/billing/checkout/checkout)

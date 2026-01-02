@@ -1,0 +1,37 @@
+---
+title: "Overview"
+description: "Understanding authentication and authorization"
+---
+
+Identity in Kerne follows the principle of **separation of concerns**. We distinguish between who a user is, what they can do, and what they have paid for.
+
+## Authentication
+
+**Question**: "Who are you?"
+
+Authentication verifies a user's identity. Kerne supports several modern flows out of the box:
+- **Email and password**: Secure credential-based login.
+- **Magic links**: Passwordless authentication via secure email tokens.
+- **Social OAuth**: Seamless integration with providers like Google and GitHub.
+
+## Authorization
+
+**Question**: "What can you do?"
+
+Authorization defines the permissions a user holds within a specific environment.
+- **Roles**: Groups of permissions (e.g., `Admin`, `Member`).
+- **Permissions**: Specific actions allowed (e.g., `manage_billing`, `delete_projects`).
+
+<Info>
+We are currently expanding the authorization system to support nested organizations and granular relationship-based access control.
+</Info>
+
+## Entitlements
+
+**Question**: "What have you paid for?"
+
+Entitlements are specific authorizations tied to a subscription. They allow you to gate features based on a customer's current plan.
+
+<Tip>
+Think of entitlements as "monetized permissions." A user might be an `Admin` for their team, but if the team is on a `Starter` plan, they won't have the `advanced_analytics` entitlement.
+</Tip>

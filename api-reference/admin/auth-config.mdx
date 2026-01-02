@@ -1,0 +1,35 @@
+---
+title: "Auth config"
+api: "PATCH /v1/admin/auth-config"
+description: "Update tenant authentication settings"
+---
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Body
+
+<ParamField body="registrationMode" type="string">
+  The registration mode for the tenant. Can be `OPEN`, `WAITLIST`, or `INVITATION_ONLY`.
+</ParamField>
+
+<ParamField body="allowMagicLink" type="boolean">
+  Whether to allow users to log in via magic links.
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the configuration was updated successfully.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | **Insufficient permissions**: The provided secret key does not have permission to update auth configuration. |
+| `K2004` | 400 | **Invalid enum value**: The provided registration mode is invalid. |
+| `K9003` | 500 | **Invalid configuration**: Failed to apply the new configuration. |

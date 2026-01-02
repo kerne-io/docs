@@ -1,0 +1,40 @@
+---
+title: "Cancel subscription"
+api: "DELETE /v1/admin/billing/subscriptions/{id}"
+---
+
+Cancel a subscription.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Subscription ID. |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Behavior
+
+- The subscription status is set to `canceled`
+- If synced to Stripe, the Stripe subscription is also canceled
+- Entitlements remain active until the current period ends
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4002` | 404 | Subscription not found. |
+| `K3002` | 403 | Insufficient permissions. |
+| `K7001` | 502 | Stripe API error. |

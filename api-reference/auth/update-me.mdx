@@ -1,0 +1,34 @@
+---
+title: "Update Me"
+api: "PATCH /v1/auth/me"
+description: "Update current authenticated user profile"
+---
+
+## Request Body
+
+<ParamField body="first_name" type="string">
+  User first name
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  User last name
+</ParamField>
+
+<ParamField body="avatar" type="string">
+  User avatar URL
+</ParamField>
+
+## Response
+
+<ResponseField name="user" type="User">
+  The updated profile of the currently authenticated user.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Token not provided**: No active session was found. |
+| `K1006` | 401 | **Token expired**: The session token has expired. |
+| `K4002` | 404 | **Tenant not found**: The specified tenant slug is invalid. |
+| `K2001` | 400 | **Validation error**: The request body is invalid. |

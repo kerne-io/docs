@@ -1,0 +1,54 @@
+---
+title: "Overview"
+description: "Getting started with @kerne/node"
+---
+
+The Node.js Server SDK provides administrative access to your Kerne tenant. Use it in secure backend environments like Node.js, TypeScript, or NestJS.
+
+<Warning>
+**Only for server-side use**
+Never use this SDK in client-side code (React, Vue, etc.). It requires your **Secret Key**, which grants full administrative access to your tenant. Exposing this key allows anyone to manage your users and billing.
+</Warning>
+
+## Installation
+
+```bash
+npm install @kerne/server
+```
+
+## Initialization
+
+Initialize the SDK with your secret key and application ID. We recommend using environment variables.
+
+```typescript
+import { Kerne } from '@kerne/server';
+
+const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID,
+  secretKey: process.env.KERNE_SECRET_KEY, // sk_live_...
+});
+```
+
+## Core modules
+
+The server SDK is organized into modules handling specific areas:
+
+- **Users**: Manage [user profiles](/sdks/server/node/users/list), roles, and status.
+- **Waitlist**: Handle [waitlist entries](/sdks/server/node/waitlist).
+- **Invitations**: manage [tenant invitations](/sdks/server/node/invitations).
+- **Billing**: [Configure products/plans](/sdks/server/node/billing/configuration/products) and [report usage](/sdks/server/node/billing/consumption/usage-reporting).
+- **Webhooks**: Securely [verify and process](/sdks/server/node/webhooks/handling-events) incoming events.
+
+## Error handling
+
+All SDK methods throw typed errors. Catch these and check the `code` property against our [standardized error codes](/concepts/error-codes).
+
+```typescript
+try {
+  await kerne.users.get('usr_invalid');
+} catch (error) {
+  if (error.code === 'K4003') {
+    console.error('User not found');
+  }
+}
+```

@@ -1,0 +1,15 @@
+---
+title: "Subscription"
+api: "GET /v1/billing/subscription"
+description: "Get current user's subscription"
+---
+
+## Response
+
+<ResponseField name="status" type="string">
+  The status of the subscription (e.g., `ACTIVE`, `PAST_DUE`, `CANCELED`).
+</ResponseField>
+
+<ResponseField name="plan" type="Plan">
+  The current active plan associated with the user's tenant.
+</ResponseField>

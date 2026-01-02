@@ -1,0 +1,18 @@
+---
+title: "Update project"
+description: "Modify an existing project"
+---
+
+## Signature
+
+```typescript
+kerne.projects.update(id: string, data: UpdateProjectDto): Promise<Project>
+```
+
+## Example
+
+```typescript
+await kerne.projects.update('prj_123', {
+  name: 'Updated Name'
+});
+```

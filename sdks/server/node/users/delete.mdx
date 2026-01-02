@@ -1,0 +1,30 @@
+---
+title: "Delete user"
+description: "Permanently remove a user"
+---
+
+The `delete` method permanently removes a user and all their associated data from your tenant.
+
+<Warning>
+**Irreversible action**
+Deleting a user cannot be undone. All their projects, settings, and subscription history will be permanently lost.
+</Warning>
+
+## Signature
+
+```typescript
+kerne.users.delete(id: string): Promise<void>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | `string` | Yes | The unique ID of the user to delete. |
+
+## Example
+
+```typescript
+await kerne.users.delete('usr_123');
+console.log('User deleted successfully.');
+```

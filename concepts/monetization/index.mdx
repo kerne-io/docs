@@ -1,0 +1,32 @@
+---
+title: "Overview"
+description: "The philosophy of monetized software"
+---
+
+Monetization in Kerne is designed to be **decoupled** from your application logic. We provide an abstraction layer that allows you to change your pricing and feature packaging without redeploying code.
+
+## The decoupling principle
+
+In traditional systems, billing logic is often scattered throughout the codebase:
+
+```typescript
+if (user.plan === 'pro') {
+  showAdvancedAnalytics();
+}
+```
+
+This is brittle. If you want to move "Advanced Analytics" to an "Enterprise" plan, you must rewrite and redeploy your code.
+
+## The Kerne approach
+
+Kerne introduces **Entitlements**. You define which features belong to which plans in the dashboard, and your code only checks for the feature key:
+
+```typescript
+const { allowed } = await kerne.billing.canConsume('advanced_analytics');
+
+if (allowed) {
+  showAdvancedAnalytics();
+}
+```
+
+Now, you can reconfigure your plans, add add-ons, or change limits in the dashboard, and your application responds instantly. This separation of concerns allows your product and growth teams to experiment with pricing models without involving engineering for every change.
