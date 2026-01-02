@@ -180,7 +180,14 @@
               {
                 "group": "Billing strategy",
                 "pages": [
+                  "guides/billing/designing-pricing",
                   "guides/billing/enforcing-limits-without-breaking-ux"
+                ]
+              },
+              {
+                "group": "Strategy",
+                "pages": [
+                  "guides/saas-lifecycle"
                 ]
               }
             ]

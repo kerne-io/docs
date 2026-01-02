@@ -1,0 +1,52 @@
+---
+title: "Designing your pricing"
+description: "From simple subscriptions to usage-based models"
+---
+
+A well-designed pricing model is scalable, easy to understand, and maps directly to your code. Kerne allows you to iterate on pricing without rewriting your application logic.
+
+## The core concepts
+
+1.  **Entitlements (Features)**: What the user *gets* (e.g., "Can export PDF").
+2.  **Plans (Tiers)**: A bundle of entitlements (e.g., "Pro Plan").
+3.  **Prices (Billing)**: How much they pay for the plan (e.g., "$29/mo").
+
+<Tip>
+**Golden Rule**: Your code should check **Entitlements**, never Plans.
+*   **Bad**: `if (user.plan === 'pro')`
+*   **Good**: `if (checkEntitlement('can_export_pdf'))`
+</Tip>
+
+## Model 1: The "Good-Better-Best" (Flat Rate)
+
+This is the standard SaaS model.
+- **Free**: Limited features.
+- **Pro**: All features.
+
+**Implementation**:
+1.  Create features: `can_access_dashboard`, `can_invite_members`.
+2.  Create plans:
+    - **Free Plan**: Includes `can_access_dashboard`.
+    - **Pro Plan**: Includes `can_access_dashboard` + `can_invite_members`.
+
+## Model 2: The "Pay-as-you-go" (Usage Based)
+
+Charge based on consumption (e.g., API calls, emails sent).
+
+**Implementation**:
+1.  Create a feature `emails_sent` with type **Quota**.
+2.  Set the **Reset Policy**:
+    - `RESET`: Counter resets every month (e.g., "1000 emails/mo included").
+    - `ACCUMULATE`: Credits roll over (e.g., "Pre-paid email credits").
+3.  Report usage via the SDK:
+    ```typescript
+    await kerne.billing.reportUsage('emails_sent', 1);
+    ```
+
+## Model 3: The Hybrid (Seat-based + Usage)
+
+$20/seat/month + $0.01/email.
+
+**Implementation**:
+1.  Configure the Product as "Per Unit" (Seat based).
+2.  Add a generic "Usage" entitlement for emails.
