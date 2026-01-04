@@ -1,0 +1,17 @@
+---
+title: "Get usage"
+sidebarTitle: "Get usage"
+description: "Retrieve usage records for metered features"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const usage = await kerne.billing.usage('feature_api_calls');
+```
+</CodeGroup>
+
+## Response
+
+Returns a list of `UsageRecord` objects.

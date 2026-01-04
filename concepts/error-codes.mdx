@@ -24,8 +24,8 @@ Kerne uses standardized error codes to provide clear feedback and simplify debug
 
 | Code | Type | Description |
 |------|------|-------------|
-| `K1001` | `REGISTRATION_ERROR` | Registration is currently disabled for this tenant. |
-| `K1002` | `REGISTRATION_ERROR` | Maximum users limit reached for this tenant. |
+| `K1001` | `REGISTRATION_ERROR` | Registration is currently disabled for this application. |
+| `K1002` | `REGISTRATION_ERROR` | Maximum users limit reached for this application. |
 | `K1003` | `REGISTRATION_ERROR` | Invalid, expired, or already used invitation token. |
 | `K1004` | `REGISTRATION_ERROR` | Invalid, expired, or already used invitation code. |
 | `K1005` | `AUTH_ERROR` | Invalid email or password. |
@@ -49,7 +49,7 @@ Kerne uses standardized error codes to provide clear feedback and simplify debug
 
 | Code | Type | Description |
 |------|------|-------------|
-| `K3001` | `PERMISSION_ERROR` | This operation requires a different tenant type. |
+| `K3001` | `PERMISSION_ERROR` | This operation requires a different application type. |
 | `K3002` | `PERMISSION_ERROR` | Insufficient permissions to perform this action. |
 | `K3003` | `PERMISSION_ERROR` | You do not have access to this resource. |
 | `K3004` | `PERMISSION_ERROR` | This operation is not allowed. |
@@ -59,7 +59,7 @@ Kerne uses standardized error codes to provide clear feedback and simplify debug
 | Code | Type | Description |
 |------|------|-------------|
 | `K4001` | `RESOURCE_ERROR` | Resource not found. |
-| `K4002` | `RESOURCE_ERROR` | Tenant not found. |
+| `K4002` | `RESOURCE_ERROR` | Application not found. |
 | `K4003` | `RESOURCE_ERROR` | User not found. |
 | `K4004` | `RESOURCE_ERROR` | Invitation not found. |
 | `K4005` | `RESOURCE_ERROR` | Waitlist entry not found. |
@@ -69,7 +69,7 @@ Kerne uses standardized error codes to provide clear feedback and simplify debug
 
 | Code | Type | Description |
 |------|------|-------------|
-| `K5001` | `BILLING_ERROR` | **Resource quota exceeded**: The tenant has reached their limit for this feature. |
+| `K5001` | `BILLING_ERROR` | **Resource quota exceeded**: The application has reached their limit for this feature. |
 | `K5002` | `BILLING_ERROR` | **Plan upgrade required**: The requested feature requires a higher plan. |
 | `K5003` | `BILLING_ERROR` | **Billing payment failed**: The transaction could not be completed. |
 

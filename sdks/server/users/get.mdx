@@ -1,0 +1,29 @@
+---
+title: "Get user"
+sidebarTitle: "Get user"
+description: "Retrieve a single user details"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const user = await kerne.users.get('user_123');
+```
+</CodeGroup>
+
+## Response
+
+Returns a [User](/api-reference/models/user) object.
+
+<ResponseField name="id" type="string" required>
+  The user ID.
+</ResponseField>
+
+<ResponseField name="email" type="string" required>
+  The user's email.
+</ResponseField>
+
+<ResponseField name="global_role" type="string" required>
+  `CLIENT` or `ADMIN`.
+</ResponseField>

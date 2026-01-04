@@ -1,0 +1,27 @@
+```
+---
+title: "Create portal session"
+api: "POST /billing/portal"
+description: "Create a Stripe customer portal session"
+---
+
+## Path
+
+<ParamField path="planId" type="string" required>
+  The unique ID of the plan to subscribe to.
+</ParamField>
+
+## Response
+
+<ResponseField name="url" type="string">
+  The URL for the Stripe Checkout session. Redirect the user to this URL to complete the payment.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified plan ID does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K3004` | 403 | **Operation not allowed**: The application is not permitted to create checkout sessions. |
+| `K1007` | 401 | **Token not provided**: The user must be logged in to create a checkout session. |

@@ -1,0 +1,55 @@
+---
+title: "Create feature"
+api: "POST /v1/features"
+---
+
+Create a new feature definition.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | `string` | Yes | Unique feature identifier (used in code). |
+| `name` | `string` | Yes | Human-readable feature name. |
+| `description` | `string` | No | Feature description. |
+| `type` | `string` | Yes | Feature type: `boolean`, `quantity`, or `metered`. |
+| `reset_period` | `string` | No | For metered: `day`, `week`, `month`, `year`. |
+
+## Example request
+
+```json
+{
+  "key": "api_calls",
+  "name": "API Calls",
+  "description": "Monthly API call limit",
+  "type": "metered",
+  "reset_period": "month"
+}
+```
+
+## Response
+
+```json
+{
+  "id": "feat_01234567890abcdef",
+  "key": "api_calls",
+  "name": "API Calls",
+  "type": "metered",
+  "reset_period": "month",
+  "created_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K2001` | 400 | Invalid request payload. |
+| `K2005` | 409 | Feature key already exists. |
+| `K3002` | 403 | Insufficient permissions. |

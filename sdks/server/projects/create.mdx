@@ -1,0 +1,20 @@
+---
+title: "Create project"
+sidebarTitle: "Create project"
+description: "Create a new project"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const project = await kerne.projects.create({
+  name: "My New Project",
+  slug: "my-new-project"
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns the created [Project](/api-reference/models/project) object.

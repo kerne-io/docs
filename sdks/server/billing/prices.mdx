@@ -1,0 +1,50 @@
+---
+title: "Prices"
+sidebarTitle: "Prices"
+description: "Manage plan pricing"
+---
+
+Prices define the billing amount, currency, and interval for a plan. Plans can have multiple prices (e.g., monthly and annual options).
+
+## List prices
+
+Retrieve all prices, optionally filtered by plan.
+
+<CodeGroup>
+```typescript Node.js
+// List all prices
+const allPrices = await kerne.billing.prices.list();
+
+// List prices for a specific plan
+const planPrices = await kerne.billing.prices.list('plan_123');
+```
+</CodeGroup>
+
+---
+
+## Create price
+
+Create a new price for a plan.
+
+<CodeGroup>
+```typescript Node.js
+const price = await kerne.billing.prices.create({
+  plan_id: 'plan_123',
+  amount: 2900,      // $29.00
+  currency: 'usd',
+  interval: 'month',
+  trial_days: 14
+});
+```
+</CodeGroup>
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `plan_id` | string | Yes | Parent plan ID |
+| `amount` | number | Yes | Price in cents (e.g., 2900 = $29.00) |
+| `currency` | string | Yes | ISO currency code (`usd`, `eur`, etc.) |
+| `interval` | enum | Yes | `month`, `year`, `week`, `day` |
+| `trial_days` | number | No | Override plan's trial period |
+| `provider_price_id` | string | No | Stripe/provider price ID |

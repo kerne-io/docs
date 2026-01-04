@@ -1,0 +1,57 @@
+---
+title: "Get pack"
+api: "GET /v1/packs/:id"
+---
+
+Retrieve a pack by ID with its entitlements.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Pack ID. |
+
+## Response
+
+```json
+{
+  "id": "pack_01234567890abcdef",
+  "plan_id": "plan_pro_monthly",
+  "version": 2,
+  "status": "ACTIVE",
+  "created_at": "2025-01-15T00:00:00.000Z",
+  "entitlements": [
+    {
+      "id": "ent_abc123",
+      "feature_id": "feat_api_calls",
+      "feature_key": "api_calls",
+      "feature_name": "API Calls",
+      "feature_type": "metered",
+      "limit": 10000,
+      "value": null
+    },
+    {
+      "id": "ent_def456",
+      "feature_id": "feat_api_access",
+      "feature_key": "api_access",
+      "feature_name": "API Access",
+      "feature_type": "boolean",
+      "limit": null,
+      "value": "true"
+    }
+  ]
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Pack not found. |
+| `K3002` | 403 | Insufficient permissions. |

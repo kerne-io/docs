@@ -58,65 +58,63 @@
             "pages": [
               "sdks/server/overview",
               {
-                "group": "Node.js",
+                "group": "Authentication",
                 "pages": [
-                  "sdks/server/node/overview",
-                  {
-                    "group": "Users",
-                    "pages": [
-                      "sdks/server/node/users/list",
-                      "sdks/server/node/users/get",
-                      "sdks/server/node/users/create",
-                      "sdks/server/node/users/update",
-                      "sdks/server/node/users/delete"
-                    ]
-                  },
-                  "sdks/server/node/waitlist",
-                  "sdks/server/node/invitations",
-                  {
-                    "group": "Billing",
-                    "pages": [
-                      {
-                        "group": "Configuration",
-                        "pages": [
-                          "sdks/server/node/billing/configuration/products",
-                          "sdks/server/node/billing/configuration/plans",
-                          "sdks/server/node/billing/configuration/features"
-                        ]
-                      },
-                      {
-                        "group": "Consumption",
-                        "pages": [
-                          "sdks/server/node/billing/consumption/usage-reporting"
-                        ]
-                      }
-                    ]
-                  },
-                  "sdks/server/node/subscriptions",
-                  {
-                    "group": "Settings",
-                    "pages": [
-                      "sdks/server/node/settings/auth-config"
-                    ]
-                  },
-                  {
-                    "group": "Webhooks",
-                    "pages": [
-                      "sdks/server/node/webhooks/handling-events"
-                    ]
-                  }
+                  "sdks/server/auth/signup",
+                  "sdks/server/auth/login",
+                  "sdks/server/auth/me"
                 ]
               },
               {
-                "group": "Python",
+                "group": "Users",
                 "pages": [
-                  "sdks/server/python/overview"
+                  "sdks/server/users/list",
+                  "sdks/server/users/get",
+                  "sdks/server/users/create",
+                  "sdks/server/users/update",
+                  "sdks/server/users/delete"
+                ]
+              },
+              {
+                "group": "Billing",
+                "pages": [
+                  "sdks/server/billing/products",
+                  "sdks/server/billing/features",
+                  "sdks/server/billing/plans",
+                  "sdks/server/billing/packs",
+                  "sdks/server/billing/prices",
+                  "sdks/server/billing/consumption/entitlements",
+                  "sdks/server/billing/consumption/usage",
+                  "sdks/server/billing/checkout/create"
+                ]
+              },
+              {
+                "group": "Projects",
+                "pages": [
+                  "sdks/server/projects/create",
+                  "sdks/server/projects/list",
+                  "sdks/server/projects/get",
+                  "sdks/server/projects/update",
+                  "sdks/server/projects/delete"
+                ]
+              },
+              {
+                "group": "Waitlist",
+                "pages": [
+                  "sdks/server/waitlist/join",
+                  "sdks/server/waitlist/list"
+                ]
+              },
+              {
+                "group": "Invitations",
+                "pages": [
+                  "sdks/server/invitations/create"
                 ]
               }
             ]
           },
           {
-            "group": "Client SDK",
+            "group": "Client SDK (React)",
             "pages": [
               "sdks/client/overview",
               {
@@ -205,12 +203,20 @@
             ]
           },
           {
+            "group": "Models",
+            "pages": [
+              "api-reference/models/user",
+              "api-reference/models/project",
+              "api-reference/models/plan",
+              "api-reference/models/subscription"
+            ]
+          },
+          {
             "group": "Authentication",
             "pages": [
               "api-reference/auth/register",
               "api-reference/auth/login",
               "api-reference/auth/me",
-              "api-reference/auth/update-me",
               "api-reference/auth/config",
               {
                 "group": "Email verification",
@@ -231,164 +237,112 @@
             ]
           },
           {
-            "group": "Waitlist (public)",
+            "group": "Users",
             "pages": [
-              "api-reference/waitlist/join"
-            ]
-          },
-          {
-            "group": "Invitations (public)",
-            "pages": [
-              "api-reference/invitations/validate-token",
-              "api-reference/invitations/validate-code"
-            ]
-          },
-          {
-            "group": "Pricing (public)",
-            "pages": [
-              "api-reference/pricing/list-plans"
-            ]
-          },
-          {
-            "group": "Billing (user)",
-            "pages": [
-              "api-reference/billing/user/subscription",
-              "api-reference/billing/user/entitlements",
-              "api-reference/billing/user/usage",
-              "api-reference/billing/user/checkout",
-              "api-reference/billing/user/portal"
+              "api-reference/users/list",
+              "api-reference/users/create",
+              "api-reference/users/get",
+              "api-reference/users/update",
+              "api-reference/users/delete"
             ]
           },
           {
             "group": "Projects",
             "pages": [
               "api-reference/projects/list",
-              "api-reference/projects/get",
               "api-reference/projects/create",
+              "api-reference/projects/get",
               "api-reference/projects/update",
               "api-reference/projects/delete"
             ]
           },
           {
-            "group": "Admin",
+            "group": "Billing - Products",
             "pages": [
-              {
-                "group": "Usage management",
-                "pages": [
-                  "api-reference/billing/admin/report-usage",
-                  "api-reference/billing/admin/set-usage",
-                  "api-reference/billing/admin/reset-usage"
-                ]
-              },
-              {
-                "group": "Settings",
-                "pages": [
-                  "api-reference/admin/get-auth-config",
-                  "api-reference/admin/auth-config"
-                ]
-              },
-              {
-                "group": "Users",
-                "pages": [
-                  "api-reference/users/list",
-                  "api-reference/users/get",
-                  "api-reference/users/create",
-                  "api-reference/users/update",
-                  "api-reference/users/delete"
-                ]
-              },
-              {
-                "group": "Invitations",
-                "pages": [
-                  "api-reference/invitations/create-token",
-                  "api-reference/invitations/create-code",
-                  "api-reference/invitations/list",
-                  "api-reference/invitations/revoke"
-                ]
-              },
-              {
-                "group": "Waitlist",
-                "pages": [
-                  "api-reference/waitlist/list",
-                  "api-reference/waitlist/remove"
-                ]
-              },
-              {
-                "group": "Products",
-                "pages": [
-                  "api-reference/products/list",
-                  "api-reference/products/get",
-                  "api-reference/products/create",
-                  "api-reference/products/update",
-                  "api-reference/products/delete",
-                  "api-reference/products/sync-stripe"
-                ]
-              },
-              {
-                "group": "Plans",
-                "pages": [
-                  "api-reference/plans/list",
-                  "api-reference/plans/get",
-                  "api-reference/plans/create",
-                  "api-reference/plans/update",
-                  "api-reference/plans/delete",
-                  {
-                    "group": "Plan pricing",
-                    "pages": [
-                      "api-reference/plans/list-prices",
-                      "api-reference/plans/create-price",
-                      "api-reference/plans/update-price",
-                      "api-reference/plans/delete-price"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Packs",
-                "pages": [
-                  "api-reference/packs/list",
-                  "api-reference/packs/get",
-                  "api-reference/packs/get-active",
-                  "api-reference/packs/create",
-                  "api-reference/packs/activate",
-                  "api-reference/packs/update-entitlements",
-                  "api-reference/packs/delete"
-                ]
-              },
-              {
-                "group": "Features",
-                "pages": [
-                  "api-reference/features/list",
-                  "api-reference/features/get",
-                  "api-reference/features/create",
-                  "api-reference/features/update",
-                  "api-reference/features/delete"
-                ]
-              },
-              {
-                "group": "Subscriptions",
-                "pages": [
-                  "api-reference/subscriptions/list",
-                  "api-reference/subscriptions/get",
-                  "api-reference/subscriptions/create",
-                  "api-reference/subscriptions/update",
-                  "api-reference/subscriptions/cancel"
-                ]
-              },
-              {
-                "group": "Overrides",
-                "pages": [
-                  "api-reference/billing/admin/overrides/list",
-                  "api-reference/billing/admin/overrides/create",
-                  "api-reference/billing/admin/overrides/update",
-                  "api-reference/billing/admin/overrides/delete"
-                ]
-              }
+              "api-reference/billing/products/list",
+              "api-reference/billing/products/create",
+              "api-reference/billing/products/get",
+              "api-reference/billing/products/update",
+              "api-reference/billing/products/delete"
+            ]
+          },
+          {
+            "group": "Billing - Features",
+            "pages": [
+              "api-reference/billing/features/list",
+              "api-reference/billing/features/create",
+              "api-reference/billing/features/get",
+              "api-reference/billing/features/update",
+              "api-reference/billing/features/delete"
+            ]
+          },
+          {
+            "group": "Billing - Plans & Pricing",
+            "pages": [
+              "api-reference/billing/pricing/list-public-plans",
+              "api-reference/billing/plans/list",
+              "api-reference/billing/plans/create",
+              "api-reference/billing/plans/get",
+              "api-reference/billing/plans/update"
+            ]
+          },
+          {
+            "group": "Billing - Packs",
+            "pages": [
+              "api-reference/billing/packs/list",
+              "api-reference/billing/packs/create",
+              "api-reference/billing/packs/get",
+              "api-reference/billing/packs/get-active",
+              "api-reference/billing/packs/update-entitlements",
+              "api-reference/billing/packs/delete-entitlement",
+              "api-reference/billing/packs/activate",
+              "api-reference/billing/packs/version",
+              "api-reference/billing/packs/delete"
+            ]
+          },
+          {
+            "group": "Billing - Prices",
+            "pages": [
+              "api-reference/billing/prices/list",
+              "api-reference/billing/prices/create-price"
+            ]
+          },
+          {
+            "group": "Billing - Subscriptions & Usage",
+            "pages": [
+              "api-reference/billing/subscriptions/list",
+              "api-reference/billing/subscriptions/create",
+              "api-reference/billing/subscriptions/get",
+              "api-reference/billing/subscriptions/cancel",
+              "api-reference/billing/entitlements/list",
+              "api-reference/billing/usage/get",
+              "api-reference/billing/usage/report",
+              "api-reference/billing/checkout/create",
+              "api-reference/billing/portal"
+            ]
+          },
+          {
+            "group": "Invitations",
+            "pages": [
+              "api-reference/invitations/list",
+              "api-reference/invitations/create-token",
+              "api-reference/invitations/create-code",
+              "api-reference/invitations/validate-token",
+              "api-reference/invitations/validate-code",
+              "api-reference/invitations/revoke"
+            ]
+          },
+          {
+            "group": "Waitlist",
+            "pages": [
+              "api-reference/waitlist/join",
+              "api-reference/waitlist/list",
+              "api-reference/waitlist/remove"
             ]
           }
         ]
       }
     ]
   },
-  "theme": "mint"
+  "theme": "almond"
 }

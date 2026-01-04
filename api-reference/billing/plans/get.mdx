@@ -1,0 +1,55 @@
+---
+title: "Get plan"
+api: "GET /v1/billing/plans/:id"
+---
+
+Retrieve a single plan with its features and prices.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Plan ID. |
+
+## Response
+
+```json
+{
+  "id": "plan_01234567890abcdef",
+  "product_id": "prod_01234567890abcdef",
+  "name": "Pro Monthly",
+  "description": "Monthly Pro subscription",
+  "is_active": true,
+  "features": [
+    {
+      "feature_id": "feat_abc123",
+      "name": "API Access",
+      "type": "boolean",
+      "value": true
+    }
+  ],
+  "prices": [
+    {
+      "id": "price_xyz789",
+      "amount": 2900,
+      "currency": "usd",
+      "interval": "month",
+      "stripe_price_id": "price_abc123"
+    }
+  ],
+  "created_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Plan not found. |
+| `K3002` | 403 | Insufficient permissions. |

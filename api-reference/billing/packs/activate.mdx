@@ -1,0 +1,50 @@
+---
+title: "Activate pack"
+api: "POST /v1/packs/:id/activate"
+---
+
+Activate a pack, making it the current version for new subscriptions.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Pack ID to activate. |
+
+## Response
+
+```json
+{
+  "id": "pack_01234567890abcdef",
+  "plan_id": "plan_pro_monthly",
+  "version": 3,
+  "status": "ACTIVE",
+  "created_at": "2025-01-20T00:00:00.000Z",
+  "entitlements": [...]
+}
+```
+
+## Behavior
+
+- The pack's status changes from `DRAFT` to `ACTIVE`
+- The previously active pack is set to `ARCHIVED`
+- **Existing subscriptions keep their original pack** (grandfathering)
+- Only new subscriptions get the newly active pack
+
+<Important>
+This enables grandfathering: users who subscribed to an older version of the plan keep their original entitlements, even if the plan changes.
+</Important>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Pack not found. |
+| `K5006` | 409 | Pack is already active. |
+| `K3002` | 403 | Insufficient permissions. |

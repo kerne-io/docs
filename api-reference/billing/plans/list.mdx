@@ -1,0 +1,19 @@
+---
+title: "List plans"
+api: "GET /v1/billing/plans"
+description: "List all plans (Admin)"
+---
+
+Retrieve all plans defined in the system.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication or `write:billing` scope.
+</Note>
+
+## Response
+
+<ResponseField name="plans" type="Plan[]" required>
+  List of [Plan](/api-reference/models/plan) objects.
+</ResponseField>

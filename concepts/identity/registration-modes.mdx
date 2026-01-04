@@ -13,7 +13,7 @@ The standard flow for public applications. Anyone can sign up and immediately ac
 ## 2. Waitlist mode
 Users can sign up, but they are placed in a "Pending" state. They cannot log in until an administrator approves their request.
 *   **Best for**: Private betas, capacity management, manual vetting.
-*   **Implementation**: Users sign up via [register](/sdks/client/nextjs/auth/register). Admins manage entries using the [Waitlist](/sdks/server/node/growth/waitlist) module in the Server SDK.
+*   **Implementation**: Users sign up via [register](/sdks/client/nextjs/auth/register). Admins manage entries using the [Waitlist](/sdks/server/growth/waitlist) module in the Server SDK.
 
 ## 3. Invitation only
 Public registration is completely disabled. New users can only be created if:
@@ -21,6 +21,6 @@ Public registration is completely disabled. New users can only be created if:
 2.  **Invite code**: The user provides a valid, multi-use invitation code (e.g., `EARLY_ACCESS_2025`).
 
 *   **Best for**: Enterprise SaaS, exclusive communities, internal tools.
-*   **Implementation**: Admins generate codes/tokens using the [Invitations](/sdks/server/node/growth/invitations) module. Users sign up by providing the code to the [register](/sdks/client/nextjs/auth/register) method.
+*   **Implementation**: Admins generate codes/tokens using the [Invitations](/sdks/server/growth/invitations) module. Users sign up by providing the code to the [register](/sdks/client/nextjs/auth/register) method.
 
 For a detailed guide on building an exclusive product, see our [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas) guide.

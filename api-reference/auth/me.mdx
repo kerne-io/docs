@@ -1,6 +1,6 @@
 ---
-title: "Me"
-api: "GET /v1/auth/me"
+title: "User Info"
+api: "GET /v1/auth/userinfo"
 description: "Get current authenticated user"
 ---
 
@@ -16,4 +16,4 @@ description: "Get current authenticated user"
 |------|--------|-------------|
 | `K1007` | 401 | **Token not provided**: No active session was found. |
 | `K1006` | 401 | **Token expired**: The session token has expired. |
-| `K4002` | 404 | **Tenant not found**: The specified tenant slug is invalid. |
+| `K4002` | 404 | **Application not found**: The specified application slug is invalid. |

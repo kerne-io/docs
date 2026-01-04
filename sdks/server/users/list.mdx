@@ -1,0 +1,28 @@
+---
+title: "List users"
+sidebarTitle: "List users"
+description: "Retrieve a list of users"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const users = await kerne.users.list({
+  page: 1,
+  limit: 10
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns a list of [User](/api-reference/models/user) objects.
+
+<ResponseField name="data" type="User[]" required>
+  Array of user objects.
+</ResponseField>
+
+<ResponseField name="meta" type="object" required>
+  Pagination metadata.
+</ResponseField>

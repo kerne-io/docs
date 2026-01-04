@@ -1,0 +1,19 @@
+---
+title: "Update project"
+sidebarTitle: "Update project"
+description: "Update a project"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const project = await kerne.projects.update('proj_123', {
+  name: "Updated Name"
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns the updated [Project](/api-reference/models/project) object.

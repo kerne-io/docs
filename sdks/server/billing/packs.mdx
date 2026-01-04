@@ -1,0 +1,188 @@
+---
+title: "Packs"
+sidebarTitle: "Packs"
+description: "Manage plan entitlement packs"
+---
+
+Packs are versioned bundles of entitlement definitions attached to plans. They enable grandfathering—existing subscribers keep their original entitlements when you create new versions.
+
+## List packs
+
+List all pack versions for a plan.
+
+<CodeGroup>
+```typescript Node.js
+const packs = await kerne.billing.packs.list('plan_123');
+```
+</CodeGroup>
+
+**Response**
+```json
+[
+  {
+    "id": "pack_v1",
+    "plan_id": "plan_123",
+    "version": 1,
+    "status": "ARCHIVED",
+    "entitlements": [...]
+  },
+  {
+    "id": "pack_v2",
+    "plan_id": "plan_123",
+    "version": 2,
+    "status": "ACTIVE",
+    "entitlements": [...]
+  }
+]
+```
+
+---
+
+## Get pack
+
+Retrieve details for a specific pack.
+
+<CodeGroup>
+```typescript Node.js
+const pack = await kerne.billing.packs.get('pack_123');
+```
+</CodeGroup>
+
+---
+
+## Get active pack
+
+Get the currently active pack for a plan.
+
+<CodeGroup>
+```typescript Node.js
+const activePack = await kerne.billing.packs.getActive('plan_123');
+```
+</CodeGroup>
+
+---
+
+## Create pack
+
+Create a new DRAFT pack.
+
+<CodeGroup>
+```typescript Node.js
+const pack = await kerne.billing.packs.create({
+  plan_id: 'plan_123',
+  entitlements: [
+    { feature_id: 'ft_api_calls', limit: 20000 }
+  ]
+});
+```
+</CodeGroup>
+
+---
+
+## Update entitlements
+
+Update entitlements on a DRAFT pack.
+
+<CodeGroup>
+```typescript Node.js
+const pack = await kerne.billing.packs.updateEntitlements('pack_123', {
+  entitlements: [
+    { feature_id: 'ft_api_calls', limit: 25000 },
+    { feature_id: 'ft_exports', value: 'true' }
+  ]
+});
+```
+</CodeGroup>
+
+---
+
+## Activate pack
+
+Activate a DRAFT pack, making it the current version for new subscriptions.
+
+<CodeGroup>
+```typescript Node.js
+const activePack = await kerne.billing.packs.activate('pack_123');
+```
+</CodeGroup>
+
+**Behavior**:
+- Only DRAFT packs can be activated
+- Previous ACTIVE pack becomes ARCHIVED
+- New subscriptions use this pack
+- Existing subscriptions remain on their original pack
+
+---
+
+## Create version
+
+Clone a pack to create a new version ("apply only for new subscribers" flow).
+
+<CodeGroup>
+```typescript Node.js
+// 1. Clone the active pack
+const newPack = await kerne.billing.packs.version('pack_v2');
+
+// 2. Modify entitlements
+await kerne.billing.packs.updateEntitlements(newPack.data.id, {
+  entitlements: [
+    { feature_id: 'ft_api_calls', limit: 50000 } // Increased
+  ]
+});
+
+// 3. Activate
+await kerne.billing.packs.activate(newPack.data.id);
+```
+</CodeGroup>
+
+---
+
+## Update single entitlement
+
+Update one entitlement on a pack.
+
+<CodeGroup>
+```typescript Node.js
+const pack = await kerne.billing.packs.updateEntitlement(
+  'pack_123',
+  'ft_api_calls',
+  { limit: 15000 }
+);
+```
+</CodeGroup>
+
+---
+
+## Update all versions
+
+Update an entitlement **retroactively** across ALL pack versions of a plan.
+
+<CodeGroup>
+```typescript Node.js
+// Apply to everyone (existing + new subscribers)
+const result = await kerne.billing.packs.updateEntitlementAllVersions(
+  'pack_123',       // Any pack from the plan
+  'ft_api_calls',   // Feature to update
+  { limit: 100000 } // New limit
+);
+
+console.log(`Updated ${result.data.updated_count} definitions`);
+```
+</CodeGroup>
+
+**Use cases**:
+- Critical bug fix (feature limit was too low)
+- Compliance change
+- Promotional upgrade for all users
+
+---
+
+## Delete pack
+
+Delete a DRAFT pack.
+
+<CodeGroup>
+```typescript Node.js
+await kerne.billing.packs.delete('pack_123');
+```
+</CodeGroup>

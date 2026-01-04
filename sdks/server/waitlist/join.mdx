@@ -1,0 +1,28 @@
+---
+title: "Join waitlist"
+sidebarTitle: "Join waitlist"
+description: "Add a user to the waitlist"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const entry = await kerne.waitlist.join({
+  email: 'alice@company.com',
+  name: 'Alice Doe'
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns a `WaitlistEntry` object.
+
+<ResponseField name="id" type="string" required>
+  Unique ID of the entry.
+</ResponseField>
+
+<ResponseField name="status" type="string" required>
+  `PENDING`, `INVITED`, or `REGISTERED`.
+</ResponseField>

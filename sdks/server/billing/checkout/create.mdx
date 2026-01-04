@@ -1,0 +1,20 @@
+---
+title: "Create checkout"
+sidebarTitle: "Create checkout"
+description: "Generate a Stripe Checkout URL"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const { url } = await kerne.billing.createCheckout('plan_pro_monthly', {
+  success_url: 'https://app.com/success',
+  cancel_url: 'https://app.com/cancel'
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns an object containing the `url`.

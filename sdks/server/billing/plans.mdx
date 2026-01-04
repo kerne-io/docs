@@ -1,0 +1,93 @@
+---
+title: "Plans"
+sidebarTitle: "Plans"
+description: "Manage billing plans"
+---
+
+Plans define pricing tiers within a product. Each plan has one active pack containing entitlement definitions.
+
+## List plans
+
+Retrieve all plans for your tenant.
+
+<CodeGroup>
+```typescript Node.js
+const plans = await kerne.billing.plans.list();
+```
+</CodeGroup>
+
+---
+
+## Create plan
+
+Create a new billing plan with entitlements.
+
+<CodeGroup>
+```typescript Node.js
+const plan = await kerne.billing.plans.create({
+  product_id: 'prod_123',
+  name: 'Pro Monthly',
+  slug: 'pro-monthly',
+  trial_days: 14,
+  entitlements: [
+    { feature_id: 'ft_api_calls', limit: 10000 },
+    { feature_id: 'ft_analytics', value: 'true' }
+  ]
+});
+```
+</CodeGroup>
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `product_id` | string | Yes | Parent product ID |
+| `name` | string | Yes | Plan name |
+| `slug` | string | Yes | URL-friendly identifier |
+| `description` | string | No | Plan description |
+| `is_default` | boolean | No | Mark as default plan |
+| `trial_days` | number | No | Free trial period |
+| `sort_order` | number | No | Display order |
+| `entitlements` | array | No | Initial entitlement definitions |
+| `provider_product_id` | string | No | Stripe/provider product ID |
+
+---
+
+## Get plan
+
+Retrieve details for a specific plan.
+
+<CodeGroup>
+```typescript Node.js
+const plan = await kerne.billing.plans.get('plan_123');
+```
+</CodeGroup>
+
+---
+
+## Update plan
+
+Update an existing plan.
+
+<CodeGroup>
+```typescript Node.js
+const plan = await kerne.billing.plans.update('plan_123', {
+  name: 'Pro (Legacy)',
+  is_active: false
+});
+```
+</CodeGroup>
+
+**Note**: To update entitlements, use the [Packs](/sdks/server/billing/packs) resource.
+
+---
+
+## List prices
+
+List all prices for a plan.
+
+<CodeGroup>
+```typescript Node.js
+const prices = await kerne.billing.plans.listPrices('plan_123');
+```
+</CodeGroup>

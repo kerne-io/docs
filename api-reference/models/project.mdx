@@ -1,0 +1,36 @@
+---
+title: "Project"
+description: "The Project object"
+---
+
+A **Project** organizes resources within a Tenant. It is useful for multi-tenant applications where users can create sub-workspaces.
+
+<ResponseField name="id" type="string" required>
+  The unique identifier for the project.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The project name.
+</ResponseField>
+
+<ResponseField name="slug" type="string" required>
+  URL-friendly identifier.
+</ResponseField>
+
+<ResponseField name="created_by_id" type="string" required>
+  ID of the user who created the project.
+</ResponseField>
+
+<ResponseField name="tenant_id" type="string" required>
+  The tenant this project belongs to.
+</ResponseField>
+
+```json Example
+{
+  "id": "proj_123",
+  "name": "My Awesome App",
+  "slug": "my-awesome-app",
+  "created_by_id": "usr_123",
+  "tenant_id": "ten_123"
+}
+```

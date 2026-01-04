@@ -1,0 +1,60 @@
+---
+title: "Features"
+description: "Manage feature definitions"
+---
+
+The `features` module allows you to define the granular capabilities of your application that can be monetized.
+
+For more information on feature types, see the [Entitlements](/concepts/monetization/entitlements) concept page.
+
+## List features
+
+Retrieves all features defined for your application.
+
+### Signature
+```typescript
+kerne.billing.features.list(): Promise<Feature[]>
+```
+
+## Create feature
+
+Defines a new feature that can be attached to plans.
+
+### Signature
+```typescript
+kerne.billing.features.create(params: CreateFeatureParams): Promise<Feature>
+```
+
+### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| `key` | `string` | Unique identifier used in your code (e.g., `ai_credits`). |
+| `name` | `string` | Display name for the dashboard. |
+| `type` | `string` | `BOOLEAN` (on/off) or `METERED` (numeric quota). |
+
+## Update feature
+
+Updates the metadata of an existing feature.
+
+### Signature
+```typescript
+kerne.billing.features.update(id: string, params: UpdateFeatureParams): Promise<Feature>
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified feature ID does not exist. |
+| `K2005` | 409 | **Duplicate entry**: A feature with this key already exists. |
+| `K3002` | 403 | **Insufficient permissions**: The provided secret key does not have permission to manage features. |
+
+## Example
+
+```typescript
+const feature = await kerne.billing.features.create({
+  key: 'api_access',
+  name: 'API Access',
+  type: 'BOOLEAN'
+});
+```

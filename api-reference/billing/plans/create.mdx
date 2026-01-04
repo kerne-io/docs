@@ -1,0 +1,62 @@
+---
+title: "Create plan"
+api: "POST /v1/billing/plans"
+---
+
+Create a new plan for a product.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `product_id` | `string` | Yes | ID of the parent product. |
+| `name` | `string` | Yes | Plan name. |
+| `description` | `string` | No | Plan description. |
+| `features` | `array` | No | Array of feature entitlements. |
+
+### Feature object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `feature_id` | `string` | Feature ID to include. |
+| `value` | `any` | Feature value (boolean, number, or limit). |
+
+## Example request
+
+```json
+{
+  "product_id": "prod_01234567890abcdef",
+  "name": "Pro Monthly",
+  "description": "Full access with monthly billing",
+  "features": [
+    { "feature_id": "feat_api_access", "value": true },
+    { "feature_id": "feat_api_calls", "value": 10000 }
+  ]
+}
+```
+
+## Response
+
+```json
+{
+  "id": "plan_01234567890abcdef",
+  "product_id": "prod_01234567890abcdef",
+  "name": "Pro Monthly",
+  "is_active": true,
+  "created_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Product not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

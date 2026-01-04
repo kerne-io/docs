@@ -1,0 +1,64 @@
+---
+title: "Create pack"
+api: "POST /v1/packs"
+---
+
+Create a new pack (versioned entitlement snapshot) for a plan.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `plan_id` | `string` | Yes | Plan ID to create the pack for. |
+| `entitlements` | `array` | Yes | Array of entitlement definitions. |
+
+### Entitlement object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `feature_id` | `string` | Feature ID. |
+| `limit` | `number` | For metered/quantity features, the limit. |
+| `value` | `string` | For boolean features, `"true"` or `"false"`. |
+
+## Example request
+
+```json
+{
+  "plan_id": "plan_pro_monthly",
+  "entitlements": [
+    { "feature_id": "feat_api_calls", "limit": 10000 },
+    { "feature_id": "feat_api_access", "value": "true" }
+  ]
+}
+```
+
+## Response
+
+```json
+{
+  "id": "pack_01234567890abcdef",
+  "plan_id": "plan_pro_monthly",
+  "version": 3,
+  "status": "DRAFT",
+  "created_at": "2025-01-20T00:00:00.000Z",
+  "entitlements": [...]
+}
+```
+
+<Tip>
+New packs are created as **DRAFT**. Use the [Activate pack](/api-reference/packs/activate) endpoint to make it active.
+</Tip>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Plan not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

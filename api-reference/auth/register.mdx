@@ -1,6 +1,6 @@
 ---
 title: "Register"
-api: "POST /v1/auth/register"
+api: "POST /v1/auth/signup"
 description: "Create a new user account"
 ---
 
@@ -15,7 +15,7 @@ description: "Create a new user account"
 </ParamField>
 
 <ParamField body="invitationCode" type="string">
-  Required if the tenant's registration mode is set to `INVITATION_ONLY`.
+  Required if the application's registration mode is set to `INVITATION_ONLY`.
 </ParamField>
 
 <ParamField body="invitationToken" type="string">
@@ -25,7 +25,7 @@ description: "Create a new user account"
 ## Response
 
 <ResponseField name="user" type="User">
-  The newly created user profile.
+  The newly created [User](/api-reference/models/user) profile.
 </ResponseField>
 
 <ResponseField name="session" type="Session">
@@ -37,7 +37,7 @@ description: "Create a new user account"
 | Code | Status | Description |
 |------|--------|-------------|
 | `K1001` | 403 | **Registration disabled**: Public registration is currently disabled. |
-| `K1002` | 403 | **Maximum users reached**: The tenant has reached its user limit. |
+| `K1002` | 403 | **Maximum users reached**: The application has reached its user limit. |
 | `K1008` | 409 | **Email already taken**: The email address is already registered. |
 | `K1004` | 400 | **Invalid invitation code**: The provided code is invalid or expired. |
 | `K1003` | 400 | **Invalid invitation token**: The provided token is invalid or expired. |

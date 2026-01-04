@@ -1,0 +1,20 @@
+---
+title: "Portal"
+api: "POST /v1/billing/portal"
+description: "Create a Stripe customer portal session"
+---
+
+## Response
+
+<ResponseField name="url" type="string">
+  The URL for the Stripe Customer Portal session. Redirect the user to this URL to manage their subscription.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K4001` | 404 | **Resource not found**: The user does not have an active or past subscription. |
+| `K3004` | 403 | **Operation not allowed**: The customer portal is not enabled for this application. |
+| `K1007` | 401 | **Token not provided**: The user must be logged in to access the portal. |

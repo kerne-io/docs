@@ -1,0 +1,30 @@
+---
+title: "Create next version"
+api: "POST /v1/packs/:id/version"
+description: "Clone a pack to create a new version"
+---
+
+## Path Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | string | Source pack ID to clone |
+
+## Response
+
+Returns the newly created pack in DRAFT status with incremented version number.
+
+## Behavior
+
+- Clones all entitlement definitions from source pack
+- Creates new pack with `version = max(versions) + 1`
+- New pack starts in DRAFT status
+- Use this for "apply only for new subscribers" flow
+
+## Example Flow
+
+```
+1. POST /packs/{source_id}/version  → Creates pack V2 (DRAFT)
+2. PATCH /packs/{v2_id}/entitlements → Modify entitlements
+3. POST /packs/{v2_id}/activate     → Activate V2
+```

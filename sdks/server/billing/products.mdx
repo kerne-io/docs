@@ -1,0 +1,83 @@
+---
+title: "Products"
+sidebarTitle: "Products"
+description: "Manage billing products"
+---
+
+Products are containers for plans. Most tenants have a single default product representing their SaaS offering.
+
+## List products
+
+Retrieve all products for your tenant.
+
+<CodeGroup>
+```typescript Node.js
+const products = await kerne.billing.products.list();
+```
+</CodeGroup>
+
+---
+
+## Create product
+
+Create a new billing product.
+
+<CodeGroup>
+```typescript Node.js
+const product = await kerne.billing.products.create({
+  name: 'Pro Bundle',
+  slug: 'pro-bundle',
+  billing_scope: 'PROJECT',
+  description: 'Advanced features for power users'
+});
+```
+</CodeGroup>
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | Yes | Product name |
+| `slug` | string | Yes | URL-friendly identifier |
+| `billing_scope` | enum | Yes | `USER` or `PROJECT` |
+| `description` | string | No | Product description |
+| `is_default` | boolean | No | Mark as default product |
+
+---
+
+## Get product
+
+Retrieve details for a specific product.
+
+<CodeGroup>
+```typescript Node.js
+const product = await kerne.billing.products.get('prod_123');
+```
+</CodeGroup>
+
+---
+
+## Update product
+
+Update an existing product.
+
+<CodeGroup>
+```typescript Node.js
+const product = await kerne.billing.products.update('prod_123', {
+  name: 'Pro Bundle (Updated)',
+  description: 'Enhanced features'
+});
+```
+</CodeGroup>
+
+---
+
+## Delete product
+
+Delete a product. Products with active plans cannot be deleted.
+
+<CodeGroup>
+```typescript Node.js
+await kerne.billing.products.delete('prod_123');
+```
+</CodeGroup>

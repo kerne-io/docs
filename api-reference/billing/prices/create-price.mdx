@@ -1,0 +1,59 @@
+---
+title: "Create price"
+api: "POST /v1/billing/prices"
+---
+
+Create a new price for a plan.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `planId` | `string` | Plan ID. |
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `amount` | `integer` | Yes | Price in cents (e.g., 2900 = $29.00). |
+| `currency` | `string` | Yes | Currency code (e.g., `usd`, `eur`). |
+| `interval` | `string` | Yes | Billing interval (`month`, `year`). |
+| `interval_count` | `integer` | No | Number of intervals (default: 1). |
+
+## Example request
+
+```json
+{
+  "amount": 2900,
+  "currency": "usd",
+  "interval": "month"
+}
+```
+
+## Response
+
+```json
+{
+  "id": "price_01234567890abcdef",
+  "plan_id": "plan_01234567890abcdef",
+  "amount": 2900,
+  "currency": "usd",
+  "interval": "month",
+  "interval_count": 1,
+  "created_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Plan not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

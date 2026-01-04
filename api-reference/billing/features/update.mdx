@@ -1,0 +1,58 @@
+---
+title: "Update feature"
+api: "PATCH /v1/features/:id"
+---
+
+Update an existing feature.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Feature ID. |
+
+## Request body
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | Human-readable feature name. |
+| `description` | `string` | Feature description. |
+
+<Warning>
+You cannot change the `key` or `type` of an existing feature. Create a new feature instead.
+</Warning>
+
+## Example request
+
+```json
+{
+  "name": "API Calls (Updated)",
+  "description": "Updated description"
+}
+```
+
+## Response
+
+```json
+{
+  "id": "feat_01234567890abcdef",
+  "key": "api_calls",
+  "name": "API Calls (Updated)",
+  "description": "Updated description",
+  "updated_at": "2025-01-02T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Feature not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

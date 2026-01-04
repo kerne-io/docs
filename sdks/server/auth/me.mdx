@@ -1,0 +1,17 @@
+---
+title: "Get current user"
+sidebarTitle: "Get current user"
+description: "Retrieve authenticated user info"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const user = await kerne.auth.userinfo();
+```
+</CodeGroup>
+
+## Response
+
+Returns the current [User](/api-reference/models/user) object.

@@ -1,0 +1,55 @@
+```
+---
+title: "List prices"
+api: "GET /v1/billing/prices"
+---
+
+List all prices for a plan.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `planId` | `string` | Plan ID. |
+
+## Response
+
+```json
+[
+  {
+    "id": "price_01234567890abcdef",
+    "plan_id": "plan_01234567890abcdef",
+    "amount": 2900,
+    "currency": "usd",
+    "interval": "month",
+    "interval_count": 1,
+    "stripe_price_id": "price_1abc",
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "price_02345678901bcdefg",
+    "plan_id": "plan_01234567890abcdef",
+    "amount": 29000,
+    "currency": "usd",
+    "interval": "year",
+    "interval_count": 1,
+    "stripe_price_id": "price_2def",
+    "is_active": true,
+    "created_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Plan not found. |
+| `K3002` | 403 | Insufficient permissions. |

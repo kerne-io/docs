@@ -21,8 +21,8 @@ Choosing an authentication model is one of the first and most critical decisions
 | Feature | B2C (Consumer) | B2B (SaaS) |
 |---------|----------------|------------|
 | **Sign up** | Open to everyone | Often restricted (invite/waitlist) |
-| **Identity** | Individual (user) | Collective (tenant/team) |
-| **Billing** | Per user | Per tenant/seat |
+| **Identity** | Individual (user) | Collective (application/team) |
+| **Billing** | Per user | Per application/seat |
 | **Security** | Low friction | High security (mfa, sso) |
 
 ## The trap of open registration
@@ -32,7 +32,7 @@ Most developers default to **open registration** (anyone can sign up), but for B
 ### Why open registration hurts B2B
 1.  **Spam and bot signups**: You will likely be flooded by qualified leads mixed with bots.
 2.  **Support load**: Non-qualified users increase your support overhead without contributing revenue.
-3.  **Tenant confusion**: If User A creates "Tenant A" and their colleague User B creates "Tenant B", they cannot collaborate or see shared data.
+3.  **Application confusion**: If User A creates "Application A" and their colleague User B creates "Application B", they cannot collaborate or see shared data.
 
 ## Implementation path
 

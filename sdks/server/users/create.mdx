@@ -1,0 +1,21 @@
+---
+title: "Create user"
+sidebarTitle: "Create user"
+description: "Create a new user"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const user = await kerne.users.create({
+  email: 'alice@company.com',
+  first_name: 'Alice',
+  global_role: 'CLIENT'
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns the created [User](/api-reference/models/user) object.

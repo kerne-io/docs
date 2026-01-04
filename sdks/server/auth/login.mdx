@@ -1,0 +1,27 @@
+---
+title: "Login"
+description: "Authenticate a user"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const session = await kerne.auth.login({
+  email: 'alice@company.com',
+  password: 'securePassword123'
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns an `AuthResponse` object containing the session token and user details.
+
+<ResponseField name="access_token" type="string" required>
+  The JWT access token.
+</ResponseField>
+
+<ResponseField name="user" type="User" required>
+  The [User](/api-reference/models/user) object.
+</ResponseField>

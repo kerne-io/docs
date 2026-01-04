@@ -1,0 +1,19 @@
+---
+title: "Entitlements"
+api: "GET /v1/billing/entitlements"
+description: "Get all entitlements for current user"
+---
+
+## Response
+
+<ResponseField name="entitlements" type="Entitlement[]">
+  A list of all features and their current status or limits for the authenticated user.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Token not provided**: The user must be logged in to check entitlements. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K4002` | 404 | **Application not found**: The specified application slug is invalid. |

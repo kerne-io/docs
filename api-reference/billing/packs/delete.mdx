@@ -1,0 +1,38 @@
+---
+title: "Delete pack"
+api: "DELETE /v1/packs/:id"
+---
+
+Delete a DRAFT pack.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Pack ID. |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+<Warning>
+You can only delete **DRAFT** packs. Active and archived packs cannot be deleted to preserve grandfathering.
+</Warning>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Pack not found. |
+| `K5007` | 409 | Can only delete DRAFT packs. |
+| `K3002` | 403 | Insufficient permissions. |
