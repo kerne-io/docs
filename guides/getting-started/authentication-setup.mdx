@@ -1,0 +1,145 @@
+---
+title: "Setting up authentication"
+sidebarTitle: "Authentication setup"
+description: "A step-by-step guide to implementing user authentication"
+---
+
+This guide walks you through implementing complete authentication with login, registration, and session management.
+
+## Prerequisites
+
+- A Kerne account with an app created
+- Your `appId` and `secretKey` from the Kerne dashboard
+- A backend (Node.js, Next.js, etc.) and React frontend
+
+## 1. Install the SDKs
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    # Backend
+    npm install @kerne/server
+    
+    # Frontend
+    npm install @kerne/react
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add @kerne/server @kerne/react
+    ```
+  </Tab>
+</Tabs>
+
+## 2. Configure the server SDK
+
+Create a server-side Kerne client:
+
+```typescript
+// lib/kerne.ts
+import { Kerne } from '@kerne/server';
+
+export const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID!,
+  secretKey: process.env.KERNE_SECRET_KEY!,
+});
+```
+
+<Warning>
+Never expose your `secretKey` on the client. It should only be used in server-side code.
+</Warning>
+
+## 3. Set up the React provider
+
+Wrap your app with `KerneProvider`:
+
+```tsx
+// app/providers.tsx
+import { KerneProvider } from '@kerne/react';
+
+export function Providers({ children }) {
+  return (
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+      {children}
+    </KerneProvider>
+  );
+}
+```
+
+## 4. Create a login form
+
+Use the `useAuth` hook:
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function LoginForm() {
+  const { login, isAuthenticated } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await login({ email, password });
+      // Redirect to dashboard
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  // ...
+}
+```
+
+## 5. Create a registration form
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function RegisterForm() {
+  const { register } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await register({ email, password, name });
+      // User is now authenticated
+    } catch (error) {
+      // Handle error (K1008 = email taken)
+    }
+  };
+
+  // ...
+}
+```
+
+## 6. Protect routes
+
+Check authentication state to protect pages:
+
+```tsx
+import { useAuth } from '@kerne/react';
+import { useRouter } from 'next/navigation';
+
+function ProtectedPage() {
+  const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
+
+  return <Dashboard user={user} />;
+}
+```
+
+## Next steps
+
+- [Set up subscriptions](/guides/billing/setting-up-subscriptions) to monetize your app
+- [Check entitlements](/guides/billing/checking-entitlements) to gate features
+- [Choose your auth model](/guides/auth/choose-your-auth-model) for advanced configurations

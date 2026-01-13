@@ -3,14 +3,24 @@ title: "Login"
 description: "Authenticate with email and password"
 ---
 
-The `login` method authenticates a user using their email and password. This is the primary entry point for users to access your application.
+The `login` method authenticates a user using their email and password. Use it via the `useAuth` hook.
 
-For more information on authentication flows, see the [Identity overview](/concepts/identity/index) page.
+## Using the hook
 
-## Signature
+```tsx
+import { useAuth } from '@kerne/react';
 
-```typescript
-kerne.auth.login(params: LoginParams): Promise<AuthResponse>
+function LoginForm() {
+  const { login, isAuthenticated } = useAuth();
+  
+  const handleSubmit = async (e) => {
+    // ...
+    await login({ email, password });
+    // ...
+  };
+  
+  // ...
+}
 ```
 
 ## Parameters
@@ -29,16 +39,18 @@ interface AuthResponse {
   user: {
     id: string;
     email: string;
-    name?: string;
+    first_name?: string;
+    last_name?: string;
+    email_verified: boolean;
   };
-  session: {
-    expiresAt: string;
-  };
+  token: string;
+  refresh_token: string;
+  expires_at: string;
 }
 ```
 
 <Note>
-The session cookie is set automatically by the browser upon a successful login.
+The session is automatically stored in localStorage and the SDK instance is updated with the token.
 </Note>
 
 ## Possible errors
@@ -50,18 +62,54 @@ The session cookie is set automatically by the browser upon a successful login.
 | `K3002` | 403 | **Insufficient permissions**: The user account is deactivated or banned. |
 | `K1009` | 400 | **Invalid email format**: The provided email address is not valid. |
 
-## Example
+## Full example
 
-```typescript
-try {
-  const { user } = await kerne.auth.login({
-    email: 'user@example.com',
-    password: 'password123'
-  });
-  console.log(`Welcome back, ${user.email}!`);
-} catch (error) {
-  if (error.code === 'K1005') {
-    // Handle invalid credentials
+```tsx
+import { useState } from 'react';
+import { useAuth } from '@kerne/react';
+
+function LoginPage() {
+  const { login, isAuthenticated, user } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      await login({ email, password });
+    } catch (err: any) {
+      if (err.code === 'K1005') {
+        setError('Invalid email or password');
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    }
+  };
+
+  if (isAuthenticated) {
+    return <p>Welcome back, {user?.email}!</p>;
   }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button type="submit">Login</button>
+    </form>
+  );
 }
 ```

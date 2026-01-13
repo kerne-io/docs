@@ -1,0 +1,77 @@
+---
+title: "Pack"
+description: "Entitlement pack model"
+---
+
+A Pack is a versioned snapshot of entitlement definitions attached to a Plan. Packs enable grandfathering—existing subscribers keep their original entitlements when you create new versions.
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier for the pack |
+| `plan_id` | string | Plan this pack belongs to |
+| `version` | number | Version number (auto-incremented) |
+| `status` | enum | `DRAFT`, `ACTIVE`, or `ARCHIVED` |
+| `created_at` | string | ISO 8601 timestamp |
+| `entitlements` | array | List of [PackEntitlement](#packentitlement) objects |
+
+## Pack status
+
+| Status | Description |
+|--------|-------------|
+| `DRAFT` | Pack is being configured, not yet usable |
+| `ACTIVE` | Current pack for new subscriptions |
+| `ARCHIVED` | Old pack, kept for grandfathered subscribers |
+
+## PackEntitlement
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier |
+| `feature_id` | string | Reference to the Feature |
+| `feature_key` | string | Feature key (for convenience) |
+| `feature_name` | string | Feature name (for convenience) |
+| `feature_type` | string | Feature type (for convenience) |
+| `limit` | number | Numeric limit (nullable) |
+| `value` | string | String value for static features (nullable) |
+
+## Example
+
+```json
+{
+  "id": "pack_v2_pro",
+  "plan_id": "plan_pro_monthly",
+  "version": 2,
+  "status": "ACTIVE",
+  "created_at": "2025-01-15T00:00:00.000Z",
+  "entitlements": [
+    {
+      "id": "ent_abc123",
+      "feature_id": "ft_api_calls",
+      "feature_key": "api_calls",
+      "feature_name": "API Calls",
+      "feature_type": "QUOTA",
+      "limit": 10000,
+      "value": null
+    },
+    {
+      "id": "ent_def456",
+      "feature_id": "ft_analytics",
+      "feature_key": "analytics",
+      "feature_name": "Analytics",
+      "feature_type": "BOOLEAN",
+      "limit": null,
+      "value": "true"
+    }
+  ]
+}
+```
+
+## Related endpoints
+
+- [List packs](/api-reference/billing/packs/list)
+- [Get pack](/api-reference/billing/packs/get)
+- [Create pack](/api-reference/billing/packs/create)
+- [Activate pack](/api-reference/billing/packs/activate)
+- [Delete pack](/api-reference/billing/packs/delete)

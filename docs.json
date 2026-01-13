@@ -62,7 +62,11 @@
                 "pages": [
                   "sdks/server/auth/signup",
                   "sdks/server/auth/login",
-                  "sdks/server/auth/me"
+                  "sdks/server/auth/me",
+                  "sdks/server/auth/refresh-token",
+                  "sdks/server/auth/passwordless",
+                  "sdks/server/auth/verify-email",
+                  "sdks/server/auth/password-reset"
                 ]
               },
               {
@@ -85,36 +89,31 @@
                   "sdks/server/billing/prices",
                   "sdks/server/billing/consumption/entitlements",
                   "sdks/server/billing/consumption/usage",
+                  "sdks/server/billing/subscriptions",
                   "sdks/server/billing/checkout/create"
-                ]
-              },
-              {
-                "group": "Projects",
-                "pages": [
-                  "sdks/server/projects/create",
-                  "sdks/server/projects/list",
-                  "sdks/server/projects/get",
-                  "sdks/server/projects/update",
-                  "sdks/server/projects/delete"
                 ]
               },
               {
                 "group": "Waitlist",
                 "pages": [
                   "sdks/server/waitlist/join",
-                  "sdks/server/waitlist/list"
+                  "sdks/server/waitlist/list",
+                  "sdks/server/waitlist/remove"
                 ]
               },
               {
                 "group": "Invitations",
                 "pages": [
-                  "sdks/server/invitations/create"
+                  "sdks/server/invitations/create",
+                  "sdks/server/invitations/list",
+                  "sdks/server/invitations/validate",
+                  "sdks/server/invitations/revoke"
                 ]
               }
             ]
           },
           {
-            "group": "Client SDK (React)",
+            "group": "Client SDK",
             "pages": [
               "sdks/client/overview",
               {
@@ -150,16 +149,6 @@
                         ]
                       }
                     ]
-                  },
-                  {
-                    "group": "Projects",
-                    "pages": [
-                      "sdks/client/react/projects/list",
-                      "sdks/client/react/projects/get",
-                      "sdks/client/react/projects/create",
-                      "sdks/client/react/projects/update",
-                      "sdks/client/react/projects/delete"
-                    ]
                   }
                 ]
               }
@@ -168,6 +157,14 @@
           {
             "group": "Guides",
             "pages": [
+              {
+                "group": "Getting started",
+                "pages": [
+                  "guides/getting-started/authentication-setup",
+                  "guides/getting-started/subscription-setup",
+                  "guides/getting-started/checking-entitlements"
+                ]
+              },
               {
                 "group": "Authentication",
                 "pages": [
@@ -206,9 +203,15 @@
             "group": "Models",
             "pages": [
               "api-reference/models/user",
-              "api-reference/models/project",
+              "api-reference/models/product",
+              "api-reference/models/feature",
               "api-reference/models/plan",
-              "api-reference/models/subscription"
+              "api-reference/models/pack",
+              "api-reference/models/price",
+              "api-reference/models/subscription",
+              "api-reference/models/entitlement",
+              "api-reference/models/invitation",
+              "api-reference/models/waitlist-entry"
             ]
           },
           {
@@ -244,16 +247,6 @@
               "api-reference/users/get",
               "api-reference/users/update",
               "api-reference/users/delete"
-            ]
-          },
-          {
-            "group": "Projects",
-            "pages": [
-              "api-reference/projects/list",
-              "api-reference/projects/create",
-              "api-reference/projects/get",
-              "api-reference/projects/update",
-              "api-reference/projects/delete"
             ]
           },
           {

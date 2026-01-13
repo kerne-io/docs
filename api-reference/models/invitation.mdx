@@ -1,0 +1,81 @@
+---
+title: "Invitation"
+description: "User invitation model"
+---
+
+An Invitation allows users to register when public registration is disabled. There are two types: email-specific tokens and reusable codes.
+
+## Invitation token
+
+Email-specific, single-use invitations.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier |
+| `email` | string | Email address this invitation is for |
+| `token` | string | The invitation token (sent via email) |
+| `type` | string | Always `token` |
+| `isUsed` | boolean | Whether the invitation has been used |
+| `isExpired` | boolean | Whether the invitation has expired |
+| `expires_at` | string | ISO 8601 expiration timestamp |
+| `created_at` | string | ISO 8601 creation timestamp |
+| `created_by` | string | User ID of the creator |
+
+## Invitation code
+
+Reusable invitation codes.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier |
+| `code` | string | The invitation code (e.g., `EARLY_ACCESS`) |
+| `type` | string | Always `code` |
+| `isUsed` | boolean | Whether max uses has been reached |
+| `isExpired` | boolean | Whether the code has expired |
+| `max_uses` | number | Maximum number of times this code can be used |
+| `used_count` | number | How many times the code has been used |
+| `expires_at` | string | ISO 8601 expiration timestamp (nullable) |
+| `created_at` | string | ISO 8601 creation timestamp |
+| `created_by` | string | User ID of the creator |
+
+## Token example
+
+```json
+{
+  "id": "inv_token_abc123",
+  "email": "user@example.com",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "type": "token",
+  "isUsed": false,
+  "isExpired": false,
+  "expires_at": "2025-01-08T00:00:00.000Z",
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "created_by": "user_admin123"
+}
+```
+
+## Code example
+
+```json
+{
+  "id": "inv_code_def456",
+  "code": "EARLY_ACCESS",
+  "type": "code",
+  "isUsed": false,
+  "isExpired": false,
+  "max_uses": 100,
+  "used_count": 42,
+  "expires_at": null,
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "created_by": "user_admin123"
+}
+```
+
+## Related endpoints
+
+- [List invitations](/api-reference/invitations/list)
+- [Create token](/api-reference/invitations/create-token)
+- [Create code](/api-reference/invitations/create-code)
+- [Validate token](/api-reference/invitations/validate-token)
+- [Validate code](/api-reference/invitations/validate-code)
+- [Revoke invitation](/api-reference/invitations/revoke)

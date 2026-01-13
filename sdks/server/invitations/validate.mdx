@@ -1,0 +1,30 @@
+---
+title: "Validate invitation"
+description: "Validate invitation tokens and codes"
+---
+
+Before allowing a user to accept an invitation, valid it to ensure it hasn't expired or been used.
+
+## Validate token
+
+Validate a unique invitation token sent via email.
+
+```typescript
+const result = await kerne.invitations.validateToken('token_123');
+
+if (result.valid) {
+  console.log('Valid invitation for:', result.email);
+}
+```
+
+## Validate code
+
+Validate a shareable join code.
+
+```typescript
+const result = await kerne.invitations.validateCode('JOIN-123');
+
+if (result.valid) {
+  console.log('Code is valid');
+}
+```

@@ -1,0 +1,51 @@
+---
+title: "Waitlist entry"
+description: "Waitlist entry model"
+---
+
+A Waitlist entry represents a user who has signed up to be notified when registration opens or when they receive an invitation.
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier |
+| `email` | string | Email address |
+| `name` | string | User's name (optional) |
+| `status` | enum | `PENDING`, `INVITED`, or `REGISTERED` |
+| `metadata` | object | Custom metadata (optional) |
+| `created_at` | string | ISO 8601 timestamp when user joined waitlist |
+| `invited_at` | string | ISO 8601 timestamp when invitation was sent (nullable) |
+| `invited_by` | string | User ID who sent the invitation (nullable) |
+
+## Status values
+
+| Status | Description |
+|--------|-------------|
+| `PENDING` | User is waiting on the list |
+| `INVITED` | User has been sent an invitation |
+| `REGISTERED` | User has completed registration |
+
+## Example
+
+```json
+{
+  "id": "wl_abc123",
+  "email": "interested@example.com",
+  "name": "Jane Doe",
+  "status": "PENDING",
+  "metadata": {
+    "referral_source": "twitter",
+    "company_size": "50-100"
+  },
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "invited_at": null,
+  "invited_by": null
+}
+```
+
+## Related endpoints
+
+- [Join waitlist](/api-reference/waitlist/join)
+- [List waitlist](/api-reference/waitlist/list)
+- [Remove from waitlist](/api-reference/waitlist/remove)

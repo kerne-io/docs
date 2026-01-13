@@ -3,62 +3,75 @@ title: "Email verification"
 description: "Verify user email addresses"
 ---
 
-Email verification confirms that users own the email address they registered with.
+<Note>
+The React SDK does not currently expose email verification methods directly. These should be handled through API routes on your server using the Server SDK.
+</Note>
 
-## Verify email
+## Server-side verification
 
-Verify an email using the token from the verification email.
-
-### Signature
-
-```typescript
-await kerne.auth.verifyEmail(token: string): Promise<void>
-```
-
-### Example
+Use the [Server SDK auth methods](/sdks/server/auth/verify-email) in your API routes:
 
 ```typescript
-// Token comes from URL query param
-const token = new URLSearchParams(window.location.search).get('token');
+// In your API route: /api/auth/verify-email
+import { kerne } from '@/lib/kerne'; // Server SDK
 
-await kerne.auth.verifyEmail(token);
-console.log('Email verified!');
+export async function POST(req: Request) {
+  const { token } = await req.json();
+  await kerne.auth.verifyEmail(token);
+  return Response.json({ success: true });
+}
 ```
 
----
+## Client-side flow
+
+Handle email verification in your React component:
+
+```tsx
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+function VerifyEmailPage() {
+  const searchParams = useSearchParams();
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    
+    if (token) {
+      fetch('/api/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token })
+      })
+        .then(() => setStatus('success'))
+        .catch(() => setStatus('error'));
+    }
+  }, [searchParams]);
+
+  if (status === 'loading') return <p>Verifying...</p>;
+  if (status === 'error') return <p>Verification failed</p>;
+  
+  return <p>Email verified successfully!</p>;
+}
+```
 
 ## Resend verification
 
-Request a new verification email if the first one expired or was lost.
+Similarly, handle resend through your API:
 
-### Signature
+```tsx
+function ResendButton() {
+  const [loading, setLoading] = useState(false);
 
-```typescript
-await kerne.auth.resendVerification(): Promise<void>
+  const handleResend = async () => {
+    setLoading(true);
+    await fetch('/api/auth/resend-verification', { method: 'POST' });
+    setLoading(false);
+  };
+
+  return (
+    <button onClick={handleResend} disabled={loading}>
+      {loading ? 'Sending...' : 'Resend verification email'}
+    </button>
+  );
+}
 ```
-
-> [!IMPORTANT]
-> This requires the user to be authenticated. Use the JWT token from login.
-
-### Example
-
-```typescript
-// User must be logged in
-await kerne.auth.resendVerification();
-console.log('Verification email sent!');
-```
-
----
-
-## Possible errors
-
-| Code | Status | Description |
-|------|--------|-------------|
-| `K1006` | 401 | **Token expired**: The verification token has expired. |
-| `K1007` | 401 | **Invalid token**: The verification token is invalid. |
-| `K6001` | 429 | **Rate limited**: Too many resend requests. |
-
-## Related
-
-- [Register](/sdks/client/nextjs/auth/register)
-- [Session](/sdks/client/nextjs/auth/session)

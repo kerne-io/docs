@@ -3,48 +3,47 @@ title: "Usage"
 description: "Retrieve consumption data"
 ---
 
-The `getUsage` method returns the current consumption data for the user's metered entitlements. This is useful for displaying usage bars or limits in your UI.
+<Note>
+The React SDK does not currently expose a usage tracking method. Use the Server SDK to retrieve usage data.
+</Note>
 
-For more information on metered features, see the [Entitlements](/concepts/monetization/entitlements) concept page.
+For usage tracking, use the [Server SDK billing.usage()](/sdks/server/billing/consumption/usage) method in your backend API routes.
 
-## Signature
-
-```typescript
-kerne.billing.getUsage(featureKey?: string): Promise<Usage[]>
-```
-
-## Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `featureKey` | `string` | (Optional) Filter usage by a specific feature key. |
-
-## Response
-
-Returns a `Promise` that resolves to an array of `Usage` objects.
+## Server-side example
 
 ```typescript
-interface Usage {
-  featureKey: string;
-  used: number;
-  limit: number | null; // null if unlimited
-  resetAt: string;      // ISO date string
+// In your API route
+import { kerne } from '@/lib/kerne'; // Server SDK
+
+export async function GET(req: Request) {
+  const usage = await kerne.billing.usage('api_calls');
+  return Response.json(usage);
 }
 ```
 
-## Possible errors
+## Client-side consumption
 
-| Code | Status | Description |
-|------|--------|-------------|
-| `K1007` | 401 | **Token not provided**: The user must be logged in to check usage. |
-| `K4001` | 404 | **Resource not found**: The specified feature key does not exist. |
+To display usage in your React app, fetch it from your API:
 
-## Example
+```tsx
+import { useState, useEffect } from 'react';
 
-```typescript
-const usage = await kerne.billing.getUsage();
+function UsageDisplay() {
+  const [usage, setUsage] = useState(null);
 
-usage.forEach(item => {
-  console.log(`${item.featureKey}: ${item.used} / ${item.limit ?? '∞'}`);
-});
+  useEffect(() => {
+    fetch('/api/usage')
+      .then(res => res.json())
+      .then(setUsage);
+  }, []);
+
+  if (!usage) return <p>Loading...</p>;
+
+  return (
+    <div>
+      <h3>API Usage</h3>
+      <p>{usage.used} / {usage.limit ?? '∞'} calls</p>
+    </div>
+  );
+}
 ```

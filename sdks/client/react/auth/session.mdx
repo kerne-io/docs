@@ -3,43 +3,42 @@ title: "Session"
 description: "Manage the active session"
 ---
 
-The `session` module provides methods to manage the authenticated state of the user. It handles the retrieval of user profiles and the termination of sessions.
+The session is managed through the `useAuth` hook, which provides the current user state and authentication methods.
 
-For more information on how sessions are managed, see the [Identity overview](/concepts/identity/index) page.
+## Using the hook
 
-## Get current user
+```tsx
+import { useAuth } from '@kerne/react';
 
-Retrieves the profile of the currently logged-in user.
-
-### Signature
-```typescript
-kerne.auth.me(): Promise<User | null>
+function Profile() {
+  const { user, isAuthenticated, logout } = useAuth();
+  
+  if (!isAuthenticated) return <p>Not logged in</p>;
+  
+  // ...
+}
 ```
 
-### Response
-Returns a `User` object if a valid session exists, or `null` otherwise.
+## Available properties
 
-## Logout
+| Property | Type | Description |
+|----------|------|-------------|
+| `user` | `User \| null` | Current user object or null if not authenticated |
+| `isAuthenticated` | `boolean` | Whether a user is currently logged in |
+| `logout` | `() => void` | Function to log out the current user |
+| `refreshUser` | `() => Promise<User \| null>` | Refresh user data from the server |
 
-Terminated the current session and clears the `httpOnly` cookie.
+## User object
 
-### Signature
 ```typescript
-kerne.auth.logout(): Promise<void>
+interface User {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  email_verified: boolean;
+}
 ```
-
-## Check authentication
-
-A synchronous helper to check if a session token is present.
-
-### Signature
-```typescript
-kerne.auth.isAuthenticated(): boolean
-```
-
-<Note>
-`isAuthenticated()` only checks for the presence of a token. To ensure the token is still valid, use `kerne.auth.me()`.
-</Note>
 
 ## Possible errors
 
@@ -48,18 +47,36 @@ kerne.auth.isAuthenticated(): boolean
 | `K1006` | 401 | **Token expired**: The session token has expired. |
 | `K1007` | 401 | **Token not provided**: No active session was found. |
 
-## Example
+## Full example
 
-```typescript
-const user = await kerne.auth.me();
+```tsx
+import { useAuth } from '@kerne/react';
 
-if (user) {
-  console.log(`Logged in as ${user.email}`);
-} else {
-  console.log('No active session');
+function UserProfile() {
+  const { user, isAuthenticated, logout, refreshUser } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/login';
+  };
+
+  const handleRefresh = async () => {
+    const updatedUser = await refreshUser();
+    console.log('User refreshed:', updatedUser);
+  };
+
+  if (!isAuthenticated) {
+    return <p>Please log in to view your profile.</p>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome, {user?.first_name || user?.email}</h1>
+      <p>Email: {user?.email}</p>
+      <p>Verified: {user?.email_verified ? 'Yes' : 'No'}</p>
+      <button onClick={handleRefresh}>Refresh profile</button>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
 }
-
-// Perform logout
-await kerne.auth.logout();
-window.location.reload();
 ```

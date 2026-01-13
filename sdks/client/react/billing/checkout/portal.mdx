@@ -3,29 +3,51 @@ title: "Portal"
 description: "Manage subscriptions via Stripe"
 ---
 
-The `createPortal` method generates a link to the Stripe Customer Portal, where users can manage their payment methods, invoices, and active subscriptions.
+The `createPortal` and `openPortal` methods generate a link to the Stripe Customer Portal. Use them via the `useBilling` hook.
 
-## Signature
+## Using the hook
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function ManageSubscription() {
+  const { openPortal } = useBilling();
+  
+  const handleClick = () => {
+    openPortal('/settings/billing');
+  };
+  // ...
+}
+```
+
+## Methods
+
+### openPortal
+
+Redirects the user directly to the Stripe Portal.
 
 ```typescript
-kerne.billing.createPortal(options?: PortalOptions): Promise<PortalResponse>
+openPortal(returnUrl?: string): Promise<void>
+```
+
+### createPortal
+
+Returns the portal URL without redirecting.
+
+```typescript
+createPortal(returnUrl?: string): Promise<string>
 ```
 
 ## Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `returnUrl` | `string` | The URL to return to after the user exits the portal. Defaults to the current URL. |
+| `returnUrl` | `string` | Optional: URL to return to after exiting the portal. Defaults to current URL. |
 
 ## Response
 
-Returns a `Promise` that resolves to a `PortalResponse`.
-
-```typescript
-interface PortalResponse {
-  portalUrl: string; // The URL to redirect the user to
-}
-```
+- `openPortal`: Returns `void` (redirects immediately)
+- `createPortal`: Returns the portal URL as a `string`
 
 ## Possible errors
 
@@ -33,15 +55,27 @@ interface PortalResponse {
 |------|--------|-------------|
 | `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
 | `K4001` | 404 | **Resource not found**: The user does not have an active or past subscription. |
-| `K3004` | 403 | **Operation not allowed**: The customer portal is not enabled for this application. |
 
-## Example
+## Full example
 
-```typescript
-const { portalUrl } = await kerne.billing.createPortal({
-  returnUrl: `${window.location.origin}/settings/billing`
-});
+```tsx
+import { useBilling } from '@kerne/react';
 
-// Redirect the user to the Stripe-hosted portal
-window.location.href = portalUrl;
+function BillingSettings() {
+  const { openPortal } = useBilling();
+
+  const handleManageSubscription = () => {
+    openPortal(`${window.location.origin}/settings/billing`);
+  };
+
+  return (
+    <div>
+      <h2>Billing settings</h2>
+      <p>Manage your subscription, payment methods, and invoices.</p>
+      <button onClick={handleManageSubscription}>
+        Manage subscription
+      </button>
+    </div>
+  );
+}
 ```

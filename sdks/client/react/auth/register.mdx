@@ -3,14 +3,24 @@ title: "Register"
 description: "Create a new user account"
 ---
 
-The `register` method creates a new user account. Depending on your application's configuration, this may require an invitation code or token.
+The `register` method creates a new user account. Use it via the `useAuth` hook.
 
-For more information on registration modes, see the [Registration modes](/concepts/identity/registration-modes) page.
+## Using the hook
 
-## Signature
+```tsx
+import { useAuth } from '@kerne/react';
 
-```typescript
-kerne.auth.register(params: RegisterParams): Promise<AuthResponse>
+function RegisterForm() {
+  const { register, isAuthenticated } = useAuth();
+
+  const handleSubmit = async (e) => {
+    // ...
+    await register({ email, password, name });
+    // ...
+  };
+  
+  // ...
+}
 ```
 
 ## Parameters
@@ -19,12 +29,30 @@ kerne.auth.register(params: RegisterParams): Promise<AuthResponse>
 |------|------|----------|-------------|
 | `email` | `string` | Yes | The user's email address. |
 | `password` | `string` | Yes | A secure password (minimum 8 characters). |
-| `invitationCode` | `string` | No | Required if registration mode is set to "Invitation Only". |
-| `invitationToken` | `string` | No | Required if accepting a specific email invitation. |
+| `name` | `string` | No | Full name (will be split into first/last name). |
+
+<Note>
+For invitation-based registration, use the Server SDK to validate invitation tokens/codes first.
+</Note>
 
 ## Response
 
-Returns the same `AuthResponse` as the [login](/sdks/client/nextjs/auth/login) method.
+Returns a `Promise` that resolves to an `AuthResponse` object (same as [login](/sdks/client/react/auth/login)).
+
+```typescript
+interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    email_verified: boolean;
+  };
+  token: string;
+  refresh_token: string;
+  expires_at: string;
+}
+```
 
 ## Possible errors
 
@@ -33,17 +61,68 @@ Returns the same `AuthResponse` as the [login](/sdks/client/nextjs/auth/login) m
 | `K1001` | 403 | **Registration disabled**: Public registration is currently disabled for this application. |
 | `K1002` | 403 | **Maximum users reached**: The application has reached the maximum number of allowed users. |
 | `K1008` | 409 | **Email already taken**: The email address is already registered. |
-| `K1004` | 400 | **Invalid invitation code**: The provided code is invalid or expired. |
-| `K1003` | 400 | **Invalid invitation token**: The provided token is invalid or expired. |
 | `K1010` | 400 | **Password too weak**: The password does not meet security requirements. |
 | `K2001` | 400 | **Invalid payload**: One or more fields are missing or incorrectly formatted. |
 
-## Example
+## Full example
 
-```typescript
-await kerne.auth.register({
-  email: 'newuser@example.com',
-  password: 'SecurePassword123!',
-  invitationCode: 'EARLY_ACCESS'
-});
+```tsx
+import { useState } from 'react';
+import { useAuth } from '@kerne/react';
+
+function RegisterPage() {
+  const { register, isAuthenticated, user } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    name: ''
+  });
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      await register(formData);
+    } catch (err: any) {
+      if (err.code === 'K1008') {
+        setError('This email is already registered');
+      } else if (err.code === 'K1010') {
+        setError('Password must be at least 8 characters');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+    }
+  };
+
+  if (isAuthenticated) {
+    return <p>Welcome, {user?.email}!</p>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={formData.name}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        placeholder="Full name"
+      />
+      <input
+        type="email"
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={formData.password}
+        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+        placeholder="Password"
+      />
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button type="submit">Create account</button>
+    </form>
+  );
+}
 ```

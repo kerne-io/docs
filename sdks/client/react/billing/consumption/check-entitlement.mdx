@@ -3,32 +3,31 @@ title: "Check entitlement"
 description: "Verify feature access"
 ---
 
-The `canConsume` method checks if the user has access to a specific feature based on their current subscription and usage limits.
+The `checkEntitlement` method checks if the user has access to a specific feature. Use it via the `useBilling` hook.
 
-For more information on how entitlements work, see the [Entitlements concept](/concepts/monetization/entitlements) page.
+## Using the hook
 
-## Signature
+```tsx
+import { useBilling } from '@kerne/react';
 
-```typescript
-kerne.billing.canConsume(featureKey: string, options?: ConsumeOptions): Promise<ConsumeResult>
+function AnalyticsPage() {
+  const { checkEntitlement } = useBilling();
+  
+  const hasAccess = await checkEntitlement('pro_analytics');
+  // ...
+}
 ```
 
 ## Parameters
 
 | Name | Type | Description |
-|------|------|-------------|
-| `featureKey` | `string` | The unique key of the feature (defined in the dashboard). |
-| `options.quantity` | `number` | The amount to consume (for metered features). Defaults to 0 (check only). |
+|------|------|-------------| 
+| `featureKey` | `string` | The unique key of the feature |
+| `requested` | `number` | Optional: amount to check for quota features |
 
 ## Response
 
-```typescript
-interface ConsumeResult {
-  allowed: boolean;
-  remaining?: number; // Only for metered features
-  reason?: string;    // Why access was denied (e.g., "QUOTA_EXCEEDED")
-}
-```
+Returns a `Promise<boolean>` indicating whether access is granted.
 
 ## Possible errors
 
@@ -36,34 +35,54 @@ interface ConsumeResult {
 |------|--------|-------------|
 | `K5001` | 403 | **Resource quota exceeded**: The user has reached their limit for this feature. |
 | `K5002` | 402 | **Plan upgrade required**: The feature is not included in the current plan. |
-| `K3004` | 403 | **Operation not allowed**: The application is not permitted to perform this action. |
-| `K3002` | 403 | **Insufficient permissions**: The user lacks the required role to consume this feature. |
 | `K4001` | 404 | **Resource not found**: The specified feature key does not exist. |
-| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
 
-## Examples
+## Full example
 
-### Boolean check
-Check if a user has access to a specific module.
+```tsx
+import { useState, useEffect } from 'react';
+import { useBilling } from '@kerne/react';
 
-```typescript
-const { allowed } = await kerne.billing.canConsume('pro_analytics');
+function AnalyticsDashboard() {
+  const { checkEntitlement } = useBilling();
+  const [hasAccess, setHasAccess] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-if (allowed) {
-  showAnalytics();
-}
-```
+  useEffect(() => {
+    async function checkAccess() {
+      try {
+        const access = await checkEntitlement('pro_analytics');
+        setHasAccess(access);
+      } catch (error) {
+        console.error('Failed to check entitlement:', error);
+        setHasAccess(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    checkAccess();
+  }, [checkEntitlement]);
 
-### Metered check
-Check if a user has enough quota to perform an action.
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
-```typescript
-const { allowed, remaining } = await kerne.billing.canConsume('api_calls', { quantity: 1 });
+  if (!hasAccess) {
+    return (
+      <div>
+        <h2>Upgrade required</h2>
+        <p>Pro analytics are only available on paid plans.</p>
+        <button>Upgrade now</button>
+      </div>
+    );
+  }
 
-if (allowed) {
-  makeApiCall();
-  console.log(`You have ${remaining} calls left.`);
-} else {
-  showUpgradeModal();
+  return (
+    <div>
+      <h1>Analytics Dashboard</h1>
+      {/* Your analytics content */}
+    </div>
+  );
 }
 ```
