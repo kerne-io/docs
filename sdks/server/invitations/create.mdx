@@ -1,0 +1,20 @@
+---
+title: "Create invitation token"
+sidebarTitle: "Create token"
+description: "Create a unique invitation link"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const result = await kerne.invitations.createToken({
+  email: 'alice@company.com'
+});
+// result.token includes the token string
+```
+</CodeGroup>
+
+## Response
+
+Returns the invitation details including the token.

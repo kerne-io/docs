@@ -1,0 +1,90 @@
+---
+title: "Magic link"
+description: "Passwordless authentication"
+---
+
+<Note>
+The React SDK does not currently support magic link authentication. This feature is planned for a future release. For now, use the Server SDK to implement passwordless flows.
+</Note>
+
+## Server-side implementation
+
+Use the [Server SDK auth methods](/sdks/server/auth/passwordless) in your API routes:
+
+```typescript
+// /api/auth/start-passwordless
+import { kerne } from '@/lib/kerne';
+
+export async function POST(req: Request) {
+  const { email } = await req.json();
+  await kerne.auth.startPasswordless(email);
+  return Response.json({ success: true });
+}
+```
+
+```typescript
+// /api/auth/verify-passwordless
+import { kerne } from '@/lib/kerne';
+
+export async function POST(req: Request) {
+  const { token } = await req.json();
+  const response = await kerne.auth.verifyPasswordless(token);
+  return Response.json(response);
+}
+```
+
+## Client-side flow
+
+### Step 1: Request magic link
+
+```tsx
+import { useState } from 'react';
+
+function MagicLinkForm() {
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // ...
+    await fetch('/api/auth/start-passwordless', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    setSent(true);
+    // ...
+  };
+
+  // ...
+}
+```
+
+### Step 2: Verify token
+
+```tsx
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@kerne/react';
+
+function VerifyMagicLink() {
+  const searchParams = useSearchParams();
+  const { login } = useAuth();
+  const token = searchParams.get('token');
+
+  useEffect(() => {
+    if (token) {
+      fetch('/api/auth/verify-passwordless', {
+        method: 'POST',
+        body: JSON.stringify({ token })
+      })
+        .then(res => res.json())
+        .then(data => {
+          // Handle successful auth
+          window.location.href = '/dashboard';
+        });
+    }
+  }, [token]);
+
+  return <p>Verifying...</p>;
+}
+```

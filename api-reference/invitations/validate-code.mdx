@@ -1,0 +1,42 @@
+---
+title: "Validate code"
+api: "GET /v1/invitations/validate/code"
+---
+
+Check if an invitation code is valid and can be used.
+
+## Authentication
+
+<Note>
+This is a **public** endpoint. It only requires a application identifier header.
+</Note>
+
+## Query parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `code` | `string` | Yes | 8-character invitation code. |
+
+## Example request
+
+```
+GET /v1/auth/invitations/validate/code?code=ABC12345
+```
+
+## Response
+
+```json
+{
+  "valid": true,
+  "canUse": true
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `valid` | `boolean` | Whether the code exists and hasn't expired. |
+| `canUse` | `boolean` | Whether the code still has remaining uses. |
+
+A code can be `valid: true` but `canUse: false` if it has already been used.

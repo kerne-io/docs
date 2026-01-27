@@ -1,0 +1,56 @@
+---
+title: "Lifecycle: From waitlist to IPO"
+description: "How Kerne scales with your company"
+---
+
+Kerne is designed to handle every stage of your company's growth, from your first line of code to your IPO. Here is how you can leverage different features at different stages.
+
+<Steps>
+  <Step title="Stage 1: Validation (The Waitlist)">
+    **Goal**: Collect emails and validate interest before writing complex code.
+    
+    **Kerne Strategy**:
+    - Use the **Public Waitlist API** to collect emails on a simple landing page.
+    - Set `Registration Mode` to `Closed` to prevent signups.
+    
+    ```typescript
+    // Landing page component
+    await kerne.waitlist.join({ email: 'early-adopter@gmail.com' });
+    ```
+  </Step>
+
+  <Step title="Stage 2: Private Beta (The Velvet Rope)">
+    **Goal**: Onboard high-quality users manually to get feedback.
+    
+    **Kerne Strategy**:
+    - Set `Registration Mode` to `Invite Only`.
+    - Generate unique **Invitation Codes** for meaningful cohorts (e.g., `PRODUCTHUNT_2025`).
+    - Manually approve waitlist entries from the dashboard.
+  </Step>
+
+  <Step title="Stage 3: First Dollars (Self-Serve)">
+    **Goal**: Automated revenue. Open the gates.
+    
+    **Kerne Strategy**:
+    - Set `Registration Mode` to `Open`.
+    - Create a **Free Plan** and a **Pro Plan** ($29/mo).
+    - Use `useBilling()` to gate premium features.
+    
+    ```typescript
+    const { checkEntitlement } = useBilling();
+    // Only Pro users can see this
+    if (await checkEntitlement('advanced_analytics')) {
+      showDashboard();
+    }
+    ```
+  </Step>
+
+  <Step title="Stage 4: Scale (The Enterprise)">
+    **Goal**: Custom contracts, SSO, and high volume.
+    
+    **Kerne Strategy**:
+    - Enable **SSO** (SAML/OIDC) for enterprise clients.
+    - Create **Custom Plans** with higher limits for specific applications.
+    - Use **Usage-Based Billing** to capture upside from power users.
+  </Step>
+</Steps>

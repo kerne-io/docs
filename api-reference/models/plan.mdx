@@ -1,0 +1,39 @@
+---
+title: "Plan"
+description: "The Plan object"
+---
+
+A **Plan** defines a tier of service.
+
+<ResponseField name="id" type="string" required>
+  The unique identifier for the plan.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Display name (e.g., "Pro Tier").
+</ResponseField>
+
+<ResponseField name="slug" type="string" required>
+  URL-friendly identifier (e.g., "pro").
+</ResponseField>
+
+<ResponseField name="provider_product_id" type="string">
+  The ID of the corresponding product in Stripe (e.g., `prod_...`).
+</ResponseField>
+
+<ResponseField name="entitlements" type="array">
+  List of feature keys included in this plan.
+</ResponseField>
+
+```json Example
+{
+  "id": "01H...",
+  "name": "Pro Tier",
+  "slug": "pro",
+  "provider_product_id": "prod_M123...",
+  "entitlements": [
+    "can_invite_users",
+    "advanced_analytics"
+  ]
+}
+```

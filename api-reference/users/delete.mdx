@@ -1,0 +1,33 @@
+---
+title: "Delete user"
+api: "DELETE /v1/users/:id"
+---
+
+Permanently delete a user from your application.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | User ID to delete. |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4002` | 404 | User not found. |
+| `K3002` | 403 | Insufficient permissions. |

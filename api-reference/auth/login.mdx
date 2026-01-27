@@ -1,0 +1,42 @@
+---
+title: "Exchange Token"
+sidebarTitle: "Login"
+api: "POST /v1/auth/token"
+description: "Exchange credentials (password, refresh token, magic link) for access tokens."
+---
+
+## Request
+
+<ParamField body="grant_type" type="string" required>
+  The type of grant. Options: `password`, `refresh_token`, `magic_link`.
+</ParamField>
+
+<ParamField body="email" type="string">
+  Required if `grant_type` is `password`.
+</ParamField>
+
+<ParamField body="password" type="string">
+  Required if `grant_type` is `password`.
+</ParamField>
+
+<ParamField body="refresh_token" type="string">
+  Required if `grant_type` is `refresh_token`.
+</ParamField>
+
+<ParamField body="token" type="string">
+  Required if `grant_type` is `magic_link`. The token received in the magic link email.
+</ParamField>
+
+## Response
+
+<ResponseField name="token" type="string" required>
+  The JWT access token.
+</ResponseField>
+
+<ResponseField name="refresh_token" type="string">
+  The refresh token (if applicable).
+</ResponseField>
+
+<ResponseField name="user" type="User">
+  The [User](/api-reference/models/user) object.
+</ResponseField>

@@ -1,0 +1,62 @@
+---
+title: "Node.js"
+description: "Server-side library for Node.js"
+---
+
+The Node.js library (`@kerne/server`) provides convenient access to the Kerne API from server-side applications. It is designed to be used in secure environments (like your backend API) and has full administrative capabilities.
+
+## Installation
+
+```bash
+npm install @kerne/server
+```
+
+## Configuration
+
+Initialize the library with your secret API key. You can find this in the **Developer** section of your Kerne Dashboard.
+
+```typescript
+import { Kerne } from '@kerne/server';
+
+const kerne = new Kerne({
+  secretKey: process.env.KERNE_SECRET_KEY, // sk_live_...
+  baseUrl: 'BASE_URL' // Optional, defaults to production
+});
+```
+
+## Common Use Cases
+
+### Managing Users
+
+Perform administrative actions like banning users or updating their details.
+
+```typescript
+// Disable a user account
+await kerne.users.update('usr_123', {
+  isActive: false
+});
+
+// List all users in a application
+const users = await kerne.users.list({ limit: 10 });
+```
+
+### Handling Webhooks
+
+Verify and process events from Kerne (like subscription updates).
+
+```typescript
+// Express example
+app.post('/webhooks/kerne', express.raw({ type: 'application/json' }), (req, res) => {
+  const sig = req.headers['kerne-signature'];
+  
+  try {
+    const event = kerne.webhooks.constructEvent(req.body, sig, process.env.KERNE_WEBHOOK_SECRET);
+    
+    if (event.type === 'subscription.created') {
+      // Handle new subscription
+    }
+  } catch (err) {
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
+```

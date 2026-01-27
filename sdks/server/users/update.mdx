@@ -1,0 +1,19 @@
+---
+title: "Update user"
+sidebarTitle: "Update user"
+description: "Update an existing user"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const user = await kerne.users.update('usr_123', {
+  first_name: 'Alicia'
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns the updated [User](/api-reference/models/user) object.

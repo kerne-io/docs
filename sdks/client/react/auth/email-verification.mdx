@@ -1,0 +1,77 @@
+---
+title: "Email verification"
+description: "Verify user email addresses"
+---
+
+<Note>
+The React SDK does not currently expose email verification methods directly. These should be handled through API routes on your server using the Server SDK.
+</Note>
+
+## Server-side verification
+
+Use the [Server SDK auth methods](/sdks/server/auth/verify-email) in your API routes:
+
+```typescript
+// In your API route: /api/auth/verify-email
+import { kerne } from '@/lib/kerne'; // Server SDK
+
+export async function POST(req: Request) {
+  const { token } = await req.json();
+  await kerne.auth.verifyEmail(token);
+  return Response.json({ success: true });
+}
+```
+
+## Client-side flow
+
+Handle email verification in your React component:
+
+```tsx
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+function VerifyEmailPage() {
+  const searchParams = useSearchParams();
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    
+    if (token) {
+      fetch('/api/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token })
+      })
+        .then(() => setStatus('success'))
+        .catch(() => setStatus('error'));
+    }
+  }, [searchParams]);
+
+  if (status === 'loading') return <p>Verifying...</p>;
+  if (status === 'error') return <p>Verification failed</p>;
+  
+  return <p>Email verified successfully!</p>;
+}
+```
+
+## Resend verification
+
+Similarly, handle resend through your API:
+
+```tsx
+function ResendButton() {
+  const [loading, setLoading] = useState(false);
+
+  const handleResend = async () => {
+    setLoading(true);
+    await fetch('/api/auth/resend-verification', { method: 'POST' });
+    setLoading(false);
+  };
+
+  return (
+    <button onClick={handleResend} disabled={loading}>
+      {loading ? 'Sending...' : 'Resend verification email'}
+    </button>
+  );
+}
+```

@@ -1,0 +1,88 @@
+---
+title: "Check entitlement"
+description: "Verify feature access"
+---
+
+The `checkEntitlement` method checks if the user has access to a specific feature. Use it via the `useBilling` hook.
+
+## Using the hook
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function AnalyticsPage() {
+  const { checkEntitlement } = useBilling();
+  
+  const hasAccess = await checkEntitlement('pro_analytics');
+  // ...
+}
+```
+
+## Parameters
+
+| Name | Type | Description |
+|------|------|-------------| 
+| `featureKey` | `string` | The unique key of the feature |
+| `requested` | `number` | Optional: amount to check for quota features |
+
+## Response
+
+Returns a `Promise<boolean>` indicating whether access is granted.
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K5001` | 403 | **Resource quota exceeded**: The user has reached their limit for this feature. |
+| `K5002` | 402 | **Plan upgrade required**: The feature is not included in the current plan. |
+| `K4001` | 404 | **Resource not found**: The specified feature key does not exist. |
+
+## Full example
+
+```tsx
+import { useState, useEffect } from 'react';
+import { useBilling } from '@kerne/react';
+
+function AnalyticsDashboard() {
+  const { checkEntitlement } = useBilling();
+  const [hasAccess, setHasAccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAccess() {
+      try {
+        const access = await checkEntitlement('pro_analytics');
+        setHasAccess(access);
+      } catch (error) {
+        console.error('Failed to check entitlement:', error);
+        setHasAccess(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    checkAccess();
+  }, [checkEntitlement]);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!hasAccess) {
+    return (
+      <div>
+        <h2>Upgrade required</h2>
+        <p>Pro analytics are only available on paid plans.</p>
+        <button>Upgrade now</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h1>Analytics Dashboard</h1>
+      {/* Your analytics content */}
+    </div>
+  );
+}
+```

@@ -1,0 +1,64 @@
+---
+title: "Plans"
+description: "Manage pricing plans"
+---
+
+The `plans` module allows you to define specific price points and billing intervals for your products. These correspond to Stripe Prices.
+
+For more information on how plans relate to products, see the [Products and plans](/concepts/monetization/products-and-plans) concept page.
+
+## List plans
+
+Retrieves all plans defined for your application.
+
+### Signature
+```typescript
+kerne.billing.plans.list(): Promise<Plan[]>
+```
+
+## Create plan
+
+Creates a new plan (Stripe Price) for a specific product.
+
+### Signature
+```typescript
+kerne.billing.plans.create(params: CreatePlanParams): Promise<Plan>
+```
+
+### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| `productId` | `string` | The ID of the product this plan belongs to. |
+| `name` | `string` | The name of the plan (e.g., "Annual"). |
+| `amount` | `number` | The price in cents (e.g., `2900` for $29.00). |
+| `currency` | `string` | Three-letter ISO currency code. |
+| `interval` | `string` | `day`, `week`, `month`, or `year`. |
+
+## Delete plan
+
+Permanently removes a plan.
+
+### Signature
+```typescript
+kerne.billing.plans.delete(id: string): Promise<void>
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified plan or product ID does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K3002` | 403 | **Insufficient permissions**: The provided secret key does not have permission to manage plans. |
+
+## Example
+
+```typescript
+const plan = await kerne.billing.plans.create({
+  productId: 'prod_123',
+  name: 'Yearly Pro',
+  amount: 29000,
+  currency: 'usd',
+  interval: 'year'
+});
+```

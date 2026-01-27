@@ -1,0 +1,42 @@
+---
+title: "List subscriptions"
+api: "GET /v1/admin/billing/subscriptions"
+---
+
+List all subscriptions with optional filters.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Query parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `account_id` | `string` | Filter by account ID. |
+| `status` | `string` | Filter by status (`active`, `paused`, `canceled`). |
+
+## Response
+
+```json
+[
+  {
+    "id": "sub_01234567890abcdef",
+    "account_id": "acc_01234567890abcdef",
+    "plan_id": "plan_pro_monthly",
+    "status": "active",
+    "current_period_start": "2025-01-01T00:00:00.000Z",
+    "current_period_end": "2025-02-01T00:00:00.000Z",
+    "stripe_subscription_id": "sub_abc123",
+    "created_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | Insufficient permissions. |

@@ -1,0 +1,66 @@
+---
+title: "List invitations"
+api: "GET /v1/invitations"
+---
+
+Retrieve all invitation tokens and codes.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Response
+
+```json
+{
+  "tokens": [
+    {
+      "id": "inv_01234567890abcdef",
+      "email": "user@example.com",
+      "type": "token",
+      "isUsed": false,
+      "isExpired": false,
+      "expires_at": "2025-01-08T00:00:00.000Z",
+      "created_at": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "codes": [
+    {
+      "id": "invc_01234567890abcdef",
+      "code": "ABC12345",
+      "type": "code",
+      "isUsed": false,
+      "isExpired": false,
+      "max_uses": 1,
+      "used_count": 0,
+      "created_at": "2025-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+## Response fields
+
+### Tokens
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `email` | `string` | Email this token was created for. |
+| `isUsed` | `boolean` | Whether the token has been used. |
+| `isExpired` | `boolean` | Whether the token has expired. |
+
+### Codes
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | `string` | The 8-character code. |
+| `max_uses` | `integer` | Maximum allowed uses. |
+| `used_count` | `integer` | Current number of uses. |
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | Insufficient permissions. |

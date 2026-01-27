@@ -1,0 +1,21 @@
+---
+title: "Verify email"
+description: "Verify user email addresses"
+---
+
+## Verify email
+
+Verify an email using the token sent to the user.
+
+```typescript
+await kerne.auth.verifyEmail('token_123');
+```
+
+## Resend verification
+
+Resend the verification email to the currently authenticated user.
+
+```typescript
+// Requires user to be logged in via other means (e.g. initial signup session)
+await kerne.auth.resendVerification();
+```

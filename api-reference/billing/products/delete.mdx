@@ -1,0 +1,34 @@
+---
+title: "Delete product"
+api: "DELETE /v1/billing/products/:id"
+---
+
+Delete a product.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Product ID. |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Product not found. |
+| `K3002` | 403 | Insufficient permissions. |
+| `K5001` | 400 | Cannot delete product with active plans. |

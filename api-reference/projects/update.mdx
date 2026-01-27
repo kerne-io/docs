@@ -1,0 +1,30 @@
+---
+title: "Update project"
+api: "PUT /v1/projects/:id"
+description: "Modify an existing project"
+---
+
+## Body
+
+<ParamField body="name" type="string">
+  The new name for the project.
+</ParamField>
+
+<ParamField body="description" type="string">
+  The new description for the project.
+</ParamField>
+
+## Response
+
+<ResponseField name="project" type="Project">
+  The updated project object.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified project ID does not exist. |
+| `K4009` | 500 | **Resource update failed**: An error occurred while updating the project. |
+| `K3003` | 403 | **Resource not accessible**: You do not have access to this project. |
+| `K1007` | 401 | **Token not provided**: The user must be logged in to update a project. |

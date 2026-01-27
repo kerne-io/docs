@@ -1,0 +1,63 @@
+---
+title: "Products"
+description: "Manage billing products"
+---
+
+The `products` module allows you to define the high-level offerings of your application. These are synchronized with Stripe to handle billing.
+
+For more information on how products relate to plans, see the [Products and plans](/concepts/monetization/products-and-plans) concept page.
+
+## List products
+
+Retrieves all products defined for your application.
+
+### Signature
+```typescript
+kerne.billing.products.list(): Promise<Product[]>
+```
+
+## Create product
+
+Creates a new product in Kerne and automatically synchronizes it with your connected Stripe account.
+
+### Signature
+```typescript
+kerne.billing.products.create(params: CreateProductParams): Promise<Product>
+```
+
+## Update product
+
+Updates the metadata of an existing product.
+
+### Signature
+```typescript
+kerne.billing.products.update(id: string, params: UpdateProductParams): Promise<Product>
+```
+
+## Delete product
+
+Permanently removes a product. This will also archive the corresponding product in Stripe.
+
+### Signature
+```typescript
+kerne.billing.products.delete(id: string): Promise<void>
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified product ID does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K3002` | 403 | **Insufficient permissions**: The provided secret key does not have permission to manage products. |
+
+## Example
+
+```typescript
+const product = await kerne.billing.products.create({
+  name: 'Enterprise Suite',
+  description: 'Custom solutions for large organizations'
+});
+
+console.log(`Created product with ID: ${product.id}`);
+```

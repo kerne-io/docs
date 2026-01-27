@@ -1,0 +1,43 @@
+---
+title: "Price"
+description: "Plan price model"
+---
+
+A Price defines the billing amount, currency, and interval for a Plan. Plans can have multiple prices (e.g., monthly and annual options).
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier for the price |
+| `plan_id` | string | Plan this price belongs to |
+| `amount` | number | Price in cents (e.g., 2900 = $29.00) |
+| `currency` | string | ISO currency code (e.g., `usd`, `eur`) |
+| `interval` | enum | `month`, `year`, `week`, or `day` |
+| `is_active` | boolean | Whether this price is currently active |
+| `trial_days` | number | Trial period in days (nullable, overrides plan default) |
+| `provider_price_id` | string | Stripe/provider price ID (nullable) |
+| `created_at` | string | ISO 8601 timestamp |
+| `updated_at` | string | ISO 8601 timestamp |
+
+## Example
+
+```json
+{
+  "id": "price_pro_monthly",
+  "plan_id": "plan_pro",
+  "amount": 2900,
+  "currency": "usd",
+  "interval": "month",
+  "is_active": true,
+  "trial_days": 14,
+  "provider_price_id": "price_1ABC123",
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "updated_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Related endpoints
+
+- [List prices](/api-reference/billing/prices/list)
+- [Create price](/api-reference/billing/prices/create-price)

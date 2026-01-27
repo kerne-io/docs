@@ -1,0 +1,88 @@
+---
+title: "Quickstart"
+description: "Deploy your first monetized app in under 5 minutes"
+---
+
+## Prerequisites
+
+- Node.js 18 or later
+- A Kerne account (to retrieve your API credentials)
+
+## 1. Install the SDKs
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    # For your backend
+    npm install @kerne/server
+
+    # For your React frontend
+    npm install @kerne/react
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add @kerne/server @kerne/react
+    ```
+  </Tab>
+</Tabs>
+
+## 2. Backend setup
+
+Initialize the server SDK to handle high-privilege operations like creating users or managing billing.
+
+```typescript
+// src/lib/kerne.ts
+import { Kerne } from '@kerne/server';
+
+export const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID,
+  secretKey: process.env.KERNE_SECRET_KEY, // sk_live_...
+});
+```
+
+## 3. Frontend setup
+
+Wrap your application with the `KerneProvider` to manage authentication state across your React app.
+
+```tsx
+// src/providers.tsx
+import { KerneProvider } from '@kerne/react';
+
+export function Providers({ children }) {
+  return (
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+      {children}
+    </KerneProvider>
+  );
+}
+```
+
+## 4. Protect your features
+
+Use the SDK to check user entitlements and subscription status.
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function AnalyticsPage() {
+  const { canConsume } = useBilling();
+
+  if (!canConsume('pro-analytics')) {
+    return <UpgradeBanner />;
+  }
+
+  return <ProChart />;
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Server SDK reference" icon="server" href="/sdks/server/overview">
+    Explore detailed backend capabilities and resource management.
+  </Card>
+  <Card title="React SDK reference" icon="react" href="/sdks/client/react/overview">
+    Build seamless frontend experiences with our React hooks and components.
+  </Card>
+</CardGroup>

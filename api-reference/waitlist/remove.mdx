@@ -1,0 +1,33 @@
+---
+title: "Remove from waitlist"
+api: "DELETE /v1/waitlist/:id"
+---
+
+Remove an entry from the waitlist.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Waitlist entry ID to remove. |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4005` | 404 | Waitlist entry not found. |
+| `K3002` | 403 | Insufficient permissions. |

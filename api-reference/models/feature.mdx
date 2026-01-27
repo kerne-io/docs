@@ -1,0 +1,58 @@
+---
+title: "Feature"
+description: "Billing feature model"
+---
+
+A Feature defines a capability or limit that can be granted to users via Plans. Features are the building blocks of your pricing model.
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier for the feature |
+| `tenant_id` | string | Tenant this feature belongs to |
+| `key` | string | Unique key for the feature (lowercase, underscores) |
+| `name` | string | Display name |
+| `description` | string | Feature description (nullable) |
+| `type` | enum | `BOOLEAN`, `QUOTA`, or `STATIC` |
+| `reset_policy` | enum | `RESET`, `ACCUMULATE`, or `STATIC` |
+| `quota_period` | enum | `DAILY`, `WEEKLY`, `MONTHLY`, `BILLING_CYCLE` (nullable) |
+| `overage` | enum | `BLOCK` or `ALLOW` - behavior when limit is exceeded |
+| `sort_order` | number | Display order |
+| `created_at` | string | ISO 8601 timestamp |
+| `updated_at` | string | ISO 8601 timestamp |
+
+## Feature types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `BOOLEAN` | On/off feature flag | "API Access", "Premium Support" |
+| `QUOTA` | Usage-based limit that resets | "API Calls per month", "Storage GB" |
+| `STATIC` | Fixed numeric value | "Team seats", "Projects" |
+
+## Example
+
+```json
+{
+  "id": "ft_api_calls",
+  "tenant_id": "tenant_abc123",
+  "key": "api_calls",
+  "name": "API Calls",
+  "description": "Monthly API call limit",
+  "type": "QUOTA",
+  "reset_policy": "RESET",
+  "quota_period": "MONTHLY",
+  "overage": "BLOCK",
+  "sort_order": 1,
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "updated_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Related endpoints
+
+- [List features](/api-reference/billing/features/list)
+- [Create feature](/api-reference/billing/features/create)
+- [Get feature](/api-reference/billing/features/get)
+- [Update feature](/api-reference/billing/features/update)
+- [Delete feature](/api-reference/billing/features/delete)

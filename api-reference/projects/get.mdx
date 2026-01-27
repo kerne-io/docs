@@ -1,0 +1,26 @@
+```
+---
+title: 'Get Project'
+api: 'GET /v1/projects/:id'
+description: "Retrieve a single project"
+---
+
+## Path
+
+<ParamField path="id" type="string" required>
+  The unique ID of the project to retrieve.
+</ParamField>
+
+## Response
+
+<ResponseField name="project" type="Project">
+  The project object.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified project ID does not exist. |
+| `K3003` | 403 | **Resource not accessible**: You do not have access to this project. |
+| `K1007` | 401 | **Token not provided**: The user must be logged in to retrieve a project. |

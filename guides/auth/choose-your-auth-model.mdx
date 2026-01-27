@@ -1,0 +1,50 @@
+---
+title: "Choose your auth model"
+description: "B2B vs B2C: Making the right choice early"
+---
+
+Choosing an authentication model is one of the first and most critical decisions you will make. It is difficult to change later.
+
+## Recommendation
+
+<CardGroup cols={2}>
+  <Card title="Building B2B SaaS?" icon="building">
+    Start with **invitation only** or **waitlist**. It ensures teams are grouped correctly and creates exclusivity.
+  </Card>
+  <Card title="Building B2C Consumer?" icon="users">
+    Use **open registration** and **social login**. Friction is your primary enemy; prioritize one-click access.
+  </Card>
+</CardGroup>
+
+## The decision matrix
+
+| Feature | B2C (Consumer) | B2B (SaaS) |
+|---------|----------------|------------|
+| **Sign up** | Open to everyone | Often restricted (invite/waitlist) |
+| **Identity** | Individual (user) | Collective (application/team) |
+| **Billing** | Per user | Per application/seat |
+| **Security** | Low friction | High security (mfa, sso) |
+
+## The trap of open registration
+
+Most developers default to **open registration** (anyone can sign up), but for B2B, this is often a mistake.
+
+### Why open registration hurts B2B
+1.  **Spam and bot signups**: You will likely be flooded by qualified leads mixed with bots.
+2.  **Support load**: Non-qualified users increase your support overhead without contributing revenue.
+3.  **Application confusion**: If User A creates "Application A" and their colleague User B creates "Application B", they cannot collaborate or see shared data.
+
+## Implementation path
+
+Start by setting your registration mode in the dashboard or via the SDK.
+
+```typescript
+// Example: Setting registration to INVITE_ONLY
+await kerne.settings.update({
+  registrationMode: 'INVITE_ONLY'
+});
+```
+
+<Tip>
+Even if you plan to go open eventually, starting with a restricted model allows you to learn from your first few users through high-touch onboarding.
+</Tip>

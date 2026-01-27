@@ -1,0 +1,107 @@
+---
+title: "Checking entitlements"
+sidebarTitle: "Entitlements"
+description: "Gate features based on user's subscription"
+---
+
+This guide shows you how to check what features a user has access to and gate functionality accordingly.
+
+## What are entitlements?
+
+Entitlements are the features and limits granted to a user based on their subscription. They're defined in your Plans and can be:
+
+- **Boolean** - On/off access (e.g., "Analytics access")
+- **Quota** - Usage limits that reset (e.g., "1000 API calls/month")
+- **Static** - Fixed values (e.g., "5 team seats")
+
+## Server-side checks
+
+For secure, server-side feature gating:
+
+```typescript
+const check = await kerne.billing.checkEntitlement('advanced_analytics');
+
+if (check.has_access) {
+  // Allow feature
+} else {
+  // Redirect to upgrade
+}
+```
+
+### With user token
+
+When checking for a specific user:
+
+```typescript
+const kerneWithUser = kerne.withToken(userAccessToken);
+const check = await kerneWithUser.billing.checkEntitlement('api_calls', 1);
+
+if (check.has_access) {
+  // Process the request
+}
+```
+
+## Client-side checks
+
+Use the `useBilling` hook in React:
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function FeatureGate({ feature, children, fallback }) {
+  const { checkEntitlement } = useBilling();
+  const [hasAccess, setHasAccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkEntitlement(feature)
+      .then(setHasAccess)
+      .finally(() => setLoading(false));
+  }, [feature]);
+
+  if (loading) return null;
+  if (!hasAccess) return fallback;
+  return children;
+}
+
+// Usage
+<FeatureGate feature="pro_analytics" fallback={<UpgradeBanner />}>
+  <AnalyticsDashboard />
+</FeatureGate>
+```
+
+## Checking quotas
+
+For usage-based features, check the current usage:
+
+```typescript
+// Server-side
+const entitlements = await kerne.billing.entitlements();
+
+const apiCalls = entitlements.entitlements['api_calls'];
+console.log(`Used: ${apiCalls.current_usage} / ${apiCalls.limit}`);
+```
+
+## Feature key patterns
+
+Define clear, consistent feature keys in your Kerne dashboard:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `api_access` | Boolean | Can use the API |
+| `api_calls` | Quota | Monthly API call limit |
+| `team_seats` | Static | Number of team members |
+| `advanced_analytics` | Boolean | Access to pro analytics |
+| `export_data` | Boolean | Can export data |
+
+## Best practices
+
+1. **Check on the server** for security-critical features
+2. **Cache results** to avoid repeated API calls
+3. **Provide clear upgrade paths** when access is denied
+4. **Use descriptive feature keys** that match your product language
+
+## Next steps
+
+- [Enforce limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux)
+- [View entitlements SDK reference](/sdks/server/billing/consumption/entitlements)

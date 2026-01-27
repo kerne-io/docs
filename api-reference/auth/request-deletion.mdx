@@ -1,0 +1,22 @@
+---
+title: "Request Deletion"
+api: "POST /v1/auth/request-deletion"
+description: "Request deletion of the current user account"
+---
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the request was accepted.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  A confirmation message explaining that the account has been deactivated.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Token not provided**: No active session was found. |
+| `K4002` | 404 | **Application not found**: The specified application slug is invalid. |

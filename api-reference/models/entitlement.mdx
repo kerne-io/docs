@@ -1,0 +1,66 @@
+---
+title: "Entitlement"
+description: "User entitlement model"
+---
+
+An Entitlement represents a user's access to a specific feature based on their subscription. Entitlements are computed from the active Pack of their subscribed Plan.
+
+## Entitlement check response
+
+When checking entitlements at runtime, the API returns:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `feature` | string | Feature key |
+| `has_access` | boolean | Whether the user has access |
+| `value` | any | The entitlement value (boolean, number, or string) |
+| `current_usage` | number | Current usage for quota features (nullable) |
+| `limit` | number | Maximum allowed for quota features (nullable) |
+| `type` | string | Feature type |
+| `source` | string | Where the entitlement comes from (`subscription`, `override`, `default`) |
+
+## Example: Boolean feature
+
+```json
+{
+  "feature": "analytics",
+  "has_access": true,
+  "value": true,
+  "current_usage": null,
+  "limit": null,
+  "type": "BOOLEAN",
+  "source": "subscription"
+}
+```
+
+## Example: Quota feature
+
+```json
+{
+  "feature": "api_calls",
+  "has_access": true,
+  "value": 10000,
+  "current_usage": 2500,
+  "limit": 10000,
+  "type": "QUOTA",
+  "source": "subscription"
+}
+```
+
+## Example: Exceeded quota
+
+```json
+{
+  "feature": "api_calls",
+  "has_access": false,
+  "value": 10000,
+  "current_usage": 10000,
+  "limit": 10000,
+  "type": "QUOTA",
+  "source": "subscription"
+}
+```
+
+## Related endpoints
+
+- [Get entitlements](/api-reference/billing/entitlements/list)

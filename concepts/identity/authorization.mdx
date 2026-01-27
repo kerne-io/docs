@@ -1,0 +1,33 @@
+---
+title: "Authorization"
+description: "Roles, permissions, and organizations"
+---
+
+<Note>
+**Coming soon**
+We are currently working on a robust Authorization (AuthZ) system including Organizations and granular RBAC.
+</Note>
+
+Authorization determines what an authenticated user is allowed to do within your application.
+
+## Core concepts
+
+### Roles
+A role is a collection of permissions. Common roles include `Admin`, `Editor`, and `Viewer`.
+
+### Permissions
+Permissions are granular actions that can be performed on resources (e.g., `create:project`, `delete:user`).
+
+### Organizations
+Organizations (or Teams) allow you to group users together. A user can belong to multiple organizations and have different roles in each.
+
+## Current state
+
+For now, Kerne provides basic role-based access control at the application level. You can assign a role to a user during registration or via the Admin API.
+
+```typescript
+// Assignment example (Server SDK)
+await kerne.users.update('usr_123', {
+  role: 'ADMIN'
+});
+```

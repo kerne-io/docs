@@ -1,0 +1,48 @@
+---
+title: "Product"
+description: "Billing product model"
+---
+
+A Product is a container for Plans. Most applications have a single default product representing the core SaaS offering, but you can create multiple products for different offerings.
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | string | Unique identifier for the product |
+| `tenant_id` | string | Tenant this product belongs to |
+| `slug` | string | URL-friendly identifier |
+| `name` | string | Display name |
+| `description` | string | Product description (nullable) |
+| `is_default` | boolean | Whether this is the default product |
+| `billing_scope` | enum | `USER` or `PROJECT` - determines how subscriptions are scoped |
+| `billing_config` | object | Provider-specific configuration (nullable) |
+| `provider` | enum | Payment provider (`STRIPE` or null) |
+| `created_at` | string | ISO 8601 timestamp |
+| `updated_at` | string | ISO 8601 timestamp |
+
+## Example
+
+```json
+{
+  "id": "prod_01234567890abcdef",
+  "tenant_id": "tenant_abc123",
+  "slug": "default",
+  "name": "Default Product",
+  "description": "Main SaaS offering",
+  "is_default": true,
+  "billing_scope": "USER",
+  "billing_config": null,
+  "provider": "STRIPE",
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "updated_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Related endpoints
+
+- [List products](/api-reference/billing/products/list)
+- [Create product](/api-reference/billing/products/create)
+- [Get product](/api-reference/billing/products/get)
+- [Update product](/api-reference/billing/products/update)
+- [Delete product](/api-reference/billing/products/delete)

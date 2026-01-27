@@ -1,0 +1,50 @@
+---
+title: "Create token"
+api: "POST /v1/invitations/token"
+---
+
+Create a JWT invitation token for a specific email address.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `email` | `string` | Yes | Email address to invite. |
+
+## Example request
+
+```json
+{
+  "email": "newuser@example.com"
+}
+```
+
+## Response
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresAt": "2025-01-08T00:00:00.000Z",
+  "email": "newuser@example.com"
+}
+```
+
+## Behavior
+
+- An invitation email is automatically sent to the user
+- If the email is on the waitlist, the entry is marked as `INVITED`
+- Tokens expire after 7 days
+- Creating a new token for the same email replaces the old one
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1008` | 409 | Email already registered. |
+| `K3002` | 403 | Insufficient permissions. |

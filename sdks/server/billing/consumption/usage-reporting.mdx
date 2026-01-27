@@ -1,0 +1,51 @@
+---
+title: "Usage reporting"
+description: "Report metered consumption"
+---
+
+The `reportUsage` method allows you to push consumption data for metered entitlements from your backend. This is essential for features billed based on volume, such as API calls or storage.
+
+For more information on how metered features work, see the [Entitlements concept](/concepts/monetization/entitlements) page.
+
+## Signature
+
+```typescript
+kerne.billing.usage.report(params: ReportUsageParams): Promise<void>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `userId` | `string` | Yes | The unique ID of the user consuming the feature. |
+| `featureKey` | `string` | Yes | The unique key of the metered feature. |
+| `quantity` | `number` | Yes | The amount to add to the current usage. |
+
+## Response
+
+Returns a `Promise<void>`.
+
+<Note>
+**Asynchronous processing**
+Usage reporting is processed asynchronously to ensure high performance. While the API responds immediately, it may take a few seconds for the usage to reflect in the user's entitlements.
+</Note>
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K5001` | 403 | **Resource quota exceeded**: The user has reached their limit and cannot consume more. |
+| `K2001` | 400 | **Invalid payload**: The feature is a boolean feature and does not support usage reporting. |
+| `K4003` | 404 | **User not found**: The specified user ID does not exist in your application. |
+| `K4001` | 404 | **Resource not found**: The specified feature key does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+
+## Example
+
+```typescript
+await kerne.billing.usage.report({
+  userId: 'usr_123',
+  featureKey: 'api_calls',
+  quantity: 1
+});
+```

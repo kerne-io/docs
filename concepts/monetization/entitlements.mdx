@@ -1,0 +1,27 @@
+---
+title: "Entitlements"
+description: "Controlling feature access"
+---
+
+Entitlements are the core of Kerne's monetization engine. They define exactly **what** a application is allowed to do based on their subscription.
+
+## Types of entitlements
+
+### 1. Boolean entitlements
+Simple on/off switches for features.
+*   **Use case**: Access to a specific module (e.g., "SSO Support").
+*   **Implementation**: Use the [canConsume](/sdks/client/nextjs/billing/consumption/check-entitlement) method in your frontend to toggle UI elements.
+
+### 2. Metered entitlements
+Numeric limits that reset at the end of each billing cycle.
+*   **Use case**: Quotas (e.g., "10,000 API calls per month").
+*   **Implementation**: Use [canConsume](/sdks/client/nextjs/billing/consumption/check-entitlement) to check remaining quota and [reportUsage](/sdks/server/billing/consumption/usage-reporting) from your backend to update consumption.
+
+## Static vs. dynamic
+
+*   **Static entitlements**: Included in a plan. Every subscriber to that plan gets the same entitlement.
+*   **Dynamic entitlements (Add-ons)**: Purchased separately. These stack on top of the plan's base entitlements.
+
+## Enforcing limits
+
+When a user reaches their limit, Kerne returns a `K5001` (Resource quota exceeded) error. For best practices on handling these scenarios without disrupting the user experience, see our [Enforcing limits](/guides/billing/enforcing-limits-without-breaking-ux) guide.

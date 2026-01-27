@@ -1,0 +1,115 @@
+---
+title: "Login"
+description: "Authenticate with email and password"
+---
+
+The `login` method authenticates a user using their email and password. Use it via the `useAuth` hook.
+
+## Using the hook
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function LoginForm() {
+  const { login, isAuthenticated } = useAuth();
+  
+  const handleSubmit = async (e) => {
+    // ...
+    await login({ email, password });
+    // ...
+  };
+  
+  // ...
+}
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `email` | `string` | Yes | The user's email address. |
+| `password` | `string` | Yes | The user's password. |
+
+## Response
+
+Returns a `Promise` that resolves to an `AuthResponse` object.
+
+```typescript
+interface AuthResponse {
+  user: {
+    id: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    email_verified: boolean;
+  };
+  token: string;
+  refresh_token: string;
+  expires_at: string;
+}
+```
+
+<Note>
+The session is automatically stored in localStorage and the SDK instance is updated with the token.
+</Note>
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1005` | 401 | **Invalid credentials**: The email or password provided is incorrect. |
+| `K6002` | 429 | **Too many login attempts**: The user has been temporarily blocked due to multiple failed attempts. |
+| `K3002` | 403 | **Insufficient permissions**: The user account is deactivated or banned. |
+| `K1009` | 400 | **Invalid email format**: The provided email address is not valid. |
+
+## Full example
+
+```tsx
+import { useState } from 'react';
+import { useAuth } from '@kerne/react';
+
+function LoginPage() {
+  const { login, isAuthenticated, user } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      await login({ email, password });
+    } catch (err: any) {
+      if (err.code === 'K1005') {
+        setError('Invalid email or password');
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    }
+  };
+
+  if (isAuthenticated) {
+    return <p>Welcome back, {user?.email}!</p>;
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <button type="submit">Login</button>
+    </form>
+  );
+}
+```

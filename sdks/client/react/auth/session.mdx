@@ -1,0 +1,82 @@
+---
+title: "Session"
+description: "Manage the active session"
+---
+
+The session is managed through the `useAuth` hook, which provides the current user state and authentication methods.
+
+## Using the hook
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function Profile() {
+  const { user, isAuthenticated, logout } = useAuth();
+  
+  if (!isAuthenticated) return <p>Not logged in</p>;
+  
+  // ...
+}
+```
+
+## Available properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `user` | `User \| null` | Current user object or null if not authenticated |
+| `isAuthenticated` | `boolean` | Whether a user is currently logged in |
+| `logout` | `() => void` | Function to log out the current user |
+| `refreshUser` | `() => Promise<User \| null>` | Refresh user data from the server |
+
+## User object
+
+```typescript
+interface User {
+  id: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  email_verified: boolean;
+}
+```
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1006` | 401 | **Token expired**: The session token has expired. |
+| `K1007` | 401 | **Token not provided**: No active session was found. |
+
+## Full example
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function UserProfile() {
+  const { user, isAuthenticated, logout, refreshUser } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/login';
+  };
+
+  const handleRefresh = async () => {
+    const updatedUser = await refreshUser();
+    console.log('User refreshed:', updatedUser);
+  };
+
+  if (!isAuthenticated) {
+    return <p>Please log in to view your profile.</p>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome, {user?.first_name || user?.email}</h1>
+      <p>Email: {user?.email}</p>
+      <p>Verified: {user?.email_verified ? 'Yes' : 'No'}</p>
+      <button onClick={handleRefresh}>Refresh profile</button>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+}
+```

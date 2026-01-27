@@ -1,0 +1,18 @@
+---
+title: "Delete entitlement"
+api: "DELETE /v1/packs/:id/entitlements/:featureId"
+description: "Remove a specific entitlement from a pack"
+---
+
+## Path Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | string | Pack ID |
+| `featureId` | string | Feature ID to remove |
+
+## Response
+
+Returns the updated pack object without the removed entitlement.
+
+> **Note**: This is a convenience endpoint. You can also use `PATCH /packs/:id/entitlements` with `_delete: true`.

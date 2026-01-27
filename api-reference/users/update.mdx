@@ -1,0 +1,56 @@
+---
+title: "Update user"
+api: "PATCH /v1/users/:id"
+---
+
+Update an existing user's properties.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | User ID to update. |
+
+## Request body
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | User's display name. |
+| `role` | `string` | User role (`admin`, `member`). |
+| `status` | `string` | User status (`active`, `suspended`). |
+
+## Example request
+
+```json
+{
+  "role": "admin",
+  "status": "active"
+}
+```
+
+## Response
+
+```json
+{
+  "id": "usr_01234567890abcdef",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "role": "admin",
+  "status": "active",
+  "updated_at": "2025-01-02T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4002` | 404 | User not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

@@ -1,0 +1,89 @@
+---
+title: "Error codes"
+description: "Standardized error responses for Kerne API"
+---
+
+Kerne uses standardized error codes to provide clear feedback and simplify debugging. Every error response follows this structure:
+
+```json
+{
+  "success": false,
+  "error": {
+    "type": "AUTH_ERROR",
+    "code": "K1005",
+    "message": "Invalid email or password",
+    "statusCode": 401,
+    "details": {
+      "email": "user@example.com"
+    }
+  }
+}
+```
+
+## Auth and registration (K1xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K1001` | `REGISTRATION_ERROR` | Registration is currently disabled for this application. |
+| `K1002` | `REGISTRATION_ERROR` | Maximum users limit reached for this application. |
+| `K1003` | `REGISTRATION_ERROR` | Invalid, expired, or already used invitation token. |
+| `K1004` | `REGISTRATION_ERROR` | Invalid, expired, or already used invitation code. |
+| `K1005` | `AUTH_ERROR` | Invalid email or password. |
+| `K1006` | `AUTH_ERROR` | Authentication token has expired. |
+| `K1007` | `AUTH_ERROR` | Authentication token not provided. |
+| `K1008` | `REGISTRATION_ERROR` | Email already registered. |
+| `K1009` | `VALIDATION_ERROR` | Invalid email format. |
+| `K1010` | `VALIDATION_ERROR` | Password does not meet security requirements. |
+
+## Validation errors (K2xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K2001` | `VALIDATION_ERROR` | Invalid request payload. |
+| `K2002` | `VALIDATION_ERROR` | Missing required field. |
+| `K2003` | `VALIDATION_ERROR` | Invalid field format. |
+| `K2004` | `VALIDATION_ERROR` | Invalid enum value. |
+| `K2005` | `VALIDATION_ERROR` | Duplicate entry. |
+
+## Permission errors (K3xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K3001` | `PERMISSION_ERROR` | This operation requires a different application type. |
+| `K3002` | `PERMISSION_ERROR` | Insufficient permissions to perform this action. |
+| `K3003` | `PERMISSION_ERROR` | You do not have access to this resource. |
+| `K3004` | `PERMISSION_ERROR` | This operation is not allowed. |
+
+## Resource errors (K4xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K4001` | `RESOURCE_ERROR` | Resource not found. |
+| `K4002` | `RESOURCE_ERROR` | Application not found. |
+| `K4003` | `RESOURCE_ERROR` | User not found. |
+| `K4004` | `RESOURCE_ERROR` | Invitation not found. |
+| `K4005` | `RESOURCE_ERROR` | Waitlist entry not found. |
+| `K4006` | `RESOURCE_ERROR` | Resource conflict. |
+
+## Billing and limits (K5xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K5001` | `BILLING_ERROR` | **Resource quota exceeded**: The application has reached their limit for this feature. |
+| `K5002` | `BILLING_ERROR` | **Plan upgrade required**: The requested feature requires a higher plan. |
+| `K5003` | `BILLING_ERROR` | **Billing payment failed**: The transaction could not be completed. |
+
+## Rate limiting (K6xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K6001` | `RATE_LIMIT_ERROR` | Too many requests. |
+| `K6002` | `RATE_LIMIT_ERROR` | Too many login attempts. |
+
+## External services (K7xxx)
+
+| Code | Type | Description |
+|------|------|-------------|
+| `K7001` | `EXTERNAL_SERVICE_ERROR` | Stripe service error. |
+| `K7002` | `EXTERNAL_SERVICE_ERROR` | Email service error. |
+| `K7003` | `EXTERNAL_SERVICE_ERROR` | External service unavailable. |

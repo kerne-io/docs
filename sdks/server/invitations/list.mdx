@@ -1,0 +1,38 @@
+---
+title: "List invitations"
+description: "List all active invitations"
+---
+
+Retrieve a list of all active invitation tokens and codes.
+
+```typescript
+const invitations = await kerne.invitations.list();
+
+console.log('Tokens:', invitations.tokens);
+console.log('Codes:', invitations.codes);
+```
+
+### Response
+
+The response contains two arrays: `tokens` and `codes`.
+
+```json
+{
+  "tokens": [
+    {
+      "id": "inv_123",
+      "email": "user@example.com",
+      "token": "...",
+      "isExpired": false
+    }
+  ],
+  "codes": [
+    {
+      "id": "code_456",
+      "code": "TEAM-JOIN",
+      "max_uses": 100,
+      "used_count": 5
+    }
+  ]
+}
+```

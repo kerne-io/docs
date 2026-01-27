@@ -1,0 +1,24 @@
+---
+title: "Config"
+api: "GET /v1/auth/config"
+description: "Get public authentication configuration"
+---
+
+Returns public settings such as the registration mode and enabled OAuth providers. This is useful for dynamically rendering your login and registration forms.
+
+## Response
+
+<ResponseField name="registrationMode" type="string">
+  The current registration mode: `OPEN`, `WAITLIST`, or `INVITATION_ONLY`.
+</ResponseField>
+
+<ResponseField name="oauthProviders" type="string[]">
+  A list of enabled social login providers (e.g., `google`, `github`).
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4002` | 404 | **Application not found**: The specified application slug is invalid. |
+| `K9001` | 500 | **Internal server error**: An unexpected error occurred. |

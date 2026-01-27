@@ -1,0 +1,20 @@
+---
+title: "List waitlist"
+sidebarTitle: "List waitlist"
+description: "Retrieve waitlist entries"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const result = await kerne.waitlist.list({
+  limit: 20,
+  status: 'PENDING'
+});
+```
+</CodeGroup>
+
+## Response
+
+Returns a list of `WaitlistEntry` objects and pagination metadata.

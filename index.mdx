@@ -1,0 +1,79 @@
+---
+title: "Introduction"
+description: "The infrastructure for monetized software"
+---
+
+## What is Kerne?
+
+Kerne provides the infrastructure you need to build and scale monetized software. It unifies authentication and billing into a single, developer-first platform.
+
+Instead of stitching together disparate auth and billing providers, Kerne gives you a unified data model. Your users and their subscriptions are deeply integrated from day one.
+
+<CardGroup cols={2}>
+  <Card title="5-minute quickstart" icon="rocket" href="/quickstart">
+    Deploy your first monetized app in minutes.
+  </Card>
+  <Card title="Node.js SDK" icon="node" href="/sdks/server/overview">
+    `@kerne/server` for your secure backend operations.
+  </Card>
+  <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
+    `@kerne/react` for your frontend user experience.
+  </Card>
+  <Card title="API reference" icon="terminal" href="/api-reference/introduction">
+    Complete REST API documentation for custom integrations.
+  </Card>
+</CardGroup>
+
+## Our approach
+
+<CardGroup cols={3}>
+  <Card title="Secure identity" icon="fingerprint">
+    Authentication that just works. We handle HttpOnly cookies and session management automatically.
+  </Card>
+  <Card title="Native monetization" icon="credit-card">
+    Don't just bill users—entitle them. Use feature flags driven directly by subscription status.
+  </Card>
+  <Card title="Developer first" icon="code">
+    Clean APIs and type-safe SDKs designed to fit into your modern development workflow.
+  </Card>
+</CardGroup>
+
+## SDK example
+
+<CodeGroup>
+```typescript Server (@kerne/server)
+import { Kerne } from '@kerne/server';
+
+const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID,
+  secretKey: process.env.KERNE_SECRET_KEY
+});
+
+// Create a user and grant access
+const user = await kerne.users.create({
+  email: 'user@example.com',
+  password: 'SecurePassword123'
+});
+```
+
+```typescript Client (@kerne/react)
+import { KerneProvider, useAuth } from '@kerne/react';
+
+// 1. Wrap your application
+function Root() {
+  return (
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+      <App />
+    </KerneProvider>
+  );
+}
+
+// 2. Use the hook in your components
+function Profile() {
+  const { user, login } = useAuth();
+  
+  if (!user) return <button onClick={login}>Login</button>;
+  return <div>Welcome, {user.email}</div>;
+}
+```
+</CodeGroup>

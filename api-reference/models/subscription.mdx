@@ -1,0 +1,49 @@
+---
+title: "Subscription"
+description: "The Subscription object"
+---
+
+A **Subscription** links a customer (User or Organization) to a Plan and Price.
+
+<ResponseField name="id" type="string" required>
+  The unique identifier for the subscription.
+</ResponseField>
+
+<ResponseField name="status" type="string" required>
+  Current status: `active`, `past_due`, `canceled`, `trialing`.
+</ResponseField>
+
+<ResponseField name="plan" type="object" required>
+  The [Plan](/api-reference/models/plan) associated with this subscription.
+</ResponseField>
+
+<ResponseField name="price" type="object" required>
+  The [Price](/api-reference/models/price) being billed.
+</ResponseField>
+
+<ResponseField name="current_period_end" type="string" required>
+  ISO 8601 timestamp when the current billing period ends.
+</ResponseField>
+
+<ResponseField name="cancel_at_period_end" type="boolean" required>
+  If true, the subscription will cancel solely at the end of the current period.
+</ResponseField>
+
+```json Example
+{
+  "id": "sub_123",
+  "status": "active",
+  "current_period_end": "2024-02-01T00:00:00Z",
+  "cancel_at_period_end": false,
+  "plan": {
+    "id": "plan_pro",
+    "name": "Pro Plan"
+  },
+  "price": {
+    "id": "price_monthly",
+    "amount": 2900,
+    "currency": "usd",
+    "interval": "month"
+  }
+}
+```

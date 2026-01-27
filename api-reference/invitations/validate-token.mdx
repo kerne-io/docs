@@ -1,0 +1,46 @@
+---
+title: "Validate token"
+api: "GET /v1/invitations/validate/token"
+---
+
+Check if an invitation token is valid.
+
+## Authentication
+
+<Note>
+This is a **public** endpoint. It only requires a application identifier header.
+</Note>
+
+## Query parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `token` | `string` | Yes | JWT invitation token. |
+
+## Example request
+
+```
+GET /v1/auth/invitations/validate/token?token=eyJhbGciOiJIUzI1NiI...
+```
+
+## Response
+
+```json
+{
+  "valid": true,
+  "email": "newuser@example.com"
+}
+```
+
+## Invalid response
+
+```json
+{
+  "valid": false
+}
+```
+
+Returns `valid: false` when:
+- Token is expired
+- Token has already been used
+- Token signature is invalid

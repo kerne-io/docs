@@ -1,0 +1,50 @@
+---
+title: "List features"
+api: "GET /v1/features"
+---
+
+List all features defined in your application.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Response
+
+```json
+[
+  {
+    "id": "feat_01234567890abcdef",
+    "key": "api_access",
+    "name": "API Access",
+    "description": "Access to REST API",
+    "type": "boolean",
+    "created_at": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "feat_02345678901bcdefg",
+    "key": "api_calls",
+    "name": "API Calls",
+    "description": "Monthly API call limit",
+    "type": "metered",
+    "reset_period": "month",
+    "created_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```
+
+## Feature types
+
+| Type | Description |
+|------|-------------|
+| `boolean` | On/off feature flag. |
+| `quantity` | Fixed numeric limit (e.g., seats). |
+| `metered` | Usage-based with reset period. |
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | Insufficient permissions. |

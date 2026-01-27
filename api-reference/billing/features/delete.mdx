@@ -1,0 +1,34 @@
+---
+title: "Delete feature"
+api: "DELETE /v1/features/:id"
+---
+
+Delete a feature definition.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Feature ID. |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Feature not found. |
+| `K3002` | 403 | Insufficient permissions. |
+| `K5004` | 400 | Cannot delete feature used in active plans. |

@@ -1,0 +1,33 @@
+---
+title: "Remove from waitlist"
+sidebarTitle: "Remove"
+description: "Remove an entry from the waitlist"
+---
+
+Remove a user from the waitlist by their email address. This is an admin operation that requires a secret key.
+
+## Usage
+
+<CodeGroup>
+```typescript Node.js
+// Sends DELETE /v1/waitlist with { email } body
+await kerne.waitlist.remove('user@example.com');
+```
+</CodeGroup>
+
+## Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `email` | string | Yes | Email address of the waitlist entry to remove |
+
+## Response
+
+Returns `void` on success.
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4005` | 404 | Waitlist entry not found |
+| `K3002` | 403 | Insufficient permissions |

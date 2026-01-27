@@ -1,0 +1,19 @@
+---
+title: "Report usage"
+api: "POST /billing/usage"
+description: "Report current user's consumption data"
+---
+
+## Response
+
+<ResponseField name="usage" type="Usage[]">
+  Consumption data for all metered features associated with the user.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Token not provided**: The user must be logged in to check usage. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K4002` | 404 | **Application not found**: The specified application slug is invalid. |

@@ -1,0 +1,55 @@
+---
+title: "Update product"
+api: "PATCH /v1/billing/products/:id"
+---
+
+Update an existing product.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Product ID. |
+
+## Request body
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | Product name. |
+| `description` | `string` | Product description. |
+| `is_active` | `boolean` | Whether the product is active. |
+| `metadata` | `object` | Custom metadata. |
+
+## Example request
+
+```json
+{
+  "name": "Enterprise Plan (Updated)",
+  "is_active": false
+}
+```
+
+## Response
+
+```json
+{
+  "id": "prod_01234567890abcdef",
+  "name": "Enterprise Plan (Updated)",
+  "is_active": false,
+  "updated_at": "2025-01-02T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Product not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

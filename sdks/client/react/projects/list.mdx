@@ -1,0 +1,77 @@
+---
+title: "List projects"
+description: "Retrieve user projects"
+---
+
+Access the projects resource through the SDK client available via the `useClient` hook.
+
+## Using the hook
+
+```tsx
+import { useClient } from '@kerne/react';
+
+function ProjectsList() {
+  const kerne = useClient();
+  
+  const projects = await kerne.projects.list();
+  // ...
+}
+```
+
+## Response
+
+Returns an array of `Project` objects.
+
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  created_at: string;
+}
+```
+
+## Full example
+
+```tsx
+import { useState, useEffect } from 'react';
+import { useClient } from '@kerne/react';
+
+function ProjectsList() {
+  const kerne = useClient();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        const response = await kerne.projects.list();
+        setProjects(response.data.projects);
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadProjects();
+  }, [kerne]);
+
+  if (loading) {
+    return <p>Loading projects...</p>;
+  }
+
+  return (
+    <div>
+      <h2>Your projects</h2>
+      {projects.map(project => (
+        <div key={project.id}>
+          <h3>{project.name}</h3>
+          <p>{project.description}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+```

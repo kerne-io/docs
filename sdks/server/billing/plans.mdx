@@ -1,0 +1,182 @@
+---
+title: "Plans"
+sidebarTitle: "Plans"
+description: "Manage billing plans"
+---
+
+Plans define pricing tiers within a product. Each plan has one active pack containing entitlement definitions.
+
+<Info>
+Plans can be fully managed through the Kerne dashboard. Unless you're building a custom admin interface, you typically won't need to use these endpoints directly.
+</Info>
+
+## List plans
+
+Retrieve all plans for your tenant.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.plans.list();
+const plans = response.data;
+```
+</CodeGroup>
+
+**Response**
+
+```typescript
+interface Plan {
+  id: string;
+  product_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_default: boolean;
+  is_active: boolean;
+  trial_days: number;
+  sort_order: number;
+  provider_product_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+```
+
+```json
+[
+  {
+    "id": "plan_123",
+    "product_id": "prod_abc",
+    "name": "Pro Monthly",
+    "slug": "pro-monthly",
+    "description": "Professional tier with advanced features",
+    "is_default": false,
+    "is_active": true,
+    "trial_days": 14,
+    "sort_order": 2,
+    "provider_product_id": "prod_stripe_123",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```
+
+---
+
+## Create plan
+
+Create a new billing plan with entitlements.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.plans.create({
+  product_id: 'prod_123',
+  name: 'Pro Monthly',
+  slug: 'pro-monthly',
+  trial_days: 14,
+  entitlements: [
+    { feature_id: 'ft_api_calls', limit: 10000 },
+    { feature_id: 'ft_analytics', value: 'true' }
+  ]
+});
+const plan = response.data;
+```
+</CodeGroup>
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `product_id` | string | Yes | Parent product ID |
+| `name` | string | Yes | Plan name |
+| `slug` | string | Yes | URL-friendly identifier |
+| `description` | string | No | Plan description |
+| `is_default` | boolean | No | Mark as default plan |
+| `trial_days` | number | No | Free trial period |
+| `sort_order` | number | No | Display order |
+| `entitlements` | array | No | Initial entitlement definitions |
+| `provider_product_id` | string | No | Stripe/provider product ID |
+
+**Response**: Returns the created `Plan` object.
+
+---
+
+## Get plan
+
+Retrieve details for a specific plan.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.plans.get('plan_123');
+const plan = response.data;
+```
+</CodeGroup>
+
+**Response**: Returns a `Plan` object.
+
+---
+
+## Update plan
+
+Update an existing plan.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.plans.update('plan_123', {
+  name: 'Pro (Legacy)',
+  is_active: false
+});
+const plan = response.data;
+```
+</CodeGroup>
+
+**Response**: Returns the updated `Plan` object.
+
+<Note>
+To update entitlements, use the [Packs](/sdks/server/billing/packs) resource.
+</Note>
+
+---
+
+## List prices
+
+List all prices for a plan.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.plans.listPrices('plan_123');
+const prices = response.data;
+```
+</CodeGroup>
+
+**Response**
+
+```typescript
+interface PlanPrice {
+  id: string;
+  plan_id: string;
+  amount: number;
+  currency: string;
+  interval: 'month' | 'year' | 'week' | 'day';
+  is_active: boolean;
+  trial_days: number | null;
+  provider_price_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+```
+
+```json
+[
+  {
+    "id": "price_123",
+    "plan_id": "plan_abc",
+    "amount": 2900,
+    "currency": "usd",
+    "interval": "month",
+    "is_active": true,
+    "trial_days": 14,
+    "provider_price_id": "price_stripe_123",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```

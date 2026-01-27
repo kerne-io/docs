@@ -1,0 +1,19 @@
+---
+title: "User Info"
+api: "GET /v1/auth/userinfo"
+description: "Get current authenticated user"
+---
+
+## Response
+
+<ResponseField name="user" type="User">
+  The profile of the currently authenticated user.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1007` | 401 | **Token not provided**: No active session was found. |
+| `K1006` | 401 | **Token expired**: The session token has expired. |
+| `K4002` | 404 | **Application not found**: The specified application slug is invalid. |

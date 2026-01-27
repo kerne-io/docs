@@ -1,0 +1,135 @@
+---
+title: "Products"
+sidebarTitle: "Products"
+description: "Manage billing products"
+---
+
+Products are containers for plans. Most tenants have a single default product representing their SaaS offering.
+
+<Info>
+Products can be fully managed through the Kerne dashboard. Unless you're building a custom admin interface, you typically won't need to use these endpoints directly.
+</Info>
+
+## List products
+
+Retrieve all products for your tenant.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.products.list();
+const products = response.data;
+```
+</CodeGroup>
+
+**Response**
+
+```typescript
+interface Product {
+  id: string;
+  tenant_id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  is_default: boolean;
+  billing_scope: 'USER' | 'PROJECT';
+  billing_config: Record<string, unknown> | null;
+  provider: 'STRIPE' | null;
+  created_at: string;
+  updated_at: string;
+}
+```
+
+```json
+[
+  {
+    "id": "prod_123",
+    "tenant_id": "tenant_abc",
+    "slug": "default",
+    "name": "Default Product",
+    "description": "Main SaaS offering",
+    "is_default": true,
+    "billing_scope": "USER",
+    "billing_config": null,
+    "provider": "STRIPE",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```
+
+---
+
+## Create product
+
+Create a new billing product.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.products.create({
+  name: 'Pro Bundle',
+  slug: 'pro-bundle',
+  billing_scope: 'PROJECT',
+  description: 'Advanced features for power users'
+});
+const product = response.data;
+```
+</CodeGroup>
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | Yes | Product name |
+| `slug` | string | Yes | URL-friendly identifier |
+| `billing_scope` | enum | No | `USER` or `PROJECT` (default: `USER`) |
+| `description` | string | No | Product description |
+| `is_default` | boolean | No | Mark as default product |
+
+**Response**: Returns the created `Product` object.
+
+---
+
+## Get product
+
+Retrieve details for a specific product.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.products.get('prod_123');
+const product = response.data;
+```
+</CodeGroup>
+
+**Response**: Returns a `Product` object.
+
+---
+
+## Update product
+
+Update an existing product.
+
+<CodeGroup>
+```typescript Node.js
+const response = await kerne.billing.products.update('prod_123', {
+  name: 'Pro Bundle (Updated)',
+  description: 'Enhanced features'
+});
+const product = response.data;
+```
+</CodeGroup>
+
+**Response**: Returns the updated `Product` object.
+
+---
+
+## Delete product
+
+Delete a product. Products with active plans cannot be deleted.
+
+<CodeGroup>
+```typescript Node.js
+await kerne.billing.products.delete('prod_123');
+```
+</CodeGroup>
+
+**Response**: Returns `void` on success.

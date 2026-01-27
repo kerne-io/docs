@@ -1,0 +1,52 @@
+---
+title: "Create user"
+api: "POST /v1/users"
+---
+
+Create a new user in your application. A temporary password will be generated and sent via email.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `email` | `string` | Yes | User's email address. |
+| `name` | `string` | No | User's display name. |
+| `role` | `string` | No | User role (default: `member`). |
+| `password` | `string` | No | User password. If not provided, a temporary password is generated. |
+
+## Example request
+
+```json
+{
+  "email": "newuser@example.com",
+  "name": "New User",
+  "role": "member"
+}
+```
+
+## Response
+
+```json
+{
+  "id": "usr_01234567890abcdef",
+  "email": "newuser@example.com",
+  "name": "New User",
+  "role": "member",
+  "status": "active",
+  "temporaryPassword": "Abc12345!"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1008` | 409 | Email already registered. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

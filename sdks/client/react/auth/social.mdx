@@ -1,0 +1,23 @@
+---
+title: "Social login"
+description: "Authenticate with OAuth providers"
+---
+
+Kerne supports social login via Google, GitHub, and other OAuth providers.
+
+## Start flow
+
+Redirect the user to the Kerne OAuth endpoint.
+
+```typescript
+kerne.auth.signInWithSocial('google', {
+  redirectUrl: 'https://app.com/dashboard'
+});
+```
+
+## Supported providers
+
+*   `google`
+*   `github`
+*   `apple` (Coming soon)
+*   `microsoft` (Coming soon)

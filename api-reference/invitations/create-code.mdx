@@ -1,0 +1,48 @@
+---
+title: "Create invitation code"
+api: "POST /v1/invitations/code"
+---
+
+Create a shareable 8-character invitation code.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `expiresAt` | `string` | No | ISO date string for code expiration. |
+
+## Example request
+
+```json
+{
+  "expiresAt": "2025-01-15T00:00:00.000Z"
+}
+```
+
+## Response
+
+```json
+{
+  "code": "ABC12345",
+  "expiresAt": "2025-01-15T00:00:00.000Z"
+}
+```
+
+## Behavior
+
+- Codes are 8 characters, using letters and numbers (excluding confusing chars like O, 0, I, 1)
+- Each code is single-use by default
+- Codes without `expiresAt` never expire
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | Insufficient permissions. |
+| `K9001` | 500 | Failed to generate unique code. |

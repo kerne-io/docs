@@ -1,0 +1,12 @@
+---
+title: "Refresh token"
+description: "Refresh an access token"
+---
+
+Get a fresh access token using a refresh token.
+
+```typescript
+const { token, refresh_token } = await kerne.auth.refreshToken({
+  refresh_token: 'existing_refresh_token'
+});
+```

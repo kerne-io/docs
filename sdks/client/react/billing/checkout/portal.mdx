@@ -1,0 +1,81 @@
+---
+title: "Portal"
+description: "Manage subscriptions via Stripe"
+---
+
+The `createPortal` and `openPortal` methods generate a link to the Stripe Customer Portal. Use them via the `useBilling` hook.
+
+## Using the hook
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function ManageSubscription() {
+  const { openPortal } = useBilling();
+  
+  const handleClick = () => {
+    openPortal('/settings/billing');
+  };
+  // ...
+}
+```
+
+## Methods
+
+### openPortal
+
+Redirects the user directly to the Stripe Portal.
+
+```typescript
+openPortal(returnUrl?: string): Promise<void>
+```
+
+### createPortal
+
+Returns the portal URL without redirecting.
+
+```typescript
+createPortal(returnUrl?: string): Promise<string>
+```
+
+## Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `returnUrl` | `string` | Optional: URL to return to after exiting the portal. Defaults to current URL. |
+
+## Response
+
+- `openPortal`: Returns `void` (redirects immediately)
+- `createPortal`: Returns the portal URL as a `string`
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+| `K4001` | 404 | **Resource not found**: The user does not have an active or past subscription. |
+
+## Full example
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function BillingSettings() {
+  const { openPortal } = useBilling();
+
+  const handleManageSubscription = () => {
+    openPortal(`${window.location.origin}/settings/billing`);
+  };
+
+  return (
+    <div>
+      <h2>Billing settings</h2>
+      <p>Manage your subscription, payment methods, and invoices.</p>
+      <button onClick={handleManageSubscription}>
+        Manage subscription
+      </button>
+    </div>
+  );
+}
+```

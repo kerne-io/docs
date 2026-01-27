@@ -1,0 +1,43 @@
+---
+title: "Verify Email"
+api: "POST /v1/auth/email/verify"
+---
+
+Verify a user's email address using a verification token.
+
+## Authentication
+
+<Note>
+This is a **public** endpoint. The token must be valid and not expired.
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `token` | `string` | Yes | Email verification token from the email. |
+
+## Example request
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+## Response
+
+```json
+{
+  "success": true,
+  "message": "Email verified successfully"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1006` | 401 | Token expired. |
+| `K1007` | 401 | Invalid token. |
+| `K2001` | 400 | Token is required. |

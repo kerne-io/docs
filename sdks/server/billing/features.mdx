@@ -1,0 +1,107 @@
+---
+title: "Features"
+sidebarTitle: "Features"
+description: "Manage billing features"
+---
+
+Features define the capabilities and limits available in your billing plans. Each feature has a type (BOOLEAN, QUOTA, or STATIC) and can be attached to plans via entitlement definitions.
+
+<Info>
+Features can be fully managed through the Kerne dashboard. Unless you're building a custom admin interface, you typically won't need to use these endpoints directly.
+</Info>
+
+## List features
+
+Retrieve all features for your tenant.
+
+<CodeGroup>
+```typescript Node.js
+const features = await kerne.billing.features.list();
+```
+</CodeGroup>
+
+**Response**
+```json
+[
+  {
+    "id": "ft_123",
+    "key": "api_calls",
+    "name": "API Calls",
+    "type": "QUOTA",
+    "reset_policy": "RESET",
+    "quota_period": "MONTHLY",
+    "overage": "BLOCK"
+  }
+]
+```
+
+---
+
+## Create feature
+
+Create a new billing feature.
+
+<CodeGroup>
+```typescript Node.js
+const feature = await kerne.billing.features.create({
+  key: 'api_calls',
+  name: 'API Calls',
+  type: 'QUOTA',
+  reset_policy: 'RESET',
+  quota_period: 'MONTHLY',
+  overage: 'BLOCK',
+  sort_order: 1
+});
+```
+</CodeGroup>
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | string | Yes | Unique feature key (lowercase, underscores) |
+| `name` | string | Yes | Display name |
+| `type` | enum | Yes | `BOOLEAN`, `QUOTA`, or `STATIC` |
+| `reset_policy` | enum | No | `RESET`, `ACCUMULATE`, or `STATIC` (default: `RESET`) |
+| `quota_period` | enum | No | `DAILY`, `WEEKLY`, `MONTHLY`, `BILLING_CYCLE` |
+| `overage` | enum | No | `BLOCK` or `ALLOW` (default: `BLOCK`) |
+| `sort_order` | number | No | Display order |
+
+---
+
+## Get feature
+
+Retrieve details for a specific feature.
+
+<CodeGroup>
+```typescript Node.js
+const feature = await kerne.billing.features.get('ft_123');
+```
+</CodeGroup>
+
+---
+
+## Update feature
+
+Update an existing feature.
+
+<CodeGroup>
+```typescript Node.js
+const feature = await kerne.billing.features.update('ft_123', {
+  name: 'API Calls (Updated)',
+  overage: 'ALLOW'
+});
+```
+</CodeGroup>
+
+---
+
+## Delete feature
+
+Delete a feature. Note: Features attached to active plans cannot be deleted.
+
+<CodeGroup>
+```typescript Node.js
+await kerne.billing.features.delete('ft_123');
+```
+</CodeGroup>

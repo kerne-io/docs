@@ -1,0 +1,59 @@
+---
+title: "Update entitlements"
+api: "PATCH /v1/packs/:id/entitlements"
+---
+
+Update the entitlements of a DRAFT pack.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Pack ID. |
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `entitlements` | `array` | Yes | New entitlements (replaces existing). |
+
+<Warning>
+You can only update entitlements on **DRAFT** packs. Once activated, packs are immutable.
+</Warning>
+
+## Example request
+
+```json
+{
+  "entitlements": [
+    { "feature_id": "feat_api_calls", "limit": 20000 },
+    { "feature_id": "feat_api_access", "value": "true" },
+    { "feature_id": "feat_priority_support", "value": "true" }
+  ]
+}
+```
+
+## Response
+
+```json
+{
+  "id": "pack_01234567890abcdef",
+  "status": "DRAFT",
+  "entitlements": [...]
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Pack not found. |
+| `K5007` | 409 | Can only update DRAFT packs. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

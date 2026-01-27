@@ -1,0 +1,39 @@
+---
+title: "Get feature"
+api: "GET /v1/features/:id"
+---
+
+Retrieve a single feature by ID.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Feature ID. |
+
+## Response
+
+```json
+{
+  "id": "feat_01234567890abcdef",
+  "key": "api_calls",
+  "name": "API Calls",
+  "description": "Monthly API call limit",
+  "type": "metered",
+  "reset_period": "month",
+  "created_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | Feature not found. |
+| `K3002` | 403 | Insufficient permissions. |

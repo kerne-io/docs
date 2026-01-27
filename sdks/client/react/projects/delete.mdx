@@ -1,0 +1,77 @@
+---
+title: "Delete project"
+description: "Delete a project"
+---
+
+Delete a project through the SDK client available via the `useClient` hook.
+
+## Using the hook
+
+```tsx
+import { useClient } from '@kerne/react';
+
+function DeleteButton({ id }) {
+  const kerne = useClient();
+  
+  await kerne.projects.delete(id);
+  // ...
+}
+```
+
+## Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `id` | `string` | Project ID to delete |
+
+## Response
+
+Returns `void` on success.
+
+## Full example
+
+```tsx
+import { useState } from 'react';
+import { useClient } from '@kerne/react';
+
+function DeleteProjectButton({ project, onDeleted }) {
+  const kerne = useClient();
+  const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    setLoading(true);
+    
+    try {
+      await kerne.projects.delete(project.id);
+      console.log('Project deleted');
+      onDeleted?.();
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+    } finally {
+      setLoading(false);
+      setShowConfirm(false);
+    }
+  };
+
+  if (showConfirm) {
+    return (
+      <div>
+        <p>Are you sure you want to delete "{project.name}"?</p>
+        <button onClick={handleDelete} disabled={loading}>
+          {loading ? 'Deleting...' : 'Yes, delete'}
+        </button>
+        <button onClick={() => setShowConfirm(false)}>
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button onClick={() => setShowConfirm(true)}>
+      Delete project
+    </button>
+  );
+}
+```

@@ -1,0 +1,32 @@
+---
+title: 'List Projects'
+api: 'GET /v1/projects'
+---
+
+Retrieves a list of all projects associated with the authenticated user.
+
+### Response
+
+<ResponseField name="projects" type="array">
+  The list of projects.
+  <Expandable title="Project Object">
+    <ResponseField name="id" type="string">
+      The unique identifier of the project.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The name of the project.
+    </ResponseField>
+    <ResponseField name="slug" type="string">
+      The URL-friendly slug of the project.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      The description of the project.
+    </ResponseField>
+    <ResponseField name="is_active" type="boolean">
+      Whether the project is active.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      The timestamp when the project was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>

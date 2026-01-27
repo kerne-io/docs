@@ -1,0 +1,28 @@
+---
+title: "Overview"
+description: "Getting started with the Python SDK"
+---
+
+<Note>
+**Coming soon**
+The Python SDK is currently in development.
+</Note>
+
+The Python SDK will provide a seamless way to interact with Kerne from your Python applications (Django, Flask, FastAPI, etc.).
+
+## Installation
+
+```bash
+pip install kerne-sdk
+```
+
+## Initialization
+
+```python
+from kerne import Kerne
+
+kerne = Kerne(
+    secret_key="sk_live_...",
+    base_url="https://api.kerne.io"
+)
+```

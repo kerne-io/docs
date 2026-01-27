@@ -1,0 +1,53 @@
+---
+title: "Subscriptions"
+sidebarTitle: "Subscriptions"
+description: "Manage billing subscriptions"
+---
+
+Subscriptions link a user or project (scope) to a pricing plan.
+
+<Info>
+Most of the time, subscriptions are created automatically via [Stripe Checkout](/sdks/server/billing/checkout/create). However, you can manage them manually using these endpoints.
+</Info>
+
+## List subscriptions
+
+Retrieve subscriptions, optionally filtering by status or product.
+
+<CodeGroup>
+```typescript Node.js
+const subscriptions = await kerne.billing.subscriptions.list({
+  status: 'active',
+  product_slug: 'pro-plan'
+});
+```
+</CodeGroup>
+
+### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `status` | `string` | Optional. Filter by status (`active`, `past_due`, `canceled`, `trialing`). |
+| `product_slug` | `string` | Optional. Filter by product slug. |
+| `scope_id` | `string` | Optional. Filter by user or project ID. |
+
+## Retrieve subscription
+
+Get details of a specific subscription.
+
+<CodeGroup>
+```typescript Node.js
+const subscription = await kerne.billing.subscriptions.retrieve('sub_123');
+console.log(subscription.status);
+```
+</CodeGroup>
+
+## Cancel subscription
+
+Cancel a subscription at the end of the billing period (default) or immediately.
+
+<CodeGroup>
+```typescript Node.js
+await kerne.billing.subscriptions.cancel('sub_123');
+```
+</CodeGroup>

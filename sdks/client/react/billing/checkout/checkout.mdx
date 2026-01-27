@@ -1,0 +1,92 @@
+---
+title: "Checkout"
+description: "Start a subscription flow"
+---
+
+The `createCheckout` and `openCheckout` methods initiate a Stripe Checkout session. Use them via the `useBilling` hook.
+
+## Using the hook
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function UpgradeButton() {
+  const { openCheckout } = useBilling();
+  
+  const handleClick = () => {
+    openCheckout('plan_pro_monthly', { successUrl: '/success' });
+  };
+  // ...
+}
+```
+
+## Methods
+
+### openCheckout
+
+Redirects the user directly to the Stripe Checkout page.
+
+```typescript
+openCheckout(planId: string, options?: {
+  successUrl?: string;
+  cancelUrl?: string;
+}): Promise<void>
+```
+
+### createCheckout
+
+Returns the checkout URL without redirecting.
+
+```typescript
+createCheckout(planId: string, options?: {
+  successUrl?: string;
+  cancelUrl?: string;
+}): Promise<string>
+```
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `planId` | `string` | Yes | The unique ID of the plan |
+| `successUrl` | `string` | No | URL to redirect to after successful payment |
+| `cancelUrl` | `string` | No | URL to redirect to if the user cancels |
+
+## Response
+
+- `openCheckout`: Returns `void` (redirects immediately)
+- `createCheckout`: Returns the checkout URL as a `string`
+
+## Possible errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4001` | 404 | **Resource not found**: The specified plan ID does not exist. |
+| `K7001` | 502 | **Stripe error**: An error occurred while communicating with Stripe. |
+
+## Full example
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function PricingCard({ plan }) {
+  const { openCheckout } = useBilling();
+
+  const handleUpgrade = () => {
+    openCheckout(plan.id, {
+      successUrl: `${window.location.origin}/billing/success`,
+      cancelUrl: `${window.location.origin}/pricing`
+    });
+  };
+
+  return (
+    <div className="pricing-card">
+      <h3>{plan.name}</h3>
+      <p>${plan.price}/month</p>
+      <button onClick={handleUpgrade}>
+        Upgrade to {plan.name}
+      </button>
+    </div>
+  );
+}
+```

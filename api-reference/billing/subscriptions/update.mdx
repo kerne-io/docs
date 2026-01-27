@@ -1,0 +1,53 @@
+---
+title: "Update subscription"
+api: "PUT /v1/admin/billing/subscriptions/{id}"
+---
+
+Update an existing subscription.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Subscription ID. |
+
+## Request body
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `plan_id` | `string` | New plan ID to switch to. |
+| `status` | `string` | New status (`active`, `paused`). |
+
+## Example request
+
+```json
+{
+  "plan_id": "plan_enterprise_annual"
+}
+```
+
+## Response
+
+```json
+{
+  "id": "sub_01234567890abcdef",
+  "plan_id": "plan_enterprise_annual",
+  "status": "active",
+  "updated_at": "2025-01-02T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4002` | 404 | Subscription not found. |
+| `K4001` | 404 | New plan not found. |
+| `K2001` | 400 | Invalid request payload. |
+| `K3002` | 403 | Insufficient permissions. |

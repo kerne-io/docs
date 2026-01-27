@@ -1,0 +1,36 @@
+---
+title: "List products"
+api: "GET /v1/billing/products"
+---
+
+List all products in your application.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Response
+
+```json
+[
+  {
+    "id": "prod_01234567890abcdef",
+    "name": "Pro Plan",
+    "description": "Full access to all features",
+    "type": "subscription",
+    "is_active": true,
+    "metadata": {},
+    "stripe_product_id": "prod_abc123",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z"
+  }
+]
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K3002` | 403 | Insufficient permissions (requires secret key). |

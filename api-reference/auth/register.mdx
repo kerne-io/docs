@@ -1,0 +1,45 @@
+---
+title: "Register"
+api: "POST /v1/auth/signup"
+description: "Create a new user account"
+---
+
+## Body
+
+<ParamField body="email" type="string" required>
+  The user's email address.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  A secure password (minimum 8 characters).
+</ParamField>
+
+<ParamField body="invitationCode" type="string">
+  Required if the application's registration mode is set to `INVITATION_ONLY`.
+</ParamField>
+
+<ParamField body="invitationToken" type="string">
+  Required if the user is registering via a specific email invitation.
+</ParamField>
+
+## Response
+
+<ResponseField name="user" type="User">
+  The newly created [User](/api-reference/models/user) profile.
+</ResponseField>
+
+<ResponseField name="session" type="Session">
+  Session metadata. Note that an `httpOnly` cookie is set automatically.
+</ResponseField>
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1001` | 403 | **Registration disabled**: Public registration is currently disabled. |
+| `K1002` | 403 | **Maximum users reached**: The application has reached its user limit. |
+| `K1008` | 409 | **Email already taken**: The email address is already registered. |
+| `K1004` | 400 | **Invalid invitation code**: The provided code is invalid or expired. |
+| `K1003` | 400 | **Invalid invitation token**: The provided token is invalid or expired. |
+| `K1010` | 400 | **Password too weak**: The password does not meet security requirements. |
+| `K2001` | 400 | **Invalid payload**: One or more fields are missing or incorrectly formatted. |

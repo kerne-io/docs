@@ -1,0 +1,28 @@
+---
+title: "Resend verification"
+api: "POST /v1/auth/email/resend-verification"
+---
+
+Resend the email verification email to the authenticated user.
+
+## Authentication
+
+<Note>
+This endpoint requires a valid **JWT token** (user must be logged in).
+</Note>
+
+## Response
+
+```json
+{
+  "success": true,
+  "message": "Verification email sent"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K1005` | 401 | Not authenticated. |
+| `K6001` | 429 | Rate limited (too many requests). |

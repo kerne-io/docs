@@ -1,0 +1,51 @@
+---
+title: "Join waitlist"
+api: "POST /v1/waitlist"
+---
+
+Add an email to the waitlist when registration is restricted.
+
+## Authentication
+
+<Note>
+This is a **public** endpoint. It only requires a application identifier header.
+</Note>
+
+## Request body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `email` | `string` | Yes | Email address to add to the waitlist. |
+| `name` | `string` | No | Name of the person joining. |
+| `metadata` | `object` | No | Additional metadata to store. |
+
+## Example request
+
+```json
+{
+  "email": "interested@example.com",
+  "name": "John Doe",
+  "metadata": {
+    "referrer": "twitter"
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "id": "wl_01234567890abcdef",
+  "email": "interested@example.com",
+  "name": "John Doe",
+  "status": "PENDING",
+  "created_at": "2025-01-01T00:00:00.000Z"
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K2005` | 409 | Email already on the waitlist. |
+| `K1008` | 409 | Email already registered as a user. |

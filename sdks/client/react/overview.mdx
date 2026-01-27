@@ -1,0 +1,63 @@
+---
+title: "Overview"
+description: "Getting started with @kerne/browser"
+---
+
+The React SDK (published as `@kerne/react`) is the easiest way to integrate Kerne into your frontend application. It provides a set of hooks and a context provider to manage authentication and monetization seamlessly.
+
+## Installation
+
+```bash
+npm install @kerne/react
+```
+
+## Initialization
+
+Wrap your application with the `KerneProvider` at the root Level.
+
+```tsx
+import { KerneProvider } from '@kerne/react';
+
+function Root() {
+  return (
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+      <App />
+    </KerneProvider>
+  );
+}
+```
+
+## Core hooks
+
+The React SDK provides hooks to interact with various Kerne modules:
+
+- **`useAuth()`**: Access the [current user](/sdks/client/react/auth/session) and handle [authentication flows](/sdks/client/react/auth/login).
+- **`useBilling()`**: [Check entitlements](/sdks/client/react/billing/consumption/check-entitlement) and [create checkout sessions](/sdks/client/react/billing/checkout/checkout).
+- **`useClient()`**: Access the underlying low-level client for custom operations.
+
+## Example: Protecting a feature
+
+You can use the `useBilling` hook to gate features based on a user's subscription.
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function AdvancedExport() {
+  const { checkEntitlement } = useBilling();
+  const [hasAccess, setHasAccess] = useState(false);
+
+  useEffect(() => {
+    checkEntitlement('advanced_export').then(setHasAccess);
+  }, []);
+
+  if (!hasAccess) {
+    return <p>Upgrade your plan to use this feature.</p>;
+  }
+
+  return <button>Export Data</button>;
+}
+```
+
+## Error handling
+
+Our hooks handle common errors automatically. For custom error handling, catch exceptions from the returned methods. See the [error codes](/concepts/error-codes) page for more details.

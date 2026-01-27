@@ -1,0 +1,33 @@
+---
+title: "Revoke invitation"
+api: "DELETE /v1/invitations/:id"
+---
+
+Revoke an invitation token or code.
+
+## Authentication
+
+<Note>
+This endpoint requires **secret key** authentication (`sk_live_...`).
+</Note>
+
+## Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | Invitation ID (token or code ID). |
+
+## Response
+
+```json
+{
+  "success": true
+}
+```
+
+## Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| `K4004` | 404 | Invitation not found. |
+| `K3002` | 403 | Insufficient permissions. |

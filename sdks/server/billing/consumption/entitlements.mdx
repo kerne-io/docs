@@ -1,0 +1,21 @@
+---
+title: "Check entitlement"
+sidebarTitle: "Check entitlement"
+description: "Verify if a user has access to a feature"
+---
+
+## Request
+
+<CodeGroup>
+```typescript Node.js
+const access = await kerne.billing.checkEntitlement('feature_ai_writer');
+
+if (access.has_access) {
+  // Grant access
+}
+```
+</CodeGroup>
+
+## Response
+
+Returns an `EntitlementCheck` object.
