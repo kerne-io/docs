@@ -1,26 +1,32 @@
 ---
 title: "Registration modes"
-description: "Controlling user acquisition"
+description: "Controlling who can sign up"
 ---
 
-Kerne allows you to control how new users join your application. You can switch between these modes in the dashboard without changing your code.
+Whether `kerne.auth.signup()` succeeds depends on three settings, read from `GET /v1/auth/config` (`kerne.auth.config()`) and checked in this order:
 
-## 1. Open registration
-The standard flow for public applications. Anyone can sign up and immediately access the application.
-*   **Best for**: B2C apps, self-serve SaaS.
-*   **Implementation**: Use the [register](/sdks/client/nextjs/auth/register) method in your frontend.
+1. **User limit.** If `user_registration_limit` is set and the tenant already has that many active users, every signup is rejected - regardless of the other two settings.
+2. **Open registration.** If `allow_registration` is `true` and `require_invitation` is `false`, any signup succeeds.
+3. **Invite-only.** If `require_invitation` is `true`, the signup must include a valid `invitationToken` or `invitationCode` (see [Invitations](/sdks/server/invitations/create)) - anything else is rejected.
 
-## 2. Waitlist mode
-Users can sign up, but they are placed in a "Pending" state. They cannot log in until an administrator approves their request.
-*   **Best for**: Private betas, capacity management, manual vetting.
-*   **Implementation**: Users sign up via [register](/sdks/client/nextjs/auth/register). Admins manage entries using the [Waitlist](/sdks/server/growth/waitlist) module in the Server SDK.
+If neither open registration nor an invitation applies, registration is closed.
 
-## 3. Invitation only
-Public registration is completely disabled. New users can only be created if:
-1.  **Admin invite**: An administrator sends an email invitation.
-2.  **Invite code**: The user provides a valid, multi-use invitation code (e.g., `EARLY_ACCESS_2025`).
+## Waitlist vs. invitations
 
-*   **Best for**: Enterprise SaaS, exclusive communities, internal tools.
-*   **Implementation**: Admins generate codes/tokens using the [Invitations](/sdks/server/growth/invitations) module. Users sign up by providing the code to the [register](/sdks/client/nextjs/auth/register) method.
+These are two separate mechanisms - joining a waitlist does not grant registration access by itself, and doesn't put a user into any kind of pending account state:
 
-For a detailed guide on building an exclusive product, see our [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas) guide.
+- **Waitlist** (`kerne.waitlist.join()`) just collects interest before you're ready to onboard everyone - an email and optional metadata, nothing more. An admin later invites specific entries, at which point they go through the same invitation flow as anyone else.
+- **Invitations** (tokens or reusable codes, `kerne.invitations.*`) are what actually unlock a signup when `require_invitation` is `true`.
+
+## Checking the current config
+
+```typescript
+const config = await kerne.auth.config();
+// { allow_registration, require_invitation, enable_magic_link,
+//   enable_credentials, oauth_providers, callback_url,
+//   user_registration_limit, app_name }
+```
+
+Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured. Note `enable_magic_link` and `oauth_providers` currently describe intent more than working flows - see [Identity overview](/concepts/identity) for what's actually wired up.
+
+For a walkthrough of building an invite-only product end to end, see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).

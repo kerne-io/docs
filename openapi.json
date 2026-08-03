@@ -1,0 +1,3272 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/auth/signup": {
+      "post": {
+        "description": "Creates a new user account. Registration policy depends on tenant configuration.",
+        "operationId": "AuthController_signup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Sign up a new user",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/token": {
+      "post": {
+        "description": "Supports password, refresh_token, and magic_link grant types. In the future, we will support OAuth Authorization Code grant type.",
+        "operationId": "AuthController_token",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Exchange credentials for tokens",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/password/reset": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Request a password reset email",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/password/confirm": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetConfirmDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Complete password reset with token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/password/change": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Change current password",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/passwordless/start": {
+      "post": {
+        "operationId": "AuthController_startPasswordless",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordlessStartDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Start passwordless login (Magic Link)",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/email/verify": {
+      "post": {
+        "operationId": "AuthController_verifyEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailVerifyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Verify email with token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/email/resend-verification": {
+      "post": {
+        "operationId": "AuthController_resendVerification",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Resend verification email",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/request-deletion": {
+      "post": {
+        "operationId": "AuthController_requestDeletion",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Account deletion requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessMessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Request account deletion",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/userinfo": {
+      "get": {
+        "operationId": "AuthController_getUserInfo",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfoResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Standard OIDC userinfo profile",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/config": {
+      "get": {
+        "operationId": "AuthController_getAuthConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authentication configuration retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthConfigDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Get authentication configuration",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/verification/send": {
+      "post": {
+        "operationId": "VerificationController_sendVerification",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/verification/verify-code": {
+      "post": {
+        "operationId": "VerificationController_verifyCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/verification/verify-link/{token}": {
+      "get": {
+        "operationId": "VerificationController_verifyLink",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/verification/status": {
+      "get": {
+        "operationId": "VerificationController_getStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/invitations/validate/token": {
+      "get": {
+        "operationId": "InvitationController_validateToken",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenValidationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Validate invitation token",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/v1/invitations/validate/code": {
+      "get": {
+        "operationId": "InvitationController_validateCode",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeValidationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Validate invitation code",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/v1/invitations/token": {
+      "post": {
+        "operationId": "InvitationController_createToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvitationTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInvitationTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Create invitation token",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/v1/invitations/code": {
+      "post": {
+        "operationId": "InvitationController_createCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvitationCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInvitationCodeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Create invitation code",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/v1/invitations": {
+      "get": {
+        "operationId": "InvitationController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "List invitations",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/v1/invitations/{id}": {
+      "delete": {
+        "operationId": "InvitationController_revoke",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeInvitationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Revoke invitation",
+        "tags": [
+          "Invitations"
+        ]
+      }
+    },
+    "/v1/waitlist": {
+      "post": {
+        "operationId": "WaitlistController_joinWaitlist",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinWaitlistDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistEntryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Join the waitlist",
+        "tags": [
+          "Waitlist"
+        ]
+      },
+      "get": {
+        "operationId": "WaitlistController_listWaitlist",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by waitlist status",
+            "schema": {
+              "example": "PENDING",
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "INVITED",
+                "REGISTERED",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of entries to return",
+            "schema": {
+              "minimum": 1,
+              "example": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of entries to skip (for pagination)",
+            "schema": {
+              "minimum": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "targetTenantId",
+            "required": false,
+            "in": "query",
+            "description": "Target tenant ID",
+            "schema": {
+              "example": "tenant_abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "List waitlist entries",
+        "tags": [
+          "Waitlist"
+        ]
+      },
+      "delete": {
+        "operationId": "WaitlistController_removeFromWaitlist",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveFromWaitlistDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoveWaitlistResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "Remove from waitlist",
+        "tags": [
+          "Waitlist"
+        ]
+      }
+    },
+    "/v1/billing/subscription": {
+      "get": {
+        "operationId": "BillingController_getMySubscription",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionWithPlanResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Get the caller's own subscription",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/subscriptions": {
+      "get": {
+        "operationId": "BillingController_listSubscriptions",
+        "parameters": [
+          {
+            "name": "scope_type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "USER"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "ACTIVE",
+                "TRIALING",
+                "PAST_DUE",
+                "CANCELED",
+                "UNPAID",
+                "PAUSED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "product_slug",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubscriptionWithPlanResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "List subscriptions (Admin: all, User: own)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/subscriptions/{id}": {
+      "get": {
+        "operationId": "BillingController_getSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionWithPlanResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Get subscription details",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/subscriptions/{id}/cancel": {
+      "post": {
+        "operationId": "BillingController_cancelSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "immediately",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Cancel a subscription",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/entitlements": {
+      "get": {
+        "operationId": "BillingController_getEntitlements",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Get active entitlements",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/entitlements/overrides": {
+      "get": {
+        "operationId": "BillingController_listOverrides",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope_type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "USER"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OverrideResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "List entitlement overrides (all, or for one scope)",
+        "tags": [
+          "Billing"
+        ]
+      },
+      "post": {
+        "operationId": "BillingController_createOverride",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOverrideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverrideResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Create (or update, if one already exists) an entitlement override",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/entitlements/overrides/{id}": {
+      "patch": {
+        "operationId": "BillingController_updateOverride",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOverrideDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverrideResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Update an entitlement override",
+        "tags": [
+          "Billing"
+        ]
+      },
+      "delete": {
+        "operationId": "BillingController_deleteOverride",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Delete an entitlement override",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/entitlements/{feature_key}": {
+      "get": {
+        "operationId": "BillingController_checkEntitlement",
+        "parameters": [
+          {
+            "name": "feature_key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requested",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementCheckResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Check a single entitlement",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/usage": {
+      "get": {
+        "operationId": "BillingController_getUsage",
+        "parameters": [
+          {
+            "name": "scope_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "feature_key",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UsageResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Get usage metrics",
+        "tags": [
+          "Billing"
+        ]
+      },
+      "post": {
+        "operationId": "BillingController_reportUsage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUsageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Report a usage event (synchronous, atomic)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/usage/set": {
+      "post": {
+        "operationId": "BillingController_setUsage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUsageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Set usage to an exact value (admin correction, synchronous, atomic)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/usage/reset": {
+      "post": {
+        "operationId": "BillingController_resetUsage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetUsageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UsageResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Reset usage to zero (admin correction, synchronous, atomic) - one feature, or every QUOTA feature for the scope if feature_key is omitted",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/usage/adjust": {
+      "post": {
+        "operationId": "BillingController_adjustUsage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdjustUsageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Offset usage by a signed delta (admin correction, synchronous, atomic) - a one-off credit/debit distinct from an entitlement override",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/entitlements/{feature_key}/consume": {
+      "post": {
+        "operationId": "BillingController_consume",
+        "parameters": [
+          {
+            "name": "feature_key",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope_id",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsumeEntitlementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitlementCheckResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Atomically check and consume a QUOTA entitlement (F5)",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/checkout": {
+      "post": {
+        "operationId": "BillingController_createCheckout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Create checkout session",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/billing/portal": {
+      "post": {
+        "operationId": "BillingController_createPortal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePortalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Create customer portal session",
+        "tags": [
+          "Billing"
+        ]
+      }
+    },
+    "/v1/pricing/plans/{productIdOrSlug}": {
+      "get": {
+        "description": "Returns available plans with prices and entitlements for public display. Accepts product ID or slug. Requires x-app-id (APP_ID).",
+        "operationId": "PricingController_listPublicPlans",
+        "parameters": [
+          {
+            "name": "productIdOrSlug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active plans retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicPlanResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "TenantIdentifier": []
+          }
+        ],
+        "summary": "List active plans for a product",
+        "tags": [
+          "Pricing"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Kerne API",
+    "description": "Kerne SaaS Foundation as a Service - authentication, authorization, and billing management. Errors follow standardized error codes (K1xxx-K9xxx) documented at https://docs.kerne.io/errors",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Kerne Team",
+      "url": "https://kerne.io",
+      "email": "support@kerne.io"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://kerne.io/license"
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "Waitlist",
+      "description": "Waitlist management"
+    },
+    {
+      "name": "Invitations",
+      "description": "Invitation system"
+    },
+    {
+      "name": "Billing",
+      "description": "The tenant's end users: subscription, entitlements, usage, checkout"
+    },
+    {
+      "name": "Pricing",
+      "description": "Public pricing page data"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://api.kerne.io",
+      "description": "Production Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "JWT": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "JWT token obtained from /v1/auth/token"
+      },
+      "TenantIdentifier": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-app-id",
+        "description": "Tenant identifier (Tenant.id, sent as the x-app-id header)"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password (minimum 8 characters)",
+            "example": "SecurePassword123!",
+            "minLength": 8,
+            "format": "password"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "User first name",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Doe"
+          },
+          "invitationToken": {
+            "type": "string",
+            "description": "JWT invitation token received via email",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "invitationCode": {
+            "type": "string",
+            "description": "8-character invitation code",
+            "example": "ABC12345",
+            "minLength": 8,
+            "maxLength": 8
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT authentication token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "user": {
+            "type": "object",
+            "description": "Authenticated user information",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "User unique identifier",
+                "example": "usr_01234567890abcdef"
+              },
+              "email": {
+                "type": "string",
+                "description": "User email address",
+                "example": "user@example.com"
+              },
+              "role": {
+                "type": "string",
+                "description": "User global role",
+                "example": "USER"
+              }
+            }
+          },
+          "refresh_token": {
+            "type": "string",
+            "description": "Refresh token for obtaining new access tokens",
+            "example": "ref_0123456789abcdef"
+          },
+          "expires_at": {
+            "type": "string",
+            "description": "Token expiration timestamp (ISO)",
+            "example": "2025-01-01T01:00:00.000Z"
+          }
+        },
+        "required": [
+          "token",
+          "user",
+          "refresh_token",
+          "expires_at"
+        ]
+      },
+      "TokenDto": {
+        "type": "object",
+        "properties": {
+          "grant_type": {
+            "type": "string",
+            "description": "Grant type for token exchange",
+            "enum": [
+              "password",
+              "refresh_token",
+              "magic_link"
+            ],
+            "example": "password"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "SecurePassword123!"
+          },
+          "refresh_token": {
+            "type": "string",
+            "example": "ref_0123456789abcdef"
+          },
+          "token": {
+            "type": "string",
+            "example": "ml_0123456789abcdef",
+            "description": "Magic link token"
+          },
+          "scope": {
+            "type": "string",
+            "example": "openid profile email",
+            "description": "Requested scopes (space separated)"
+          }
+        },
+        "required": [
+          "grant_type"
+        ]
+      },
+      "PasswordResetRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "SuccessMessageDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "PasswordResetConfirmDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "password": {
+            "type": "string",
+            "example": "NewSecurePassword123!",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "description": "Current password",
+            "example": "OldPassword123!",
+            "format": "password"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "New password (minimum 8 characters)",
+            "example": "NewSecurePassword123!",
+            "minLength": 8,
+            "format": "password"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "PasswordlessStartDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "callback_url": {
+            "type": "string",
+            "example": "https://app.tenant.com/auth/callback"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "EmailVerifyDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "UserInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "sub": {
+            "type": "string",
+            "example": "usr_01234567890abcdef"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "given_name": {
+            "type": "object",
+            "example": "John",
+            "nullable": true
+          },
+          "family_name": {
+            "type": "object",
+            "example": "Doe",
+            "nullable": true
+          },
+          "picture": {
+            "type": "object",
+            "example": "https://example.com/avatar.jpg",
+            "nullable": true
+          },
+          "email_verified": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "sub",
+          "email",
+          "email_verified"
+        ]
+      },
+      "AuthConfigDto": {
+        "type": "object",
+        "properties": {
+          "allow_registration": {
+            "type": "boolean"
+          },
+          "require_invitation": {
+            "type": "boolean"
+          },
+          "enable_magic_link": {
+            "type": "boolean"
+          },
+          "enable_credentials": {
+            "type": "boolean"
+          },
+          "oauth_providers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "callback_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "user_registration_limit": {
+            "type": "number",
+            "nullable": true
+          },
+          "app_name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "allow_registration",
+          "require_invitation",
+          "enable_magic_link",
+          "enable_credentials",
+          "oauth_providers",
+          "callback_url",
+          "user_registration_limit",
+          "app_name"
+        ]
+      },
+      "VerifyCodeDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "TokenValidationResponseDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "valid"
+        ]
+      },
+      "CodeValidationResponseDto": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "canUse": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "valid",
+          "canUse"
+        ]
+      },
+      "CreateInvitationTokenDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address to invite",
+            "example": "newuser@example.com",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "CreateInvitationTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "expiresAt",
+          "email"
+        ]
+      },
+      "CreateInvitationCodeDto": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "description": "Expiration date for the invitation code (ISO 8601 format). Null or omitted means no expiration",
+            "example": "2025-12-31T23:59:59.000Z",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateInvitationCodeResponseDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "expiresAt"
+        ]
+      },
+      "InvitationTokenEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "used_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "created_by": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "token"
+            ]
+          },
+          "isUsed": {
+            "type": "boolean"
+          },
+          "isExpired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "email",
+          "token",
+          "expires_at",
+          "used_at",
+          "created_by",
+          "created_at",
+          "type",
+          "isUsed",
+          "isExpired"
+        ]
+      },
+      "InvitationCodeEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "max_uses": {
+            "type": "number"
+          },
+          "used_count": {
+            "type": "number"
+          },
+          "used_by": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_by": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "code"
+            ]
+          },
+          "isUsed": {
+            "type": "boolean"
+          },
+          "isExpired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "code",
+          "expires_at",
+          "max_uses",
+          "used_count",
+          "used_by",
+          "created_by",
+          "created_at",
+          "type",
+          "isUsed",
+          "isExpired"
+        ]
+      },
+      "InvitationListResponseDto": {
+        "type": "object",
+        "properties": {
+          "tokens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvitationTokenEntryDto"
+            }
+          },
+          "codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvitationCodeEntryDto"
+            }
+          }
+        },
+        "required": [
+          "tokens",
+          "codes"
+        ]
+      },
+      "RevokeInvitationResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "JoinWaitlistDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address to add to waitlist",
+            "example": "user@example.com",
+            "format": "email"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the person joining waitlist",
+            "example": "John Doe"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the waitlist entry",
+            "example": {
+              "company": "Acme Corp",
+              "source": "landing-page"
+            },
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "WaitlistEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "INVITED",
+              "REGISTERED",
+              "REJECTED"
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "invited_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "invited_by": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "email",
+          "name",
+          "status",
+          "created_at",
+          "invited_at",
+          "invited_by"
+        ]
+      },
+      "WaitlistPaginationDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "total",
+          "limit",
+          "offset",
+          "hasMore"
+        ]
+      },
+      "WaitlistListResponseDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WaitlistEntryDto"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/WaitlistPaginationDto"
+          }
+        },
+        "required": [
+          "entries",
+          "pagination"
+        ]
+      },
+      "RemoveFromWaitlistDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address to remove from the waitlist",
+            "example": "user@example.com",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "RemoveWaitlistResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "SubscriptionPlanSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name"
+        ]
+      },
+      "SubscriptionPriceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "interval": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "currency",
+          "interval"
+        ]
+      },
+      "SubscriptionEntitlementSummaryDto": {
+        "type": "object",
+        "properties": {
+          "feature_id": {
+            "type": "string"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "feature_name": {
+            "type": "string"
+          },
+          "feature_type": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "overage": {
+            "type": "string",
+            "enum": [
+              "BLOCK",
+              "ALLOW"
+            ]
+          },
+          "overage_rate": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "feature_id",
+          "feature_key",
+          "feature_name",
+          "feature_type",
+          "limit",
+          "value",
+          "overage",
+          "overage_rate"
+        ]
+      },
+      "SubscriptionWithPlanResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "plan_price_id": {
+            "type": "string"
+          },
+          "pack_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "STRIPE",
+              "POLAR"
+            ]
+          },
+          "provider_subscription_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "provider_customer_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "TRIALING",
+              "PAST_DUE",
+              "CANCELED",
+              "UNPAID",
+              "PAUSED"
+            ]
+          },
+          "current_period_start": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "current_period_end": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "trial_start": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "trial_end": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "canceled_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "ended_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlanSummaryDto"
+          },
+          "plan_price": {
+            "$ref": "#/components/schemas/SubscriptionPriceSummaryDto"
+          },
+          "product": {
+            "$ref": "#/components/schemas/SubscriptionPlanSummaryDto"
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionEntitlementSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "scope_type",
+          "scope_id",
+          "plan_price_id",
+          "pack_id",
+          "provider",
+          "provider_subscription_id",
+          "provider_customer_id",
+          "status",
+          "current_period_start",
+          "current_period_end",
+          "trial_start",
+          "trial_end",
+          "canceled_at",
+          "ended_at",
+          "created_at",
+          "updated_at",
+          "plan",
+          "plan_price",
+          "product",
+          "entitlements"
+        ]
+      },
+      "SubscriptionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "plan_price_id": {
+            "type": "string"
+          },
+          "pack_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "STRIPE",
+              "POLAR"
+            ]
+          },
+          "provider_subscription_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "provider_customer_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "TRIALING",
+              "PAST_DUE",
+              "CANCELED",
+              "UNPAID",
+              "PAUSED"
+            ]
+          },
+          "current_period_start": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "current_period_end": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "trial_start": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "trial_end": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "canceled_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "ended_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "scope_type",
+          "scope_id",
+          "plan_price_id",
+          "pack_id",
+          "provider",
+          "provider_subscription_id",
+          "provider_customer_id",
+          "status",
+          "current_period_start",
+          "current_period_end",
+          "trial_start",
+          "trial_end",
+          "canceled_at",
+          "ended_at",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "EntitlementSummaryDto": {
+        "type": "object",
+        "properties": {
+          "feature_key": {
+            "type": "string"
+          },
+          "feature_type": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "number",
+            "nullable": true
+          },
+          "used": {
+            "type": "number"
+          },
+          "remaining": {
+            "type": "number",
+            "nullable": true
+          },
+          "value": {
+            "type": "object"
+          },
+          "has_override": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "feature_key",
+          "feature_type",
+          "has_override"
+        ]
+      },
+      "EntitlementsResponseDto": {
+        "type": "object",
+        "properties": {
+          "scope_id": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "subscription_status": {
+            "type": "string",
+            "nullable": true
+          },
+          "plan_slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntitlementSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "scope_id",
+          "subscription_id",
+          "subscription_status",
+          "plan_slug",
+          "entitlements"
+        ]
+      },
+      "OverrideResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "feature_id": {
+            "type": "string"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "feature_name": {
+            "type": "string"
+          },
+          "override_value": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_by": {
+            "type": "string",
+            "nullable": true
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "is_expired": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "scope_id",
+          "feature_id",
+          "feature_key",
+          "feature_name",
+          "override_value",
+          "reason",
+          "created_by",
+          "expires_at",
+          "is_expired",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CreateOverrideDto": {
+        "type": "object",
+        "properties": {
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "override_value": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope_id",
+          "feature_key"
+        ]
+      },
+      "UpdateOverrideDto": {
+        "type": "object",
+        "properties": {
+          "override_value": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "EntitlementCheckResponseDto": {
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "type": "boolean"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "feature_type": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "number",
+            "nullable": true
+          },
+          "used": {
+            "type": "number"
+          },
+          "remaining": {
+            "type": "number",
+            "nullable": true
+          },
+          "overage_behavior": {
+            "type": "string"
+          },
+          "value": {
+            "type": "object"
+          },
+          "has_override": {
+            "type": "boolean"
+          },
+          "subscription_status": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "allowed",
+          "feature_key",
+          "feature_type",
+          "has_override"
+        ]
+      },
+      "UsageResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "feature_id": {
+            "type": "string"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "feature_name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "period_start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tenant_id",
+          "feature_id",
+          "feature_key",
+          "feature_name",
+          "value",
+          "period_start",
+          "period_end",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "ReportUsageDto": {
+        "type": "object",
+        "properties": {
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "INCREMENT",
+              "SET"
+            ]
+          },
+          "delta": {
+            "type": "number"
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "scope_id",
+          "feature_key"
+        ]
+      },
+      "SetUsageDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ResetUsageDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "AdjustUsageDto": {
+        "type": "object",
+        "properties": {
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "feature_key": {
+            "type": "string"
+          },
+          "delta": {
+            "type": "number"
+          },
+          "idempotency_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope_id",
+          "feature_key",
+          "delta"
+        ]
+      },
+      "ConsumeEntitlementDto": {
+        "type": "object",
+        "properties": {
+          "delta": {
+            "type": "number"
+          },
+          "idempotency_key": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCheckoutDto": {
+        "type": "object",
+        "properties": {
+          "plan_price_id": {
+            "type": "string"
+          },
+          "success_url": {
+            "type": "string"
+          },
+          "cancel_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "plan_price_id"
+        ]
+      },
+      "SessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "CreatePortalDto": {
+        "type": "object",
+        "properties": {
+          "return_url": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicPlanPriceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "interval": {
+            "type": "string"
+          },
+          "trial_days": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "currency",
+          "interval",
+          "trial_days"
+        ]
+      },
+      "PublicPlanEntitlementSummaryDto": {
+        "type": "object",
+        "properties": {
+          "feature_key": {
+            "type": "string"
+          },
+          "feature_name": {
+            "type": "string"
+          },
+          "feature_type": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "feature_key",
+          "feature_name",
+          "feature_type",
+          "limit",
+          "value"
+        ]
+      },
+      "PublicPlanResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "trial_days": {
+            "type": "number"
+          },
+          "sort_order": {
+            "type": "number"
+          },
+          "prices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicPlanPriceSummaryDto"
+            }
+          },
+          "entitlements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicPlanEntitlementSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "description",
+          "is_default",
+          "trial_days",
+          "sort_order",
+          "prices",
+          "entitlements"
+        ]
+      }
+    }
+  }
+}

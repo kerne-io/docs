@@ -1,37 +1,24 @@
 ---
 title: "Overview"
-description: "Understanding authentication and authorization"
+description: "Understanding authentication in Kerne"
 ---
 
-Identity in Kerne follows the principle of **separation of concerns**. We distinguish between who a user is, what they can do, and what they have paid for.
+Identity in Kerne separates two questions: **who is this** (authentication) and **what have they paid for** (entitlements - see [Monetization](/concepts/monetization)).
 
 ## Authentication
 
-**Question**: "Who are you?"
+Kerne supports:
+- **Email and password** - the standard flow, via `kerne.auth.signup()` / `kerne.auth.login()`.
+- **Passwordless start** - `kerne.auth.startPasswordless(email)` sends a one-time link. The verification side of this flow isn't wired up yet - don't build a "magic link login" UI against it today.
 
-Authentication verifies a user's identity. Kerne supports several modern flows out of the box:
-- **Email and password**: Secure credential-based login.
-- **Magic links**: Passwordless authentication via secure email tokens.
-- **Social OAuth**: Seamless integration with providers like Google and GitHub.
+Not supported: social/OAuth login (Google, GitHub, etc.) - there's no provider integration, despite `AuthConfig.oauth_providers` existing as a field in the config response (it's always empty today).
+
+Every successful signup/login returns a JWT access token plus a refresh token (`kerne.auth.token()`, or the higher-level `signup()`/`login()`). See [Registration modes](/concepts/identity/registration-modes) for how a tenant controls *who* is allowed to sign up.
 
 ## Authorization
 
-**Question**: "What can you do?"
-
-Authorization defines the permissions a user holds within a specific environment.
-- **Roles**: Groups of permissions (e.g., `Admin`, `Member`).
-- **Permissions**: Specific actions allowed (e.g., `manage_billing`, `delete_projects`).
-
-<Info>
-We are currently expanding the authorization system to support nested organizations and granular relationship-based access control.
-</Info>
+There's a single flag: a user's `global_role` is either `USER` or `ADMIN`. That's it - no custom roles, no per-resource permissions, no organizations. See [Authorization](/concepts/identity/authorization) for exactly what that flag does and doesn't gate.
 
 ## Entitlements
 
-**Question**: "What have you paid for?"
-
-Entitlements are specific authorizations tied to a subscription. They allow you to gate features based on a customer's current plan.
-
-<Tip>
-Think of entitlements as "monetized permissions." A user might be an `Admin` for their team, but if the team is on a `Starter` plan, they won't have the `advanced_analytics` entitlement.
-</Tip>
+Entitlements answer "what has this user paid for" and are covered in full in [Monetization](/concepts/monetization) - they're a separate axis from authorization. A user can be `ADMIN` and still be on a free plan with no `advanced_analytics` entitlement.

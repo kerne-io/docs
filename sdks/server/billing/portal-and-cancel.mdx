@@ -1,0 +1,24 @@
+---
+title: "Portal & cancel"
+description: "Customer billing portal and subscription cancellation"
+---
+
+## Billing portal
+
+A hosted page (Stripe/Polar) where the caller manages their own payment method, invoices, and plan - for the caller's own identity, same as [checkout](/sdks/server/billing/checkout).
+
+```typescript
+const { url } = await kerne.billing.portal({ returnUrl: 'https://app.example.com/settings' });
+```
+
+## Cancel
+
+```typescript
+// Cancel the caller's own active subscription
+await kerne.billing.cancel({ immediately: false }); // false = at period end (default)
+
+// Cancel a specific subscription (admin, any scope)
+await kerne.billing.subscriptions.cancel(subscriptionId, /* immediately */ true);
+```
+
+`immediately: false` keeps access through the current period's end - the common choice, since an abrupt cutoff mid-period is rarely what you want for a self-service cancel.

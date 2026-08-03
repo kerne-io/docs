@@ -116,30 +116,24 @@ function RegisterForm() {
 
 ## 6. Protect routes
 
-Check authentication state to protect pages:
+The simplest way is the `<Authenticated>` guard, which handles the loading/logged-out states for you - no redirect wiring needed just to hide a page:
 
 ```tsx
-import { useAuth } from '@kerne/react';
-import { useRouter } from 'next/navigation';
+import { Authenticated } from '@kerne/react';
 
 function ProtectedPage() {
-  const { isAuthenticated, user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated]);
-
-  if (!isAuthenticated) return null;
-
-  return <Dashboard user={user} />;
+  return (
+    <Authenticated fallback={<LoginPrompt />}>
+      <Dashboard />
+    </Authenticated>
+  );
 }
 ```
 
+If you specifically need a URL redirect (not just hiding content), do it off `isAuthenticated`/`isLoading` from `useAuth()` with whatever router your framework provides.
+
 ## Next steps
 
-- [Set up subscriptions](/guides/billing/setting-up-subscriptions) to monetize your app
-- [Check entitlements](/guides/billing/checking-entitlements) to gate features
+- [Set up subscriptions](/guides/getting-started/subscription-setup) to monetize your app
+- [Check entitlements](/guides/getting-started/checking-entitlements) to gate features
 - [Choose your auth model](/guides/auth/choose-your-auth-model) for advanced configurations

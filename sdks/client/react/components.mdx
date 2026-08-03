@@ -1,0 +1,67 @@
+---
+title: "Guard components"
+description: "Declarative auth/billing gates - and the error boundary"
+---
+
+Each of these wraps a hook you could call yourself - use them when you just need to show/hide UI, reach for the hook directly when you need the loading/error state too.
+
+## Auth guards
+
+```tsx
+import { Authenticated, Unauthenticated, AuthLoading } from '@kerne/react';
+
+<AuthLoading><Spinner /></AuthLoading>
+<Authenticated fallback={<LoginPrompt />}><Dashboard /></Authenticated>
+<Unauthenticated><LoginPrompt /></Unauthenticated>
+```
+
+## Billing guards
+
+```tsx
+import { HasSubscription, RequirePlan, HasFeature } from '@kerne/react';
+
+<HasSubscription fallback={<UpgradePrompt />}>
+  <PremiumArea />
+</HasSubscription>
+
+<RequirePlan plans={['pro', 'enterprise']} fallback={<UpgradePrompt />}>
+  <AdvancedFeature />
+</RequirePlan>
+
+<HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+  <ExportButton />
+</HasFeature>
+```
+
+<Warning>
+`RequirePlan` matches on plan **slug** - it has no idea what a plan grants, only its name. If you rename a plan, or a customer is on an equivalent plan under a different slug, this silently stops matching. Prefer `HasFeature` (checks the actual entitlement) unless you specifically mean "this exact plan tier."
+</Warning>
+
+## Combined guard
+
+```tsx
+import { Protected } from '@kerne/react';
+
+<Protected auth plans="pro" authFallback={<Login />} billingFallback={<Upgrade />}>
+  <ProFeature />
+</Protected>
+```
+
+## Error boundary
+
+```tsx
+import { KerneErrorBoundary } from '@kerne/react';
+
+<KerneErrorBoundary
+  fallback={(error, reset) => (
+    <div>
+      <p>{error.message}</p>
+      <button onClick={reset}>Try again</button>
+    </div>
+  )}
+>
+  <App />
+</KerneErrorBoundary>
+```
+
+`error.code` is available when the thrown error came from an API call (a `KerneError` from `@kerne/server`) - not guaranteed for arbitrary React errors caught by the boundary.

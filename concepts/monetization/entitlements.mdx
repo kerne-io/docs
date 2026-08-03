@@ -1,27 +1,61 @@
 ---
 title: "Entitlements"
-description: "Controlling feature access"
+description: "What a plan actually grants, and how it's checked"
 ---
 
-Entitlements are the core of Kerne's monetization engine. They define exactly **what** a application is allowed to do based on their subscription.
+An entitlement is one feature's value for one scope, resolved from whatever pack their subscription is pinned to (or overridden - see below). Every feature is one of three types.
 
-## Types of entitlements
+## The three types
 
-### 1. Boolean entitlements
-Simple on/off switches for features.
-*   **Use case**: Access to a specific module (e.g., "SSO Support").
-*   **Implementation**: Use the [canConsume](/sdks/client/nextjs/billing/consumption/check-entitlement) method in your frontend to toggle UI elements.
+<Tabs>
+  <Tab title="Boolean">
+    An on/off switch. `kerne.check()` returns `{ allowed, enabled }`.
 
-### 2. Metered entitlements
-Numeric limits that reset at the end of each billing cycle.
-*   **Use case**: Quotas (e.g., "10,000 API calls per month").
-*   **Implementation**: Use [canConsume](/sdks/client/nextjs/billing/consumption/check-entitlement) to check remaining quota and [reportUsage](/sdks/server/billing/consumption/usage-reporting) from your backend to update consumption.
+    ```typescript
+    const { allowed } = await kerne.check('sso_enabled', { scope: userId });
+    ```
+  </Tab>
+  <Tab title="Quota">
+    A numeric limit with usage tracking - `limit`, `used`, `remaining`. Reset behavior is per-feature:
+    - `RESET` - zeroes every period (classic "10,000 calls/month").
+    - `ACCUMULATE` - unused quota rolls over as credit into the next period; overuse rolls over as debt.
+    - `STATIC` - never resets, lifetime total (a one-time allowance).
 
-## Static vs. dynamic
+    ```typescript
+    const result = await kerne.consume('api_calls', { scope: userId, delta: 1 });
+    // { allowed, limit, used, remaining, overage_behavior }
+    ```
 
-*   **Static entitlements**: Included in a plan. Every subscriber to that plan gets the same entitlement.
-*   **Dynamic entitlements (Add-ons)**: Purchased separately. These stack on top of the plan's base entitlements.
+    `limit: null` means unlimited. When a limit is hit, `overage_behavior` decides what happens: `BLOCK` refuses further use, `ALLOW` lets it through (a soft limit you can bill for separately).
+  </Tab>
+  <Tab title="Static">
+    A config value, not a limit - returned as-is (e.g. `support_level: "gold"`).
 
-## Enforcing limits
+    ```typescript
+    const { value } = await kerne.check('support_level', { scope: userId });
+    ```
+  </Tab>
+</Tabs>
 
-When a user reaches their limit, Kerne returns a `K5001` (Resource quota exceeded) error. For best practices on handling these scenarios without disrupting the user experience, see our [Enforcing limits](/guides/billing/enforcing-limits-without-breaking-ux) guide.
+## `allows()` vs `enforce()` vs `check()`
+
+All three resolve the same entitlement - they differ only in what they hand back:
+
+| | Returns | Use it for |
+|---|---|---|
+| `allows()` | `boolean` | UI conditionals |
+| `enforce()` | nothing, throws if denied | guards/middleware |
+| `check()` | the full object (`limit`/`used`/`remaining`/...) | anywhere you need the detail, not just yes/no |
+
+For quota features specifically, use `consume()` instead of `check()` when the action you're gating *is* the usage - it checks the limit and commits the increment in one atomic step, so two concurrent requests can't both slip through a `BLOCK` limit. `check()`/`allows()` never increment anything.
+
+## Two ways an admin can deviate from the plan
+
+These solve different problems - don't reach for one when you mean the other:
+
+- **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift.
+- **`kerne.admin.adjustUsage()`** offsets the usage counter by a signed delta, once. This is "credit this customer 500 units back," and has no effect on their limit going forward.
+
+## Errors
+
+`allows()`/`check()`/`consume()` never throw for a denial - a denied request comes back as `{ allowed: false, ... }`, a normal (200) response. `enforce()` is the one that throws, and it's a plain `Error` you catch yourself - not tied to an API error code. See [Enforcing limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux) for handling a denial gracefully instead of a hard failure.

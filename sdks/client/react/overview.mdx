@@ -1,9 +1,9 @@
 ---
 title: "Overview"
-description: "Getting started with @kerne/browser"
+description: "Getting started with @kerne/react"
 ---
 
-The React SDK (published as `@kerne/react`) is the easiest way to integrate Kerne into your frontend application. It provides a set of hooks and a context provider to manage authentication and monetization seamlessly.
+`@kerne/react` manages session state (login, token refresh) and gives you hooks/components to gate UI on entitlements - it never holds a secret key, and never touches the catalog.
 
 ## Installation
 
@@ -13,51 +13,44 @@ npm install @kerne/react
 
 ## Initialization
 
-Wrap your application with the `KerneProvider` at the root Level.
-
 ```tsx
 import { KerneProvider } from '@kerne/react';
 
 function Root() {
   return (
-    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID!}>
       <App />
     </KerneProvider>
   );
 }
 ```
 
+`KerneProvider` only ever takes `appId` - never a secret key. Session refresh is automatic (`autoRefresh`, default `true`) - see [Session](/sdks/client/react/auth/session).
+
 ## Core hooks
 
-The React SDK provides hooks to interact with various Kerne modules:
+- **`useAuth()`** - the logged-in user, and every auth action (login/register/logout/password/verification). See [Login](/sdks/client/react/auth/login).
+- **`useEntitlement(featureKey)`** - `{ hasAccess, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
+- **`useBilling()`** - checkout, portal, and the caller's own subscription. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
+- **`useSubscription()`** / **`useUser()`** - convenience reads over `useAuth()`/`useBilling()`.
+- **`useClient()`** - the underlying `KerneClient` instance, for anything not covered by the hooks above.
 
-- **`useAuth()`**: Access the [current user](/sdks/client/react/auth/session) and handle [authentication flows](/sdks/client/react/auth/login).
-- **`useBilling()`**: [Check entitlements](/sdks/client/react/billing/consumption/check-entitlement) and [create checkout sessions](/sdks/client/react/billing/checkout/checkout).
-- **`useClient()`**: Access the underlying low-level client for custom operations.
+## Gating a feature
 
-## Example: Protecting a feature
-
-You can use the `useBilling` hook to gate features based on a user's subscription.
+The guard components (`<HasFeature>`, `<Authenticated>`, `<Protected>`, ...) wrap the same hooks so you don't hand-roll loading/error state yourself - see [Guard components](/sdks/client/react/components):
 
 ```tsx
-import { useBilling } from '@kerne/react';
+import { HasFeature } from '@kerne/react';
 
 function AdvancedExport() {
-  const { checkEntitlement } = useBilling();
-  const [hasAccess, setHasAccess] = useState(false);
-
-  useEffect(() => {
-    checkEntitlement('advanced_export').then(setHasAccess);
-  }, []);
-
-  if (!hasAccess) {
-    return <p>Upgrade your plan to use this feature.</p>;
-  }
-
-  return <button>Export Data</button>;
+  return (
+    <HasFeature feature="advanced_export" fallback={<p>Upgrade your plan to use this.</p>}>
+      <button>Export Data</button>
+    </HasFeature>
+  );
 }
 ```
 
-## Error handling
+## What this SDK does not do
 
-Our hooks handle common errors automatically. For custom error handling, catch exceptions from the returned methods. See the [error codes](/concepts/error-codes) page for more details.
+There's no `consume()` here on purpose - a quota check enforced only in the browser is trivially bypassed. Commit usage from your backend (`@kerne/server`'s [`consume()`](/sdks/server/entitlements/consume)), and use this SDK only to reflect the result in your UI.

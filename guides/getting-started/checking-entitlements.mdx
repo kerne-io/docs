@@ -1,107 +1,62 @@
 ---
 title: "Checking entitlements"
 sidebarTitle: "Entitlements"
-description: "Gate features based on user's subscription"
+description: "Gate features based on a user's subscription"
 ---
 
-This guide shows you how to check what features a user has access to and gate functionality accordingly.
+This guide shows the standard pattern for gating a feature - see [Entitlements](/concepts/monetization/entitlements) for the underlying model (the three types, and `allows()`/`enforce()`/`check()`/`consume()`).
 
-## What are entitlements?
-
-Entitlements are the features and limits granted to a user based on their subscription. They're defined in your Plans and can be:
-
-- **Boolean** - On/off access (e.g., "Analytics access")
-- **Quota** - Usage limits that reset (e.g., "1000 API calls/month")
-- **Static** - Fixed values (e.g., "5 team seats")
-
-## Server-side checks
-
-For secure, server-side feature gating:
+## Server-side (the check that actually matters)
 
 ```typescript
-const check = await kerne.billing.checkEntitlement('advanced_analytics');
-
-if (check.has_access) {
-  // Allow feature
+if (await kerne.allows('advanced_analytics', { scope: userId })) {
+  // allow
 } else {
-  // Redirect to upgrade
+  // redirect to upgrade
 }
 ```
 
-### With user token
-
-When checking for a specific user:
+Acting on behalf of a specific request's user, rather than your own backend identity? Scope the client to their token first:
 
 ```typescript
-const kerneWithUser = kerne.withToken(userAccessToken);
-const check = await kerneWithUser.billing.checkEntitlement('api_calls', 1);
-
-if (check.has_access) {
-  // Process the request
-}
+const kerneAsUser = kerne.withToken(userAccessToken);
+const canConsume = await kerneAsUser.allows('api_calls', { requested: 1 });
 ```
 
-## Client-side checks
-
-Use the `useBilling` hook in React:
+## Client-side (for UI, not security)
 
 ```tsx
-import { useBilling } from '@kerne/react';
+import { HasFeature } from '@kerne/react';
 
-function FeatureGate({ feature, children, fallback }) {
-  const { checkEntitlement } = useBilling();
-  const [hasAccess, setHasAccess] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkEntitlement(feature)
-      .then(setHasAccess)
-      .finally(() => setLoading(false));
-  }, [feature]);
-
-  if (loading) return null;
-  if (!hasAccess) return fallback;
-  return children;
-}
-
-// Usage
-<FeatureGate feature="pro_analytics" fallback={<UpgradeBanner />}>
+<HasFeature feature="pro_analytics" fallback={<UpgradeBanner />}>
   <AnalyticsDashboard />
-</FeatureGate>
+</HasFeature>
 ```
+
+`<HasFeature>` (and the `useEntitlement` hook underneath it) already handles the loading state and scopes to the logged-in user - no need to hand-roll a `useEffect`/`useState` wrapper around `checkEntitlement()` yourself.
+
+<Warning>
+A client-side check is a UX convenience, never a security boundary - anyone can bypass it by editing the page. Always re-check with `allows()`/`enforce()` on the server before doing the thing being gated.
+</Warning>
 
 ## Checking quotas
 
-For usage-based features, check the current usage:
-
 ```typescript
-// Server-side
-const entitlements = await kerne.billing.entitlements();
-
-const apiCalls = entitlements.entitlements['api_calls'];
-console.log(`Used: ${apiCalls.current_usage} / ${apiCalls.limit}`);
+const { entitlements } = await kerne.entitlements({ scope: userId });
+const apiCalls = entitlements.find((e) => e.feature_key === 'api_calls');
+console.log(`Used: ${apiCalls?.used} / ${apiCalls?.limit}`);
 ```
 
 ## Feature key patterns
 
-Define clear, consistent feature keys in your Kerne dashboard:
-
 | Key | Type | Description |
 |-----|------|-------------|
-| `api_access` | Boolean | Can use the API |
+| `api_access` | Boolean | Can use the API at all |
 | `api_calls` | Quota | Monthly API call limit |
 | `team_seats` | Static | Number of team members |
 | `advanced_analytics` | Boolean | Access to pro analytics |
-| `export_data` | Boolean | Can export data |
-
-## Best practices
-
-1. **Check on the server** for security-critical features
-2. **Cache results** to avoid repeated API calls
-3. **Provide clear upgrade paths** when access is denied
-4. **Use descriptive feature keys** that match your product language
 
 ## Next steps
 
 - [Enforce limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux)
-- [View entitlements SDK reference](/sdks/server/billing/consumption/entitlements)
+- [Server SDK: entitlements reference](/sdks/server/entitlements/allows-enforce-check)

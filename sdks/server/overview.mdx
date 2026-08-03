@@ -1,25 +1,82 @@
 ---
-title: "Introduction"
-description: "Backend libraries for Kerne integration"
+title: "Overview"
+description: "@kerne/server - your backend's Kerne client"
 ---
 
-Kerne provides server-side SDKs to manage your application's configuration, users, and billing consumption from your backend.
+`@kerne/server` is the only place that should ever hold your secret key. It's what lets a request act on behalf of *any* scope, not just the caller - that's the whole reason it stays server-side.
 
-<CardGroup cols={2}>
-  <Card title="Node.js" icon="node" href="/sdks/server/overview">
-    Integrate Kerne into your Node.js, TypeScript, or NestJS backend.
-  </Card>
-  <Card title="Python" icon="python">
-    (Coming soon) Python SDK for Django, FastAPI, and Flask.
-  </Card>
-</CardGroup>
+## Install & configure
 
-## Core modules
+```bash
+npm install @kerne/server
+```
 
-Our server SDKs are organized into logical modules:
+```typescript
+import { Kerne } from '@kerne/server';
 
-- **Users**: Manage user profiles, roles, and status.
-- **Waitlist**: Handle waitlist entries and growth.
-- **Invitations**: Manage application invitations.
-- **Billing**: Configure products/plans and report usage.
-- **Webhooks**: Securely verify and process events from Kerne.
+const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID!,
+  secretKey: process.env.KERNE_SECRET_KEY!, // sk_live_... or sk_test_...
+  // baseUrl defaults to https://api.kerne.io
+});
+```
+
+## The surface, by tier
+
+The methods are grouped by *who* is meant to call them - not by resource - because that's what actually changes as you build:
+
+<Steps>
+  <Step title="Tier 1 - entitlements, flat on the client">
+    The reason this SDK exists. No `.billing.` prefix - these are the calls you'll write the most.
+
+    ```typescript
+    kerne.allows(featureKey, { scope })       // boolean, never throws
+    kerne.enforce(featureKey, { scope })      // throws if denied
+    kerne.check(featureKey, { scope })        // full detail: limit/used/remaining/...
+    kerne.consume(featureKey, { scope, delta })
+    kerne.reportUsage(featureKey, { scope, delta })
+    kerne.entitlements({ scope })
+    kerne.usage({ scope, featureKey? })
+    ```
+
+    See [Entitlements & usage](/sdks/server/entitlements/allows-enforce-check).
+  </Step>
+  <Step title="Tier 2 - billing the end user touches">
+    ```typescript
+    kerne.billing.subscription()
+    kerne.billing.plans(productIdOrSlug)   // public pricing data, read-only
+    kerne.billing.checkout(planPriceId, options)
+    kerne.billing.portal(options)
+    kerne.billing.cancel(options)
+    kerne.billing.subscriptions.list/get/cancel(...)
+    ```
+
+    See [Billing](/sdks/server/billing/subscription).
+  </Step>
+  <Step title="Tier 3 - identity & growth">
+    ```typescript
+    kerne.auth.*         // signup, login, password reset, email verification
+    kerne.users.me/get/update(...)
+    kerne.waitlist.*
+    kerne.invitations.*
+    ```
+
+    See [Authentication](/sdks/server/auth/signup), [Users](/sdks/server/users/me), [Waitlist](/sdks/server/waitlist/join), [Invitations](/sdks/server/invitations/create).
+  </Step>
+  <Step title="Tier 4 - admin corrections, never from an end-user request">
+    ```typescript
+    kerne.admin.setUsage / adjustUsage / resetUsage(...)
+    kerne.admin.grant / listGrants / revokeGrant(...)
+    ```
+
+    Same idea as `supabase.auth.admin.*` - one client, a namespace that signals "this call needs elevated trust." See [Admin](/sdks/server/admin/usage-corrections).
+  </Step>
+</Steps>
+
+## Escape hatch
+
+If a route you need isn't wrapped yet, `kerne.request()` calls it directly with the same authentication as everything else - see [Direct requests](/sdks/server/request).
+
+## What this SDK does not do
+
+Catalog management (products, plans, prices, packs) isn't in this SDK - that's control-plane configuration for your own dashboard, not something your app's backend does at runtime. Use the Kerne dashboard or `@kerne/contracts` for that.

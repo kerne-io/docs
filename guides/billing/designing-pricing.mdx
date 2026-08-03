@@ -12,9 +12,9 @@ A well-designed pricing model is scalable, easy to understand, and maps directly
 3.  **Prices (Billing)**: How much they pay for the plan (e.g., "$29/mo").
 
 <Tip>
-**Golden Rule**: Your code should check **Entitlements**, never Plans.
+**Golden Rule**: Your code should check **entitlements**, never plans.
 *   **Bad**: `if (user.plan === 'pro')`
-*   **Good**: `if (checkEntitlement('can_export_pdf'))`
+*   **Good**: `if (await kerne.allows('can_export_pdf', { scope: userId }))`
 </Tip>
 
 ## Model 1: The "Good-Better-Best" (Flat Rate)
@@ -40,13 +40,9 @@ Charge based on consumption (e.g., API calls, emails sent).
     - `ACCUMULATE`: Credits roll over (e.g., "Pre-paid email credits").
 3.  Report usage via the SDK:
     ```typescript
-    await kerne.billing.reportUsage('emails_sent', 1);
+    await kerne.reportUsage('emails_sent', { scope: userId, delta: 1 });
     ```
 
-## Model 3: The Hybrid (Seat-based + Usage)
+## Model 3: Hybrid (base plan + metered add-on)
 
-$20/seat/month + $0.01/email.
-
-**Implementation**:
-1.  Configure the Product as "Per Unit" (Seat based).
-2.  Add a generic "Usage" entitlement for emails.
+A flat monthly fee plus a per-unit metered feature - e.g. $20/mo base, then $0.01/email past what's included. Model it as one plan with two entitlements: a boolean/static one for the base tier, and a `QUOTA` one (with `overage: ALLOW`) for the metered part - see [Entitlements](/concepts/monetization/entitlements) for how `overage_behavior` works. Kerne doesn't bill the overage automatically yet (see [Enforcing limits](/guides/billing/enforcing-limits-without-breaking-ux)) - you'd read `used` past `limit` and invoice for it separately, or via your payment provider's usage-based pricing feature directly.

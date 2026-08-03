@@ -1,12 +1,23 @@
 ---
 title: "Refresh token"
-description: "Refresh an access token"
+description: "Exchange a refresh token for a new session"
 ---
 
-Get a fresh access token using a refresh token.
+```typescript
+const { token, refresh_token, user, expires_at } = await kerne.auth.refreshToken({
+  refresh_token: storedRefreshToken,
+});
+```
+
+<Warning>
+`refresh_token` here means the value returned alongside `token` from signup/login - **not** the access token itself. Sending the access token as `refresh_token` is a real mistake to guard against: it fails silently (the exchange just gets rejected) rather than throwing something obviously wrong.
+</Warning>
+
+## The unified `token()` exchange
+
+`login()` and `refreshToken()` are both thin wrappers around `token()`, which accepts either grant type directly - useful if you're building your own auth flow on top:
 
 ```typescript
-const { token, refresh_token } = await kerne.auth.refreshToken({
-  refresh_token: 'existing_refresh_token'
-});
+await kerne.auth.token({ grant_type: 'password', email, password });
+await kerne.auth.token({ grant_type: 'refresh_token', refresh_token });
 ```

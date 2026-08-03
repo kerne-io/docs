@@ -54,107 +54,6 @@
             ]
           },
           {
-            "group": "Server SDK",
-            "pages": [
-              "sdks/server/overview",
-              {
-                "group": "Authentication",
-                "pages": [
-                  "sdks/server/auth/signup",
-                  "sdks/server/auth/login",
-                  "sdks/server/auth/me",
-                  "sdks/server/auth/refresh-token",
-                  "sdks/server/auth/passwordless",
-                  "sdks/server/auth/verify-email",
-                  "sdks/server/auth/password-reset"
-                ]
-              },
-              {
-                "group": "Users",
-                "pages": [
-                  "sdks/server/users/list",
-                  "sdks/server/users/get",
-                  "sdks/server/users/create",
-                  "sdks/server/users/update",
-                  "sdks/server/users/delete"
-                ]
-              },
-              {
-                "group": "Billing",
-                "pages": [
-                  "sdks/server/billing/products",
-                  "sdks/server/billing/features",
-                  "sdks/server/billing/plans",
-                  "sdks/server/billing/packs",
-                  "sdks/server/billing/prices",
-                  "sdks/server/billing/consumption/entitlements",
-                  "sdks/server/billing/consumption/usage",
-                  "sdks/server/billing/subscriptions",
-                  "sdks/server/billing/checkout/create"
-                ]
-              },
-              {
-                "group": "Waitlist",
-                "pages": [
-                  "sdks/server/waitlist/join",
-                  "sdks/server/waitlist/list",
-                  "sdks/server/waitlist/remove"
-                ]
-              },
-              {
-                "group": "Invitations",
-                "pages": [
-                  "sdks/server/invitations/create",
-                  "sdks/server/invitations/list",
-                  "sdks/server/invitations/validate",
-                  "sdks/server/invitations/revoke"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Client SDK",
-            "pages": [
-              "sdks/client/overview",
-              {
-                "group": "React",
-                "pages": [
-                  "sdks/client/react/overview",
-                  {
-                    "group": "Authentication",
-                    "pages": [
-                      "sdks/client/react/auth/login",
-                      "sdks/client/react/auth/register",
-                      "sdks/client/react/auth/magic-link",
-                      "sdks/client/react/auth/session",
-                      "sdks/client/react/auth/email-verification",
-                      "sdks/client/react/auth/password-reset"
-                    ]
-                  },
-                  {
-                    "group": "Billing",
-                    "pages": [
-                      {
-                        "group": "Consumption",
-                        "pages": [
-                          "sdks/client/react/billing/consumption/check-entitlement",
-                          "sdks/client/react/billing/consumption/usage"
-                        ]
-                      },
-                      {
-                        "group": "Checkout",
-                        "pages": [
-                          "sdks/client/react/billing/checkout/checkout",
-                          "sdks/client/react/billing/checkout/portal"
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
             "group": "Guides",
             "pages": [
               {
@@ -179,10 +78,103 @@
                   "guides/billing/enforcing-limits-without-breaking-ux"
                 ]
               },
+              "guides/saas-lifecycle"
+            ]
+          },
+          {
+            "group": "Server SDK",
+            "pages": [
+              "sdks/server/overview",
               {
-                "group": "Strategy",
+                "group": "Authentication",
                 "pages": [
-                  "guides/saas-lifecycle"
+                  "sdks/server/auth/signup",
+                  "sdks/server/auth/login",
+                  "sdks/server/auth/refresh-token",
+                  "sdks/server/auth/verify-email",
+                  "sdks/server/auth/password-reset",
+                  "sdks/server/auth/config"
+                ]
+              },
+              {
+                "group": "Users",
+                "pages": [
+                  "sdks/server/users/me",
+                  "sdks/server/users/get",
+                  "sdks/server/users/update"
+                ]
+              },
+              {
+                "group": "Entitlements & usage",
+                "pages": [
+                  "sdks/server/entitlements/allows-enforce-check",
+                  "sdks/server/entitlements/consume",
+                  "sdks/server/entitlements/report-usage",
+                  "sdks/server/entitlements/list"
+                ]
+              },
+              {
+                "group": "Billing",
+                "pages": [
+                  "sdks/server/billing/subscription",
+                  "sdks/server/billing/plans",
+                  "sdks/server/billing/checkout",
+                  "sdks/server/billing/portal-and-cancel"
+                ]
+              },
+              {
+                "group": "Admin",
+                "pages": [
+                  "sdks/server/admin/usage-corrections",
+                  "sdks/server/admin/overrides"
+                ]
+              },
+              {
+                "group": "Waitlist",
+                "pages": [
+                  "sdks/server/waitlist/join",
+                  "sdks/server/waitlist/list",
+                  "sdks/server/waitlist/remove"
+                ]
+              },
+              {
+                "group": "Invitations",
+                "pages": [
+                  "sdks/server/invitations/create",
+                  "sdks/server/invitations/list",
+                  "sdks/server/invitations/validate",
+                  "sdks/server/invitations/revoke"
+                ]
+              },
+              "sdks/server/request"
+            ]
+          },
+          {
+            "group": "Client SDK",
+            "pages": [
+              "sdks/client/overview",
+              {
+                "group": "React",
+                "pages": [
+                  "sdks/client/react/overview",
+                  {
+                    "group": "Authentication",
+                    "pages": [
+                      "sdks/client/react/auth/login",
+                      "sdks/client/react/auth/register",
+                      "sdks/client/react/auth/session",
+                      "sdks/client/react/auth/email-verification",
+                      "sdks/client/react/auth/password-reset"
+                    ]
+                  },
+                  {
+                    "group": "Billing",
+                    "pages": [
+                      "sdks/client/react/billing/check-entitlement",
+                      "sdks/client/react/billing/checkout-and-portal"
+                    ]
+                  },
+                  "sdks/client/react/components"
                 ]
               }
             ]
@@ -192,148 +184,7 @@
       {
         "tab": "API reference",
         "icon": "square-terminal",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Models",
-            "pages": [
-              "api-reference/models/user",
-              "api-reference/models/product",
-              "api-reference/models/feature",
-              "api-reference/models/plan",
-              "api-reference/models/pack",
-              "api-reference/models/price",
-              "api-reference/models/subscription",
-              "api-reference/models/entitlement",
-              "api-reference/models/invitation",
-              "api-reference/models/waitlist-entry"
-            ]
-          },
-          {
-            "group": "Authentication",
-            "pages": [
-              "api-reference/auth/register",
-              "api-reference/auth/login",
-              "api-reference/auth/me",
-              "api-reference/auth/config",
-              {
-                "group": "Email verification",
-                "pages": [
-                  "api-reference/auth/verify-email",
-                  "api-reference/auth/resend-verification"
-                ]
-              },
-              {
-                "group": "Password",
-                "pages": [
-                  "api-reference/auth/forgot-password",
-                  "api-reference/auth/reset-password",
-                  "api-reference/auth/change-password"
-                ]
-              },
-              "api-reference/auth/request-deletion"
-            ]
-          },
-          {
-            "group": "Users",
-            "pages": [
-              "api-reference/users/list",
-              "api-reference/users/create",
-              "api-reference/users/get",
-              "api-reference/users/update",
-              "api-reference/users/delete"
-            ]
-          },
-          {
-            "group": "Billing - Products",
-            "pages": [
-              "api-reference/billing/products/list",
-              "api-reference/billing/products/create",
-              "api-reference/billing/products/get",
-              "api-reference/billing/products/update",
-              "api-reference/billing/products/delete"
-            ]
-          },
-          {
-            "group": "Billing - Features",
-            "pages": [
-              "api-reference/billing/features/list",
-              "api-reference/billing/features/create",
-              "api-reference/billing/features/get",
-              "api-reference/billing/features/update",
-              "api-reference/billing/features/delete"
-            ]
-          },
-          {
-            "group": "Billing - Plans & Pricing",
-            "pages": [
-              "api-reference/billing/pricing/list-public-plans",
-              "api-reference/billing/plans/list",
-              "api-reference/billing/plans/create",
-              "api-reference/billing/plans/get",
-              "api-reference/billing/plans/update"
-            ]
-          },
-          {
-            "group": "Billing - Packs",
-            "pages": [
-              "api-reference/billing/packs/list",
-              "api-reference/billing/packs/create",
-              "api-reference/billing/packs/get",
-              "api-reference/billing/packs/get-active",
-              "api-reference/billing/packs/update-entitlements",
-              "api-reference/billing/packs/delete-entitlement",
-              "api-reference/billing/packs/activate",
-              "api-reference/billing/packs/version",
-              "api-reference/billing/packs/delete"
-            ]
-          },
-          {
-            "group": "Billing - Prices",
-            "pages": [
-              "api-reference/billing/prices/list",
-              "api-reference/billing/prices/create-price"
-            ]
-          },
-          {
-            "group": "Billing - Subscriptions & Usage",
-            "pages": [
-              "api-reference/billing/subscriptions/list",
-              "api-reference/billing/subscriptions/create",
-              "api-reference/billing/subscriptions/get",
-              "api-reference/billing/subscriptions/cancel",
-              "api-reference/billing/entitlements/list",
-              "api-reference/billing/usage/get",
-              "api-reference/billing/usage/report",
-              "api-reference/billing/checkout/create",
-              "api-reference/billing/portal"
-            ]
-          },
-          {
-            "group": "Invitations",
-            "pages": [
-              "api-reference/invitations/list",
-              "api-reference/invitations/create-token",
-              "api-reference/invitations/create-code",
-              "api-reference/invitations/validate-token",
-              "api-reference/invitations/validate-code",
-              "api-reference/invitations/revoke"
-            ]
-          },
-          {
-            "group": "Waitlist",
-            "pages": [
-              "api-reference/waitlist/join",
-              "api-reference/waitlist/list",
-              "api-reference/waitlist/remove"
-            ]
-          }
-        ]
+        "openapi": "openapi.json"
       }
     ]
   },

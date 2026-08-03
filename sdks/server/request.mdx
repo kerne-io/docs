@@ -1,0 +1,16 @@
+---
+title: "Direct requests"
+description: "Call any route directly, with the same authentication as the rest of the SDK"
+---
+
+If a route you need isn't wrapped by a typed method yet, `kerne.request()` calls it directly - same base URL, same headers, same secret key as every other method on this client. It exists so a missing wrapper never blocks you.
+
+```typescript
+const data = await kerne.request({
+  method: 'GET',
+  path: '/v1/billing/usage',
+  query: { scope_id: userId },
+});
+```
+
+Server-side only, same as the rest of this package - it's still an authenticated call, so it can reach anything your key is authorized for.

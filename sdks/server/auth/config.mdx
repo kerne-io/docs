@@ -1,0 +1,25 @@
+---
+title: "Auth config"
+description: "Read the tenant's current auth configuration"
+---
+
+Public route (no auth required) - useful for rendering the right signup form before you know who's asking.
+
+```typescript
+const config = await kerne.auth.config();
+```
+
+```json
+{
+  "allow_registration": true,
+  "require_invitation": false,
+  "enable_magic_link": false,
+  "enable_credentials": true,
+  "oauth_providers": [],
+  "callback_url": null,
+  "user_registration_limit": null,
+  "app_name": "Acme"
+}
+```
+
+See [Registration modes](/concepts/identity/registration-modes) for what these fields actually control.

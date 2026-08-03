@@ -1,0 +1,53 @@
+---
+title: "Check an entitlement"
+description: "useEntitlement and <HasFeature> - both scoped to the logged-in user automatically"
+---
+
+Unlike the server SDK, there's no `scope` parameter here - the client always checks the currently authenticated user, resolved from their own session.
+
+## The hook
+
+```tsx
+import { useEntitlement } from '@kerne/react';
+
+function ExportButton() {
+  const { hasAccess, isLoading } = useEntitlement('export_pdf');
+
+  if (isLoading) return <Spinner />;
+  if (!hasAccess) return <UpgradePrompt />;
+  return <button onClick={exportPdf}>Export</button>;
+}
+```
+
+For a quota feature, pass `requested` to check "can I use N more":
+
+```tsx
+const { hasAccess } = useEntitlement('api_calls', 5);
+```
+
+## The guard component
+
+`<HasFeature>` wraps the same check for declarative gating:
+
+```tsx
+import { HasFeature } from '@kerne/react';
+
+<HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+  <button onClick={exportPdf}>Export</button>
+</HasFeature>
+```
+
+## Lower-level: `useBilling().checkEntitlement`
+
+Both of the above call this internally - reach for it directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+const { checkEntitlement } = useBilling();
+const hasAccess = await checkEntitlement('export_pdf'); // boolean, throws on a real error (401/500) - it does not swallow failures into `false`
+```
+
+## Why there's no `consume()` here
+
+Enforcing a quota only in the browser is trivially bypassed - commit usage from your backend with `@kerne/server`'s [`consume()`](/sdks/server/entitlements/consume), and use this SDK only to reflect the result.

@@ -21,38 +21,31 @@ A soft limit (the "nudge") allows the user to proceed but triggers a notificatio
 
 ## Where to enforce
 
-### 1. Backend middleware (Hard limits)
+### 1. Backend middleware (hard limits)
 
-The safest place to enforce limits is your API layer. If `checkEntitlement` returns `has_access: false`, return a `403 Forbidden`.
+The safest place to enforce limits is your API layer - use `enforce()` if a thrown error fits your middleware pattern, or `allows()` if you'd rather branch yourself:
 
 ```typescript
-// Backend middleware example
-const { has_access } = await kerne.billing.checkEntitlement('api-calls');
-
-if (!has_access) {
+if (!(await kerne.allows('api_calls', { scope: userId }))) {
   throw new ForbiddenError('You have reached your monthly API quota.');
 }
 ```
 
-### 2. The client UI (Soft limits and UX)
+If the action *is* the usage being counted, use [`consume()`](/sdks/server/entitlements/consume) instead - it checks and increments atomically, so it doesn't just check but also protects against a burst of concurrent requests all sneaking past the limit at once.
 
-Don't wait for a "Save" click to inform users they've hit a limit. Proactively disable buttons or show upgrade nudges in the UI.
+### 2. The client UI (soft limits and UX)
+
+Don't wait for a "Save" click to inform users they've hit a limit - proactively disable buttons or show upgrade nudges, using [`useEntitlement`](/sdks/client/react/billing/check-entitlement) (which already handles the loading state):
 
 ```tsx
-// React component example
-import { useBilling } from '@kerne/react';
+import { useEntitlement } from '@kerne/react';
 
 function AddTeamMember() {
-  const { checkEntitlement } = useBilling();
-  const [canAdd, setCanAdd] = useState(true);
-
-  useEffect(() => {
-    checkEntitlement('team_seats').then(setCanAdd);
-  }, []);
+  const { hasAccess, isLoading } = useEntitlement('team_seats');
 
   return (
-    <button disabled={!canAdd}>
-      Add member { !canAdd && ' (Upgrade required)' }
+    <button disabled={isLoading || !hasAccess}>
+      Add member {!isLoading && !hasAccess && ' (Upgrade required)'}
     </button>
   );
 }

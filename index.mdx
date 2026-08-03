@@ -5,36 +5,32 @@ description: "The infrastructure for monetized software"
 
 ## What is Kerne?
 
-Kerne provides the infrastructure you need to build and scale monetized software. It unifies authentication and billing into a single, developer-first platform.
+Kerne unifies authentication and billing into one API. Instead of stitching together an auth provider, Stripe, and your own quota-tracking code, you get one model: a user, a plan, and the entitlements that plan grants.
 
-Instead of stitching together disparate auth and billing providers, Kerne gives you a unified data model. Your users and their subscriptions are deeply integrated from day one.
+Every request your app makes boils down to the same question:
+
+```mermaid
+flowchart LR
+    A["User wants to do X"] --> B["kerne.allows('X')"]
+    B --> C{"Kerne decides"}
+    C -->|"allowed"| D["Your app does X"]
+    C -->|"denied"| E["Your app shows an upgrade prompt"]
+```
+
+That one call - `allows()` - is what replaces scattered `if (user.plan === 'pro')` checks across your codebase.
 
 <CardGroup cols={2}>
   <Card title="5-minute quickstart" icon="rocket" href="/quickstart">
     Deploy your first monetized app in minutes.
   </Card>
   <Card title="Node.js SDK" icon="node" href="/sdks/server/overview">
-    `@kerne/server` for your secure backend operations.
+    `@kerne/server` for your backend - the only place that holds your secret key.
   </Card>
   <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
-    `@kerne/react` for your frontend user experience.
+    `@kerne/react` for your frontend - session state and entitlement guards.
   </Card>
-  <Card title="API reference" icon="terminal" href="/api-reference/introduction">
-    Complete REST API documentation for custom integrations.
-  </Card>
-</CardGroup>
-
-## Our approach
-
-<CardGroup cols={3}>
-  <Card title="Secure identity" icon="fingerprint">
-    Authentication that just works. We handle HttpOnly cookies and session management automatically.
-  </Card>
-  <Card title="Native monetization" icon="credit-card">
-    Don't just bill users—entitle them. Use feature flags driven directly by subscription status.
-  </Card>
-  <Card title="Developer first" icon="code">
-    Clean APIs and type-safe SDKs designed to fit into your modern development workflow.
+  <Card title="API reference" icon="terminal" href="/api-reference">
+    The full REST API, generated from the same spec Kerne itself runs against.
   </Card>
 </CardGroup>
 
@@ -45,35 +41,37 @@ Instead of stitching together disparate auth and billing providers, Kerne gives 
 import { Kerne } from '@kerne/server';
 
 const kerne = new Kerne({
-  appId: process.env.KERNE_APP_ID,
-  secretKey: process.env.KERNE_SECRET_KEY
+  appId: process.env.KERNE_APP_ID!,
+  secretKey: process.env.KERNE_SECRET_KEY!, // sk_live_...
 });
 
-// Create a user and grant access
-const user = await kerne.users.create({
-  email: 'user@example.com',
-  password: 'SecurePassword123'
-});
+// Gate an action behind the caller's plan
+if (await kerne.allows('export_pdf', { scope: userId })) {
+  return generatePdf();
+}
 ```
 
-```typescript Client (@kerne/react)
-import { KerneProvider, useAuth } from '@kerne/react';
+```tsx Client (@kerne/react)
+import { KerneProvider, useAuth, HasFeature } from '@kerne/react';
 
-// 1. Wrap your application
 function Root() {
   return (
-    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
+    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID!}>
       <App />
     </KerneProvider>
   );
 }
 
-// 2. Use the hook in your components
-function Profile() {
-  const { user, login } = useAuth();
-  
-  if (!user) return <button onClick={login}>Login</button>;
-  return <div>Welcome, {user.email}</div>;
+function ExportButton() {
+  return (
+    <HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+      <button onClick={exportPdf}>Export as PDF</button>
+    </HasFeature>
+  );
 }
 ```
 </CodeGroup>
+
+## What's here today
+
+Kerne is early: single-user scopes only (no organizations/teams yet), Stripe and Polar as payment providers, no built-in RBAC beyond a single admin flag. See [Platform foundations](/concepts/overview) for exactly what exists and what's intentionally not built yet.

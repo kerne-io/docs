@@ -1,0 +1,43 @@
+---
+title: "Usage corrections"
+description: "setUsage / adjustUsage / resetUsage"
+---
+
+<Note>
+Everything under `kerne.admin` requires an admin caller (secret key, or a JWT owner crossing into their own tenant) - never call these from a request an end user initiated themselves.
+</Note>
+
+## `adjustUsage()` - the one to reach for
+
+Offsets the counter by a signed delta in **one atomic increment** - safe to call concurrently with `consume()`/`reportUsage()` without racing them, because it never reads the current value first.
+
+```typescript
+// Refund 5 units back to the scope
+await kerne.admin.adjustUsage('api_calls', { scope: userId, delta: -5 });
+
+// Correct an undercount
+await kerne.admin.adjustUsage('api_calls', { scope: userId, delta: 3, idempotencyKey: fixId });
+```
+
+A negative delta can push the counter below zero internally - that's correct (it's real slack the scope has), and [`check()`](/sdks/server/entitlements/allows-enforce-check) never surfaces it as a negative number, it folds the credit into the displayed limit instead.
+
+## `setUsage()` - only when you need an exact value
+
+```typescript
+await kerne.admin.setUsage('storage_gb', { scope: userId, value: 12.5 });
+```
+
+Requires knowing the target absolute value up front, which means it can race a concurrent `consume()`/`reportUsage()` (read-then-write). Prefer `adjustUsage()` unless you specifically need to pin an exact number.
+
+## `resetUsage()`
+
+```typescript
+await kerne.admin.resetUsage({ scope: userId }); // every QUOTA feature for this scope
+await kerne.admin.resetUsage({ scope: userId, featureKey: 'api_calls' }); // just one
+```
+
+Zeroes both the current period's counter and any rollover credit/debt - a clean slate, not just "back to zero for this period."
+
+## This is not the same as an override
+
+These three change the **counter**. An [entitlement override](/sdks/server/admin/overrides) changes the **limit** and renews every period. See [Entitlements](/concepts/monetization/entitlements#two-ways-an-admin-can-deviate-from-the-plan) for when to use which.

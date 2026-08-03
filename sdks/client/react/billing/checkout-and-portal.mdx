@@ -1,0 +1,50 @@
+---
+title: "Checkout & portal"
+description: "Send the user to a hosted checkout or billing portal"
+---
+
+```tsx
+import { useBilling } from '@kerne/react';
+
+function UpgradeButton({ planPriceId }: { planPriceId: string }) {
+  const { openCheckout } = useBilling();
+
+  return (
+    <button onClick={() => openCheckout(planPriceId, { successUrl: '/billing/success' })}>
+      Upgrade
+    </button>
+  );
+}
+```
+
+<Warning>
+The first argument is a **`plan_price_id`** (a specific billing variant - monthly vs. yearly), not a plan id.
+</Warning>
+
+`openCheckout()`/`openPortal()` redirect the browser directly (`window.location.href = url`). If you want the URL instead - to open in a new tab, or handle the redirect yourself - use `createCheckout()`/`createPortal()`, which return the URL without navigating:
+
+```tsx
+const { createCheckout, createPortal } = useBilling();
+
+const checkoutUrl = await createCheckout(planPriceId);
+const portalUrl = await createPortal();
+```
+
+## The caller's own subscription
+
+```tsx
+const { getSubscription } = useBilling();
+const sub = await getSubscription(); // null if none, or scoped to a product slug: getSubscription('acme')
+```
+
+Or the reactive version:
+
+```tsx
+import { useSubscription } from '@kerne/react';
+
+const { subscription, isActive, isLoading } = useSubscription();
+```
+
+<Note>
+`useSubscription()`'s `isPro`/`isEnterprise` flags are hardcoded to plan slugs literally named `pro`/`enterprise` - they won't mean anything if your plans are named differently. Prefer checking a specific entitlement with [`useEntitlement()`](/sdks/client/react/billing/check-entitlement) instead of a plan name.
+</Note>

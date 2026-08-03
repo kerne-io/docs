@@ -1,0 +1,24 @@
+---
+title: "entitlements() & usage()"
+sidebarTitle: "List entitlements & usage"
+description: "Hydrate every entitlement or usage record for a scope in one call"
+---
+
+## All entitlements for a scope
+
+Useful for hydrating a settings/billing page without one request per feature:
+
+```typescript
+const { entitlements, subscription_status, plan_slug } = await kerne.entitlements({ scope: userId });
+// entitlements: [{ feature_key, feature_type, enabled?, limit?, used?, remaining?, value?, has_override }, ...]
+```
+
+## Usage records
+
+```typescript
+const records = await kerne.usage({ scope: userId });
+// or scope to one feature:
+const records = await kerne.usage({ scope: userId, featureKey: 'api_calls' });
+```
+
+Each record: `{ id, feature_key, value, period_start, period_end, status, ... }` - one per feature per open billing period.

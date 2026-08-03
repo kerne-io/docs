@@ -1,13 +1,9 @@
 ---
 title: "Overview"
-description: "The philosophy of monetized software"
+description: "Decoupling pricing from code"
 ---
 
-Monetization in Kerne is designed to be **decoupled** from your application logic. We provide an abstraction layer that allows you to change your pricing and feature packaging without redeploying code.
-
-## The decoupling principle
-
-In traditional systems, billing logic is often scattered throughout the codebase:
+Without Kerne, billing logic tends to leak into scattered checks across your codebase:
 
 ```typescript
 if (user.plan === 'pro') {
@@ -15,18 +11,21 @@ if (user.plan === 'pro') {
 }
 ```
 
-This is brittle. If you want to move "Advanced Analytics" to an "Enterprise" plan, you must rewrite and redeploy your code.
+Change the packaging - move "Advanced Analytics" to a new "Enterprise" tier - and you have to hunt down every one of those checks and redeploy.
 
 ## The Kerne approach
 
-Kerne introduces **Entitlements**. You define which features belong to which plans in the dashboard, and your code only checks for the feature key:
+Plans grant **entitlements**, defined once in the dashboard (which feature, and what limit). Your code only ever asks about the feature, never the plan:
 
 ```typescript
-const { allowed } = await kerne.billing.canConsume('advanced_analytics');
-
-if (allowed) {
+if (await kerne.allows('advanced_analytics', { scope: user.id })) {
   showAdvancedAnalytics();
 }
 ```
 
-Now, you can reconfigure your plans, add add-ons, or change limits in the dashboard, and your application responds instantly. This separation of concerns allows your product and growth teams to experiment with pricing models without involving engineering for every change.
+Reassign that feature to a different plan in the dashboard, and this line of code doesn't change - `allows()` resolves it dynamically every time.
+
+## The pieces
+
+- **[Products & plans](/concepts/monetization/products-and-plans)** - what you sell, and how a plan's entitlements are versioned so changing a plan never silently changes what existing subscribers get.
+- **[Entitlements](/concepts/monetization/entitlements)** - the three entitlement types (boolean, quota, static) and how overrides/usage corrections work.

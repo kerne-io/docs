@@ -1,0 +1,31 @@
+---
+title: "reportUsage()"
+description: "Record usage without checking a limit"
+---
+
+Unlike [`consume()`](/sdks/server/entitlements/consume), `reportUsage()` never blocks on the limit - it always applies. Use it when the thing you're gating was already allowed some other way (e.g. a background job re-syncing usage counts, or metering something after the fact rather than at the moment of use).
+
+```typescript
+await kerne.reportUsage('storage_gb', {
+  scope: userId,
+  delta: 2.5,
+  operation: 'INCREMENT', // or 'SET' to replace the value outright
+  idempotencyKey: syncJobId,
+});
+```
+
+<ParamField path="scope" type="string" required>
+  Required here (unlike `consume()`/`check()`) - there's no self-fallback for this one, you always name a scope.
+</ParamField>
+<ParamField path="delta" type="number">
+  Defaults to `1`.
+</ParamField>
+<ParamField path="operation" type="'INCREMENT' | 'SET'">
+  Defaults to `INCREMENT`.
+</ParamField>
+<ParamField path="idempotencyKey" type="string">
+  Same replay-safety as `consume()`.
+</ParamField>
+<ParamField path="metadata" type="object">
+  Arbitrary context stored alongside the usage event (e.g. `request_id`).
+</ParamField>

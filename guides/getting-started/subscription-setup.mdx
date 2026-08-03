@@ -4,81 +4,45 @@ sidebarTitle: "Subscription setup"
 description: "Connect Stripe and implement subscription billing"
 ---
 
-This guide walks you through connecting Stripe, creating plans, and implementing subscription checkout.
+This guide walks through connecting a payment provider, configuring a plan, and implementing checkout - creating the actual product/plan/price catalog is a dashboard task, not something your app's code does at runtime.
 
 ## Prerequisites
 
-- A Kerne account with an app created
-- A Stripe account (test mode is fine)
-- Your app configured with authentication
+- A Kerne app
+- A Stripe (or Polar) account
+- Your app already configured with authentication - see [Authentication setup](/guides/getting-started/authentication-setup)
 
-## 1. Connect Stripe
+## 1. Connect a payment provider
 
-In the Kerne dashboard:
-
-1. Go to **Settings** → **Billing**
-2. Click **Connect Stripe**
-3. Complete the OAuth flow
-
-<Info>
-Use Stripe test mode during development. You can switch to live mode when ready to accept real payments.
-</Info>
+In the Kerne dashboard: **Settings → Billing → Connect Stripe** (or Polar), then complete the OAuth flow. Use test mode during development.
 
 ## 2. Create a product and plan
 
-In the Kerne dashboard:
-
-1. Go to **Billing** → **Products**
-2. Create a product (e.g., "Pro Plan")
-3. Add a plan with pricing (e.g., $29/month)
-
-Alternatively, use the SDK:
-
-```typescript
-// Create a product
-const product = await kerne.billing.products.create({
-  name: 'Pro',
-  slug: 'pro',
-  billing_scope: 'USER'
-});
-
-// Create a plan
-const plan = await kerne.billing.plans.create({
-  product_id: product.data.id,
-  name: 'Pro Monthly',
-  slug: 'pro-monthly',
-  trial_days: 14
-});
-
-// Add a price
-await kerne.billing.prices.create({
-  plan_id: plan.data.id,
-  amount: 2900, // $29.00
-  currency: 'usd',
-  interval: 'month'
-});
-```
+This is a dashboard action, not an SDK call - catalog configuration (products, plans, prices) is control-plane: it's you configuring your own SaaS, not something your running app does. In the dashboard: **Billing → Products** → create a product → add a plan with pricing.
 
 ## 3. Display pricing
 
-Fetch and display plans on your pricing page:
+`kerne.billing.plans()` is the one catalog read exposed to your app - public, meant for a pricing page:
+
+```typescript
+// Anywhere - this route needs no session, just x-app-id
+const plans = await kerne.billing.plans('acme'); // product slug or id
+```
 
 ```tsx
-// Server-side: fetch plans
-const plans = await kerne.billing.plans.list();
-
-// Client-side: display
 function PricingPage({ plans }) {
   const { openCheckout } = useBilling();
 
   return (
     <div>
-      {plans.map(plan => (
+      {plans.map((plan) => (
         <div key={plan.id}>
           <h3>{plan.name}</h3>
-          <button onClick={() => openCheckout(plan.id)}>
-            Subscribe
-          </button>
+          {plan.prices.map((price) => (
+            <button key={price.id} onClick={() => openCheckout(price.id)}>
+              Subscribe - {price.amount / 100} {price.currency}/{price.interval}
+            </button>
+          ))}
         </div>
       ))}
     </div>
@@ -86,30 +50,33 @@ function PricingPage({ plans }) {
 }
 ```
 
-## 4. Implement checkout
+<Warning>
+Checkout takes a **price** id (`plan.prices[i].id`), not the plan's own id - a plan can have several prices (monthly, yearly).
+</Warning>
 
-Use the `useBilling` hook to redirect users to Stripe Checkout:
+## 4. Implement checkout
 
 ```tsx
 import { useBilling } from '@kerne/react';
 
-function UpgradeButton({ planId }) {
+function UpgradeButton({ planPriceId }: { planPriceId: string }) {
   const { openCheckout } = useBilling();
 
-  const handleClick = () => {
-    openCheckout(planId, {
-      successUrl: '/billing/success',
-      cancelUrl: '/pricing'
-    });
-  };
-
-  return <button onClick={handleClick}>Upgrade</button>;
+  return (
+    <button
+      onClick={() =>
+        openCheckout(planPriceId, { successUrl: '/billing/success', cancelUrl: '/pricing' })
+      }
+    >
+      Upgrade
+    </button>
+  );
 }
 ```
 
 ## 5. Handle success
 
-After successful payment, users are redirected to your success URL. The subscription is automatically created.
+The subscription is created once the provider confirms payment (asynchronously - not necessarily the instant the browser lands back on your success URL):
 
 ```tsx
 function SuccessPage() {
@@ -124,23 +91,16 @@ function SuccessPage() {
 
 ## 6. Provide a billing portal
 
-Let users manage their subscription:
-
 ```tsx
 import { useBilling } from '@kerne/react';
 
 function BillingSettings() {
   const { openPortal } = useBilling();
-
-  return (
-    <button onClick={() => openPortal('/settings')}>
-      Manage subscription
-    </button>
-  );
+  return <button onClick={() => openPortal('/settings')}>Manage subscription</button>;
 }
 ```
 
 ## Next steps
 
-- [Check entitlements](/guides/billing/checking-entitlements) to gate features based on plan
+- [Check entitlements](/guides/getting-started/checking-entitlements) to gate features based on plan
 - [Design pricing](/guides/billing/designing-pricing) for best practices

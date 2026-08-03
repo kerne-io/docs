@@ -1,0 +1,12 @@
+---
+title: "Get current user"
+sidebarTitle: "Me"
+description: "The authenticated caller's own full profile"
+---
+
+```typescript
+const kerneAsUser = kerne.withToken(userAccessToken);
+const me = await kerneAsUser.users.me();
+```
+
+`me()` makes two calls under the hood: it reads the caller's id from the OIDC userinfo claims, then fetches the full profile via [`get()`](/sdks/server/users/get) - it's not a separate endpoint, just the ergonomic way to get "my own profile" without already knowing your own id.

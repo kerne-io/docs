@@ -3,18 +3,10 @@ title: "Introduction"
 description: "Frontend libraries for Kerne integration"
 ---
 
-Kerne provides client-side SDKs to handle authentication, entitlements, and checkout flows directly in your frontend application.
-
 <CardGroup cols={2}>
-  <Card title="Next.js" icon="react" href="/sdks/client/nextjs/overview">
-    Optimized for Next.js with support for Server Components and App Router.
+  <Card title="React" icon="react" href="/sdks/client/react/overview">
+    Hooks and guard components for session state and entitlement checks. Works in any React app (Next.js, Vite, Remix, ...) - nothing Next.js-specific.
   </Card>
 </CardGroup>
 
-## Core modules
-
-Our client SDKs focus on the user experience:
-
-- **Authentication**: Login, registration, and magic link flows.
-- **Billing**: Check entitlements (Consumption) and manage subscriptions (Checkout).
-- **Session**: Manage the active user session and profile.
+The client SDK never holds a secret key - it authenticates as the logged-in user (JWT), scoped to what that user is allowed to see about themselves. Anything that needs to act on another user's behalf, or touch the catalog, belongs in [`@kerne/server`](/sdks/server/overview) instead.

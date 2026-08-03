@@ -3,71 +3,55 @@ title: "Implement invite-only SaaS"
 description: "How to build a private beta or exclusive product"
 ---
 
-Building an invite-only application is a great way to control growth and validate your product with high-quality users.
-
-## Architecture
-
-To build an invite-only flow, you need three components:
-1.  **Restricted registration**: Disabling public signups at the API level.
-2.  **Code generation**: Creating unique, signed codes for your users.
-3.  **Signup validation**: Checking the code on the frontend before account creation.
+Building an invite-only application is a good way to control growth and validate your product with high-quality users.
 
 <Steps>
-  <Step title="Configure your application">
-    In the Kerne Dashboard, navigate to **Settings > registration** and select **Invitation only**.
-    This enforces the check at the API level. Even if someone attempts to bypass your frontend, they cannot sign up without a valid code.
+  <Step title="Turn on invite-only mode">
+    In the dashboard, enable `require_invitation`. This is enforced at the API level - even a request that bypasses your frontend entirely still needs a valid token or code.
   </Step>
-  <Step title="Create codes (server-side)">
-    Use the server SDK to generate unique codes. You can create one-time codes or reusable ones for marketing campaigns.
-
+  <Step title="Create codes/tokens (server-side)">
     ```typescript
     import { Kerne } from '@kerne/server';
+    const kerne = new Kerne({ appId, secretKey });
 
-    const kerne = new Kerne({ ... });
-
-    // Create a reusable code for a launch event
-    await kerne.invitations.createCode({
-      code: 'PRIVATE_BETA_2025',
-      maxUsages: 100,
-      expiresAt: '2025-12-31'
+    // A reusable code (share it in a launch email, a landing page, etc.)
+    const { code, expiresAt } = await kerne.invitations.createCode({
+      expiresAt: '2026-12-31T23:59:59.000Z', // omit for no expiry
     });
-    ```
-  </Step>
-  <Step title="Implement the signup flow (client-side)">
-    Your signup form needs an extra field for the `invitationCode`.
 
+    // Or a token tied to one specific email
+    const { token } = await kerne.invitations.createToken({ email: 'alice@company.com' });
+    ```
+
+    Codes are server-generated, not something you pick yourself - there's no `code`/`maxUsages` field to set on creation.
+  </Step>
+  <Step title="Signup with the code (client-side)">
     ```tsx
     import { useAuth } from '@kerne/react';
 
     function SignupForm() {
       const { register } = useAuth();
 
-      const handleSignup = async (data) => {
+      const handleSignup = async (data: { email: string; password: string; code: string }) => {
         try {
           await register({
             email: data.email,
             password: data.password,
-            invitationCode: data.code // The secret key to entry
+            invitationCode: data.code,
           });
         } catch (err) {
-          if (err.code === 'K1001') {
-            setError('This code is invalid or has expired.');
-          }
+          // K1004: invalid, expired, or already-used code
         }
       };
-      // ... render form
     }
     ```
+
+    You can validate a code up front (before showing the rest of the signup form) with `kerne.invitations.validateCode(code)` - a public route, no auth required.
   </Step>
 </Steps>
 
 ## Pitfalls to avoid
 
-### The "account already exists" trap
-If a user tries to sign up with an invite code but already has an account, provide a clear path forward.
-- **Bad**: "Registration failed."
-- **Good**: "You already have an account! Please log in to join this organization."
+**"Account already exists."** If someone with an invite code already has an account, `K1008` (email taken) is what you'll see - route that to "log in instead", not a generic failure message.
 
-### Handling lost invites
-Users frequently lose invitation tokens.
-- **Solution**: Implement a "Resend invitation" flow using `kerne.invitations.resend()` on your server to verify the email and send a new link.
+**Lost invites.** There's no `resend()` method today - re-sending means creating a new token/code and emailing it yourself. Track which emails you've already invited so you don't accidentally issue duplicates.

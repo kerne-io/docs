@@ -1,0 +1,29 @@
+---
+title: "consume()"
+description: "Atomically check a quota and commit the usage in one step"
+---
+
+Use `consume()` instead of `check()` when the action you're gating **is** the usage - the limit check and the increment happen in one atomic database statement, so two concurrent requests can't both slip through a `BLOCK` limit the way a separate check-then-increment would allow.
+
+```typescript
+const result = await kerne.consume('api_calls', {
+  scope: userId,
+  delta: 1,              // defaults to 1
+  idempotencyKey: requestId, // optional - see below
+});
+// { allowed, limit, used, remaining, overage_behavior, ... }
+```
+
+If `allowed` is `false`, nothing was incremented - the request never happened as far as the counter is concerned.
+
+## Idempotency
+
+Pass a stable `idempotencyKey` (e.g. your own request id) and a retried call with the same key replays the original decision instead of double-counting - safe to retry on a timeout without double-charging usage.
+
+```typescript
+await kerne.consume('api_calls', { scope: userId, idempotencyKey: `req_${requestId}` });
+```
+
+## Only for QUOTA features
+
+`consume()` throws if called on a BOOLEAN or STATIC feature - those have nothing to increment. Use [`allows()`/`check()`](/sdks/server/entitlements/allows-enforce-check) for those instead.

@@ -4,27 +4,30 @@ sidebarTitle: "Sign up"
 description: "Register a new user"
 ---
 
-## Request
+Whether this succeeds depends on the tenant's registration mode - see [Registration modes](/concepts/identity/registration-modes). If invitations are required, pass `invitationToken` or `invitationCode`.
 
-<CodeGroup>
-```typescript Node.js
-const session = await kerne.auth.signup({
+```typescript
+const { token, refresh_token, user, expires_at } = await kerne.auth.signup({
   email: 'alice@company.com',
-  password: 'securePassword123',
+  password: 'a-strong-password',
   first_name: 'Alice',
-  last_name: 'Doe'
+  last_name: 'Doe',
+  // invitationToken: '...',   // if the tenant requires an invitation
+  // invitationCode: '...',
 });
 ```
-</CodeGroup>
 
 ## Response
 
-Returns an `AuthResponse` object containing the session token and user details.
-
-<ResponseField name="access_token" type="string" required>
-  The JWT access token.
+<ResponseField name="token" type="string" required>
+  JWT access token.
 </ResponseField>
-
-<ResponseField name="user" type="User" required>
-  The [User](/api-reference/models/user) object.
+<ResponseField name="refresh_token" type="string" required>
+  Use this with [`refreshToken()`](/sdks/server/auth/refresh-token) to get a new access token once this one expires.
+</ResponseField>
+<ResponseField name="user" type="object" required>
+  Minimal claim set: `{ id, email, role }`. For the full profile (`first_name`, `avatar`, ...), call [`users.get(user.id)`](/sdks/server/users/get).
+</ResponseField>
+<ResponseField name="expires_at" type="string" required>
+  ISO timestamp for when `token` expires.
 </ResponseField>

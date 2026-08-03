@@ -1,37 +1,32 @@
 ---
-title: "Products and plans"
-description: "Designing your pricing model"
+title: "Products, plans, and packs"
+description: "Designing your pricing model, and why grandfathering is automatic"
 ---
-
-Kerne aligns its data model with Stripe to ensure a seamless sync between your application code and your billing provider.
 
 ## The hierarchy
 
-Understanding how Kerne maps to Stripe is key to designing your pricing model.
+```
+Product  →  Plan  →  PlanPrice        (what you sell, and how you charge for it)
+              │
+              └──→  Pack (versioned)   →  entitlements per feature
+```
 
-### 1. Product (The "Container")
-A **Product** in Kerne represents your application or service line.
-- Most SaaS apps have a single product.
-- **Maps to**: Conceptually a "Product Family" (internal to Kerne).
+- **Product** - your application or service line. Most SaaS apps have exactly one.
+- **Plan** - a tier ("Free", "Pro", "Enterprise"). Maps loosely to a Stripe/Polar product.
+- **PlanPrice** - a specific billing option for a plan (monthly, yearly, a specific currency). Maps to a Stripe/Polar price. A plan can have several.
+- **Pack** - the actual set of feature entitlements attached to a plan, and the piece that makes grandfathering automatic (see below).
 
-### 2. Plan (The "Tier")
-A **Plan** represents a specific level of service (e.g., "Free", "Pro", "Enterprise").
-- **Maps to**: **Stripe Product**.
-- Each Plan contains specific [entitlements](/concepts/monetization/entitlements) (features).
+## Why Pack exists: grandfathering by default
 
-### 3. Price (The "Billing Option")
-A **Price** is a specific billing configuration for a Plan (e.g., "$29/month", "$290/year").
-- **Maps to**: **Stripe Price**.
-- You can have multiple prices for the same plan (monthly, yearly, regional).
+When a subscriber signs up, their subscription pins the plan's **currently-active pack** - not a live reference to "whatever the Pro plan currently includes." If you later publish a new pack version for the Pro plan (raise a quota, add a feature), that change only applies to *new* subscribers. Everyone already on Pro keeps exactly what they signed up for, forever - until you explicitly migrate them.
 
-<Info>
-**Why this matters**: In Stripe, a "Product" is what you see on the invoice line item (e.g., "Pro Plan"). Kerne matches this mental model so you don't get confused when looking at your Stripe dashboard.
-</Info>
+This is deliberate, not a limitation: pricing changes are common, and "we silently changed what our existing customers pay for" is the kind of bug that erodes trust. Kerne makes the safe behavior (don't change existing subscribers) the default, and the unsafe one (migrate everyone immediately) something you do on purpose.
 
-## Example configuration
+```
+Pack v1 (ACTIVE until v2 ships) → Subscriber A pins v1 forever, even after v2 activates
+Pack v2 (ACTIVE after publish)  → Subscriber B (signs up after) gets v2
+```
 
-| Kerne Concept | Example Value | Stripe Equivalent |
-|:---|:---|:---|
-| **Plan** | "Pro Tier" | **Stripe Product** (`prod_...`) |
-| **Price** | "$29 / Month" | **Stripe Price** (`price_...`) |
-| **Price** | "$290 / Year" | **Stripe Price** (`price_...`) |
+## What you don't need to think about
+
+Your application code never references a pack directly - `kerne.allows()`/`check()`/`entitlements()` all resolve through the subscriber's pinned pack automatically. Packs are a dashboard/catalog concept, not something the SDK exposes to read or write - see [Entitlements](/concepts/monetization/entitlements) for the actual runtime check.

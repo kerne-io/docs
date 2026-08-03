@@ -1,21 +1,32 @@
 ---
 title: "Verify email"
-description: "Verify user email addresses"
+description: "Verify and manage email verification status"
 ---
 
-## Verify email
-
-Verify an email using the token sent to the user.
+There are two verification flows - a 6-digit code, or a link - plus one legacy single-token method:
 
 ```typescript
-await kerne.auth.verifyEmail('token_123');
+// Send a verification email (code or link)
+await kerne.auth.sendVerificationEmail('code'); // or 'link' - throttled client-side, 60s cooldown
+
+// Verify with the 6-digit code
+const { success, needsTokenRefresh } = await kerne.auth.verifyEmailWithCode('483920');
+
+// Or verify with the link's token (public route, no session needed)
+await kerne.auth.verifyEmailWithLink(tokenFromLink);
+
+// Check current status
+const { emailVerified, needsVerification, email } = await kerne.auth.getVerificationStatus();
 ```
 
-## Resend verification
+<Note>
+`needsTokenRefresh: true` means the access token's `email_verified` claim is now stale - call [`refreshToken()`](/sdks/server/auth/refresh-token) to get one that reflects the new status.
+</Note>
 
-Resend the verification email to the currently authenticated user.
+## Legacy single-token verify
 
 ```typescript
-// Requires user to be logged in via other means (e.g. initial signup session)
-await kerne.auth.resendVerification();
+await kerne.auth.verifyEmail(tokenFromEmail);
 ```
+
+Prefer the code/link flow above for new integrations - this is the older, simpler variant kept for compatibility.

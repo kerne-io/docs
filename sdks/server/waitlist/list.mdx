@@ -1,20 +1,17 @@
 ---
 title: "List waitlist"
 sidebarTitle: "List waitlist"
-description: "Retrieve waitlist entries"
+description: "Retrieve waitlist entries (admin)"
 ---
 
-## Request
+Requires an admin caller.
 
-<CodeGroup>
-```typescript Node.js
-const result = await kerne.waitlist.list({
+```typescript
+const { entries, pagination } = await kerne.waitlist.list({
   limit: 20,
-  status: 'PENDING'
+  offset: 0,
+  status: 'PENDING', // or 'INVITED' | 'REGISTERED'
 });
 ```
-</CodeGroup>
 
-## Response
-
-Returns a list of `WaitlistEntry` objects and pagination metadata.
+`status` moves to `REGISTERED` automatically the moment that email successfully signs up - it's bookkeeping, not something that gates the signup itself. See [Registration modes](/concepts/identity/registration-modes) for how a waitlist entry actually becomes an invited user.

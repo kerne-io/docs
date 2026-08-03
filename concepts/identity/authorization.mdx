@@ -1,33 +1,29 @@
 ---
 title: "Authorization"
-description: "Roles, permissions, and organizations"
+description: "What global_role actually gates today"
 ---
 
 <Note>
-**Coming soon**
-We are currently working on a robust Authorization (AuthZ) system including Organizations and granular RBAC.
+There's no permission system here yet - this page describes one boolean flag, not a roles/permissions engine. If you need custom roles or per-resource permissions, that's not built.
 </Note>
 
-Authorization determines what an authenticated user is allowed to do within your application.
+Every user has a `global_role`: `USER` or `ADMIN`. It exists for one purpose - letting *you* (the tenant) build your own admin dashboard on top of Kerne's API, by giving certain of your users elevated API access (list/manage other users, correct usage, grant overrides). It is **not** a system for managing collaborators on Kerne itself - there's no concept yet of inviting a teammate to help manage your Kerne tenant.
 
-## Core concepts
+## What `ADMIN` unlocks
 
-### Roles
-A role is a collection of permissions. Common roles include `Admin`, `Editor`, and `Viewer`.
+Routes gated `@RequireAdmin()` server-side accept two kinds of caller: your secret key, or a JWT belonging to a user whose `global_role` is `ADMIN`. That covers things like:
 
-### Permissions
-Permissions are granular actions that can be performed on resources (e.g., `create:project`, `delete:user`).
+- Listing/managing other users (`GET/PATCH /v1/users/:id` for someone other than yourself)
+- Usage corrections (`kerne.admin.setUsage/adjustUsage/resetUsage`)
+- Entitlement overrides (`kerne.admin.grant/revokeGrant`)
+- Waitlist and invitation management
 
-### Organizations
-Organizations (or Teams) allow you to group users together. A user can belong to multiple organizations and have different roles in each.
+A plain `USER` can only ever act on their own scope (their own profile, their own entitlements, their own usage).
 
-## Current state
-
-For now, Kerne provides basic role-based access control at the application level. You can assign a role to a user during registration or via the Admin API.
+## Setting it
 
 ```typescript
-// Assignment example (Server SDK)
-await kerne.users.update('usr_123', {
-  role: 'ADMIN'
-});
+await kerne.users.update(userId, { /* ... */ });
 ```
+
+`global_role` isn't settable through the self-service `users.update()` params today - promoting a user to `ADMIN` is a tenant-configuration action, done through the dashboard or the control-plane API, not something a plain end-user request can do to itself (the server strips `global_role` from the update body unless the caller is already an admin).

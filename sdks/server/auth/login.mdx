@@ -1,27 +1,17 @@
 ---
 title: "Login"
-description: "Authenticate a user"
+description: "Authenticate a user with a password"
 ---
 
-## Request
-
-<CodeGroup>
-```typescript Node.js
-const session = await kerne.auth.login({
+```typescript
+const { token, refresh_token, user, expires_at } = await kerne.auth.login({
   email: 'alice@company.com',
-  password: 'securePassword123'
+  password: 'a-strong-password',
 });
 ```
-</CodeGroup>
 
-## Response
+`login()` is a convenience wrapper around the unified [`token()`](/sdks/server/auth/refresh-token) exchange (`grant_type: 'password'`) - same response shape as [signup](/sdks/server/auth/signup): `{ token, refresh_token, user: { id, email, role }, expires_at }`.
 
-Returns an `AuthResponse` object containing the session token and user details.
-
-<ResponseField name="access_token" type="string" required>
-  The JWT access token.
-</ResponseField>
-
-<ResponseField name="user" type="User" required>
-  The [User](/api-reference/models/user) object.
-</ResponseField>
+<Note>
+`K1005` (invalid credentials) and `K1011` (email not verified, if the tenant requires it) are the errors to handle explicitly here - see [Error codes](/concepts/error-codes).
+</Note>
