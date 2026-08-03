@@ -30,7 +30,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Sign up a new user",
@@ -68,7 +68,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Exchange credentials for tokens",
@@ -105,7 +105,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Request a password reset email",
@@ -142,7 +142,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Complete password reset with token",
@@ -179,7 +179,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -219,10 +219,10 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
-        "summary": "Start passwordless login (Magic Link)",
+        "summary": "Start Magic Link login",
         "tags": [
           "Auth"
         ]
@@ -256,7 +256,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Verify email with token",
@@ -283,7 +283,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -313,7 +313,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -343,7 +343,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -373,7 +373,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Get authentication configuration",
@@ -391,6 +391,7 @@
             "description": ""
           }
         },
+        "summary": "Send verification email",
         "tags": [
           "Auth"
         ]
@@ -415,6 +416,7 @@
             "description": ""
           }
         },
+        "summary": "Verify email with code",
         "tags": [
           "Auth"
         ]
@@ -438,6 +440,7 @@
             "description": ""
           }
         },
+        "summary": "Verify email with link token",
         "tags": [
           "Auth"
         ]
@@ -452,6 +455,7 @@
             "description": ""
           }
         },
+        "summary": "Check verification status",
         "tags": [
           "Auth"
         ]
@@ -484,7 +488,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Validate invitation token",
@@ -520,7 +524,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Validate invitation code",
@@ -557,7 +561,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Create invitation token",
@@ -594,7 +598,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Create invitation code",
@@ -621,7 +625,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "List invitations",
@@ -657,7 +661,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Revoke invitation",
@@ -694,7 +698,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Join the waitlist",
@@ -768,7 +772,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "List waitlist entries",
@@ -803,7 +807,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "Remove from waitlist",
@@ -830,7 +834,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -899,7 +903,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -938,7 +942,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -985,7 +989,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1024,7 +1028,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1077,7 +1081,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1115,13 +1119,13 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
           }
         ],
-        "summary": "Create (or update, if one already exists) an entitlement override",
+        "summary": "Upsert entitlement override",
         "tags": [
           "Billing"
         ]
@@ -1164,7 +1168,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1194,7 +1198,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1249,7 +1253,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1299,7 +1303,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1337,13 +1341,13 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
           }
         ],
-        "summary": "Report a usage event (synchronous, atomic)",
+        "summary": "Report a usage event",
         "tags": [
           "Billing"
         ]
@@ -1377,13 +1381,13 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
           }
         ],
-        "summary": "Set usage to an exact value (admin correction, synchronous, atomic)",
+        "summary": "Set usage to an exact value (admin)",
         "tags": [
           "Billing"
         ]
@@ -1420,13 +1424,13 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
           }
         ],
-        "summary": "Reset usage to zero (admin correction, synchronous, atomic) - one feature, or every QUOTA feature for the scope if feature_key is omitted",
+        "summary": "Reset usage (admin)",
         "tags": [
           "Billing"
         ]
@@ -1460,13 +1464,13 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
           }
         ],
-        "summary": "Offset usage by a signed delta (admin correction, synchronous, atomic) - a one-off credit/debit distinct from an entitlement override",
+        "summary": "Offset usage (admin)",
         "tags": [
           "Billing"
         ]
@@ -1517,13 +1521,13 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
           }
         ],
-        "summary": "Atomically check and consume a QUOTA entitlement (F5)",
+        "summary": "Check & consume quota",
         "tags": [
           "Billing"
         ]
@@ -1557,7 +1561,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1597,7 +1601,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           },
           {
             "JWT": []
@@ -1640,7 +1644,7 @@
         },
         "security": [
           {
-            "TenantIdentifier": []
+            "AppIdentifier": []
           }
         ],
         "summary": "List active plans for a product",
@@ -1704,11 +1708,11 @@
         "type": "http",
         "description": "JWT token obtained from /v1/auth/token"
       },
-      "TenantIdentifier": {
+      "AppIdentifier": {
         "type": "apiKey",
         "in": "header",
         "name": "x-app-id",
-        "description": "Tenant identifier (Tenant.id, sent as the x-app-id header)"
+        "description": "App identifier (App.id, sent as the x-app-id header)"
       }
     },
     "schemas": {
