@@ -14,7 +14,7 @@ A well-designed pricing model is scalable, easy to understand, and maps directly
 <Tip>
 **Golden Rule**: Your code should check **entitlements**, never plans.
 *   **Bad**: `if (user.plan === 'pro')`
-*   **Good**: `if (await kerne.allows('can_export_pdf', { scope: userId }))`
+*   **Good**: `if (await kerne.allows('export_pdf', { scope: userId }))`
 </Tip>
 
 ## Model 1: The "Good-Better-Best" (Flat Rate)

@@ -30,3 +30,14 @@ const config = await kerne.auth.config();
 Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured. Note `enable_magic_link` and `oauth_providers` currently describe intent more than working flows - see [Identity overview](/concepts/identity) for what's actually wired up.
 
 For a walkthrough of building an invite-only product end to end, see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Implement invite-only SaaS" icon="user-plus" href="/guides/auth/implement-invite-only-saas">
+    Codes, tokens, and the signup flow end to end.
+  </Card>
+  <Card title="Choose your auth model" icon="signature" href="/guides/auth/choose-your-auth-model">
+    Deciding between open, invite-only, and closed for your product.
+  </Card>
+</CardGroup>

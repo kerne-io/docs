@@ -59,3 +59,20 @@ These solve different problems - don't reach for one when you mean the other:
 ## Errors
 
 `allows()`/`check()`/`consume()` never throw for a denial - a denied request comes back as `{ allowed: false, ... }`, a normal (200) response. `enforce()` is the one that throws, and it's a plain `Error` you catch yourself - not tied to an API error code. See [Enforcing limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux) for handling a denial gracefully instead of a hard failure.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Checking entitlements" icon="check" href="/guides/getting-started/checking-entitlements">
+    The standard server + client pattern for gating a feature.
+  </Card>
+  <Card title="Enforcing limits without breaking UX" icon="gauge" href="/guides/billing/enforcing-limits-without-breaking-ux">
+    Soft vs. hard limits, and where to check each one.
+  </Card>
+  <Card title="Products, plans & packs" icon="layer-group" href="/concepts/monetization/products-and-plans">
+    How a Pack pins entitlements at subscription time (grandfathering).
+  </Card>
+  <Card title="Admin overrides" icon="user-shield" href="/sdks/server/admin/overrides">
+    `grant()`/`adjustUsage()` reference.
+  </Card>
+</CardGroup>

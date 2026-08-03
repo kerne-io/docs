@@ -35,17 +35,17 @@ If the action *is* the usage being counted, use [`consume()`](/sdks/server/entit
 
 ### 2. The client UI (soft limits and UX)
 
-Don't wait for a "Save" click to inform users they've hit a limit - proactively disable buttons or show upgrade nudges, using [`useEntitlement`](/sdks/client/react/billing/check-entitlement) (which already handles the loading state):
+Don't wait for a "Save" click to inform users they've hit a limit - proactively disable buttons or show upgrade nudges, using [`useAllows`](/sdks/client/react/billing/check-entitlement) (which already handles the loading state):
 
 ```tsx
-import { useEntitlement } from '@kerne/react';
+import { useAllows } from '@kerne/react';
 
 function AddTeamMember() {
-  const { hasAccess, isLoading } = useEntitlement('team_seats');
+  const { allowed, isLoading } = useAllows('team_seats');
 
   return (
-    <button disabled={isLoading || !hasAccess}>
-      Add member {!isLoading && !hasAccess && ' (Upgrade required)'}
+    <button disabled={isLoading || !allowed}>
+      Add member {!isLoading && !allowed && ' (Upgrade required)'}
     </button>
   );
 }

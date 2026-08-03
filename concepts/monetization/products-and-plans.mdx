@@ -29,4 +29,15 @@ Pack v2 (ACTIVE after publish)  → Subscriber B (signs up after) gets v2
 
 ## What you don't need to think about
 
-Your application code never references a pack directly - `kerne.allows()`/`check()`/`entitlements()` all resolve through the subscriber's pinned pack automatically. Packs are a dashboard/catalog concept, not something the SDK exposes to read or write - see [Entitlements](/concepts/monetization/entitlements) for the actual runtime check.
+Your application code never references a pack directly - `kerne.allows()`/`check()`/`entitlements()` all resolve through the subscriber's pinned pack automatically. Packs are configured once, in the dashboard, precisely so your runtime code never has to think about versioning - see [Entitlements](/concepts/monetization/entitlements) for the actual runtime check.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Entitlements" icon="key" href="/concepts/monetization/entitlements">
+    The three feature types, and how a check resolves.
+  </Card>
+  <Card title="Designing your pricing" icon="tags" href="/guides/billing/designing-pricing">
+    From flat tiers to usage-based models.
+  </Card>
+</CardGroup>

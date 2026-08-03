@@ -30,23 +30,24 @@ function Root() {
 ## Core hooks
 
 - **`useAuth()`** - the logged-in user, and every auth action (login/register/logout/password/verification). See [Login](/sdks/client/react/auth/login).
-- **`useEntitlement(featureKey)`** - `{ hasAccess, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
-- **`useBilling()`** - checkout, portal, and the caller's own subscription. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
-- **`useSubscription()`** / **`useUser()`** - convenience reads over `useAuth()`/`useBilling()`.
+- **`useAllows(featureKey)`** - `{ allowed, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
+- **`useCheck(featureKey)`** - the full entitlement detail (`limit`/`used`/`remaining`/`overage_behavior`) instead of a plain boolean - for UI that shows *how much* is left, not just yes/no.
+- **`useCheckout()`** / **`usePortal()`** - start a checkout session, or open the billing portal. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
+- **`useSubscription()`** / **`useUser()`** - reactive reads of the caller's own subscription/profile.
 - **`useClient()`** - the underlying `KerneClient` instance, for anything not covered by the hooks above.
 
 ## Gating a feature
 
-The guard components (`<HasFeature>`, `<Authenticated>`, `<Protected>`, ...) wrap the same hooks so you don't hand-roll loading/error state yourself - see [Guard components](/sdks/client/react/components):
+The guard components (`<Allows>`, `<Authenticated>`, `<Protected>`, ...) wrap the same hooks so you don't hand-roll loading/error state yourself - see [Guard components](/sdks/client/react/components):
 
 ```tsx
-import { HasFeature } from '@kerne/react';
+import { Allows } from '@kerne/react';
 
-function AdvancedExport() {
+function ExportButton() {
   return (
-    <HasFeature feature="advanced_export" fallback={<p>Upgrade your plan to use this.</p>}>
+    <Allows feature="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
       <button>Export Data</button>
-    </HasFeature>
+    </Allows>
   );
 }
 ```

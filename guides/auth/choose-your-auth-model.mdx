@@ -18,11 +18,7 @@ Your registration mode is one of the first decisions to make, and it's controlle
 
 ## Setting it
 
-```typescript
-// Dashboard, or your own control-plane call - not something the runtime SDK exposes
-```
-
-There's no `kerne.settings.update()` on the runtime SDK - registration mode is tenant configuration, changed in the dashboard, not something your application code toggles at runtime.
+Registration mode is tenant *configuration* - the rules your SaaS runs under - not something a running request should be able to flip. Kerne keeps that distinction sharp on purpose: you set it once, in the dashboard, and every runtime SDK call (`kerne.auth.signup()`, `kerne.auth.config()`) simply operates under whatever rule is currently in force. That's why there's no `kerne.settings.update()` next to `signup()` - mixing "define the rules" and "apply the rules" into the same surface is exactly what makes a SaaS's auth config accidentally mutable from application code.
 
 ## What Kerne doesn't have (yet) that might change your plan
 

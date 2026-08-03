@@ -83,7 +83,7 @@ function LoginForm() {
 ```
 </CodeGroup>
 
-## 5. Gate a feature behind a plan
+## 5. Gate a feature behind an entitlement
 
 On the server, `scope` identifies *whose* entitlement you're checking - with a secret key there's no "current user", so you always pass it explicitly (it's whatever id you used as `scope_id` when creating the subscription, typically your own user id):
 
@@ -97,19 +97,19 @@ if (!canExport) {
 ```
 
 ```tsx Client
-import { HasFeature } from '@kerne/react';
+import { Allows } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+    <Allows feature="export_pdf" fallback={<UpgradePrompt />}>
       <button onClick={exportPdf}>Export as PDF</button>
-    </HasFeature>
+    </Allows>
   );
 }
 ```
 </CodeGroup>
 
-On the client, `HasFeature` (and the `useEntitlement` hook) check the *logged-in* user automatically - no scope needed, the SDK already knows who's authenticated.
+On the client, `Allows` (and the `useAllows` hook) check the *logged-in* user automatically - no scope needed, the SDK already knows who's authenticated.
 
 ## Next steps
 

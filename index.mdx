@@ -9,12 +9,9 @@ Kerne unifies authentication and billing into one API. Instead of stitching toge
 
 Every request your app makes boils down to the same question:
 
-```mermaid
-flowchart LR
-    A["User wants to do X"] --> B["kerne.allows('X')"]
-    B --> C{"Kerne decides"}
-    C -->|"allowed"| D["Your app does X"]
-    C -->|"denied"| E["Your app shows an upgrade prompt"]
+```
+User wants to do X  →  kerne.allows('X')  →  Kerne decides  →  allowed: your app does X
+                                                              →  denied: your app shows an upgrade prompt
 ```
 
 That one call - `allows()` - is what replaces scattered `if (user.plan === 'pro')` checks across your codebase.
@@ -45,14 +42,14 @@ const kerne = new Kerne({
   secretKey: process.env.KERNE_SECRET_KEY!, // sk_live_...
 });
 
-// Gate an action behind the caller's plan
+// Gate an action behind an entitlement, not a plan name
 if (await kerne.allows('export_pdf', { scope: userId })) {
   return generatePdf();
 }
 ```
 
 ```tsx Client (@kerne/react)
-import { KerneProvider, useAuth, HasFeature } from '@kerne/react';
+import { KerneProvider, useAuth, Allows } from '@kerne/react';
 
 function Root() {
   return (
@@ -64,9 +61,9 @@ function Root() {
 
 function ExportButton() {
   return (
-    <HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+    <Allows feature="export_pdf" fallback={<UpgradePrompt />}>
       <button onClick={exportPdf}>Export as PDF</button>
-    </HasFeature>
+    </Allows>
   );
 }
 ```

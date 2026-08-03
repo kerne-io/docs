@@ -30,8 +30,10 @@ const plans = await kerne.billing.plans('acme'); // product slug or id
 ```
 
 ```tsx
+import { useCheckout } from '@kerne/react';
+
 function PricingPage({ plans }) {
-  const { openCheckout } = useBilling();
+  const { openCheckout } = useCheckout();
 
   return (
     <div>
@@ -57,10 +59,10 @@ Checkout takes a **price** id (`plan.prices[i].id`), not the plan's own id - a p
 ## 4. Implement checkout
 
 ```tsx
-import { useBilling } from '@kerne/react';
+import { useCheckout } from '@kerne/react';
 
 function UpgradeButton({ planPriceId }: { planPriceId: string }) {
-  const { openCheckout } = useBilling();
+  const { openCheckout } = useCheckout();
 
   return (
     <button
@@ -92,10 +94,10 @@ function SuccessPage() {
 ## 6. Provide a billing portal
 
 ```tsx
-import { useBilling } from '@kerne/react';
+import { usePortal } from '@kerne/react';
 
 function BillingSettings() {
-  const { openPortal } = useBilling();
+  const { openPortal } = usePortal();
   return <button onClick={() => openPortal('/settings')}>Manage subscription</button>;
 }
 ```

@@ -3,9 +3,17 @@ title: "Lifecycle: from waitlist to scale"
 description: "Which Kerne features fit each stage"
 ---
 
+A SaaS doesn't need the same access model on day one and at scale. Kerne is built so you move through these stages by changing configuration and a couple of feature keys - not by re-architecting how your app checks access.
+
 <Steps>
   <Step title="Stage 1: Validation">
-    Collect interest before writing complex code - close registration and just run a waitlist.
+    You don't have a product worth registering for yet - you have an idea worth measuring interest in.
+
+    <Info>
+    **Goal:** collect real emails before writing a signup flow, a pricing page, or any billing code.
+
+    **Kerne strategy:** close registration entirely and run a waitlist instead. Zero billing setup required at this stage.
+    </Info>
 
     ```typescript
     await kerne.waitlist.join({ email: 'early-adopter@example.com' });
@@ -15,23 +23,41 @@ description: "Which Kerne features fit each stage"
   </Step>
 
   <Step title="Stage 2: Private beta">
-    Switch to invite-only, generate codes for specific cohorts (e.g. a launch list), and admit waitlist entries by hand as you're ready for them - see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).
+    You have something worth trying, but not worth a public signup button yet - you want to control exactly who gets in and in what order.
+
+    <Info>
+    **Goal:** admit a small, chosen cohort (a launch list, people who asked first) without opening the doors.
+
+    **Kerne strategy:** switch to invite-only. Generate codes for specific cohorts, and admit waitlist entries by hand as you're ready for them - see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).
+    </Info>
   </Step>
 
   <Step title="Stage 3: Self-serve">
-    Open registration, set up plans and checkout (see [Subscription setup](/guides/getting-started/subscription-setup)), and gate premium features by entitlement, not by plan name:
+    The product is ready for anyone to sign up and pay without you in the loop.
+
+    <Info>
+    **Goal:** let strangers subscribe and start using premium features immediately, with zero manual steps on your end.
+
+    **Kerne strategy:** open registration, set up plans and checkout (see [Subscription setup](/guides/getting-started/subscription-setup)), and gate premium features by entitlement, not by plan name - a plan can be renamed or restructured later without breaking every check.
+    </Info>
 
     ```tsx
-    import { HasFeature } from '@kerne/react';
+    import { Allows } from '@kerne/react';
 
-    <HasFeature feature="advanced_analytics" fallback={<UpgradePrompt />}>
+    <Allows feature="advanced_analytics" fallback={<UpgradePrompt />}>
       <AnalyticsDashboard />
-    </HasFeature>
+    </Allows>
     ```
   </Step>
 
   <Step title="Stage 4: Negotiated deals">
-    For a customer with a custom limit outside your normal plans, use an [entitlement override](/sdks/server/admin/overrides) (`kerne.admin.grant()`) rather than inventing a one-off plan - it's the same mechanism as a normal limit, just scoped to that one customer.
+    A customer wants terms that don't match any plan you sell publicly - a bigger limit, a custom discount, a handshake deal.
+
+    <Info>
+    **Goal:** give one customer a non-standard limit without inventing a one-off plan just for them.
+
+    **Kerne strategy:** use an [entitlement override](/sdks/server/admin/overrides) (`kerne.admin.grant()`) - it's the same mechanism as a normal plan limit, just scoped to that one customer instead of everyone on a plan.
+    </Info>
 
     Not built yet if you need it at this stage: SSO, multi-user organizations, and a first-class "enterprise contract" object - see [Platform foundations](/concepts/overview) for the current boundary.
   </Step>

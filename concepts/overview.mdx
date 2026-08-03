@@ -5,11 +5,10 @@ description: "The mental model behind Kerne"
 
 Kerne answers one question, asked on every request: **does this scope have the right to do that, right now, given what it pays?**
 
-```mermaid
-flowchart LR
-    A["Scope wants an action"] --> B["kerne.allows() / enforce() / check()"]
-    B --> C["Kerne resolves: subscription → pack → entitlement → override"]
-    C --> D["Your app reacts: proceed, or show an upgrade prompt"]
+```
+Scope wants an action  →  kerne.allows() / enforce() / check()
+                       →  Kerne resolves: subscription → pack → entitlement → override
+                       →  Your app reacts: proceed, or show an upgrade prompt
 ```
 
 Everything else in the platform exists to make that one decision correct and fast.
@@ -18,24 +17,42 @@ Everything else in the platform exists to make that one decision correct and fas
 
 **Identity** - who is making the request. A user signs up, logs in, and holds a session. See [Identity & access](/concepts/identity).
 
-**Monetization** - what that user is entitled to. A user subscribes to a `Plan`, which pins a versioned `Pack` of `Feature` entitlements at subscription time. See [Monetization](/concepts/monetization).
+**Monetization** - what that user is entitled to. A user subscribes to a `Plan`, which pins a versioned `Pack` (a snapshot of feature entitlements, frozen at subscription time) - see [Monetization](/concepts/monetization).
 
-A **scope** is whoever the entitlement belongs to - today that's always a single user (`scope_type: "USER"`). Organization/team scopes aren't built yet - see below.
+A **scope** is whoever the entitlement belongs to. Today that's always a single user - in API terms, `scope_type` is always `"USER"`. Organization/team scopes aren't built yet - see below.
 
 ## What exists today
 
-- Email/password and magic-link-style sessions, invitation-gated or open registration, a waitlist.
-- Products, plans (versioned via packs, so upgrading a plan's entitlements never silently changes what existing subscribers get - see [grandfathering](/concepts/monetization/products-and-plans)), and three entitlement types: boolean flags, numeric quotas, and static config values.
-- Stripe and Polar as payment rails - Kerne is always the source of truth for entitlements, the provider only handles money movement.
-- A single admin flag per user (`global_role`), not a permissions system.
+<AccordionGroup>
+  <Accordion title="Identity">
+    Email/password and magic-link-style sessions, invitation-gated or open registration, a waitlist.
+  </Accordion>
+  <Accordion title="Catalog & entitlements">
+    Products, plans versioned via packs - so upgrading a plan's entitlements never silently changes what existing subscribers get, see [grandfathering](/concepts/monetization/products-and-plans) - and three entitlement types: boolean flags, numeric quotas, and static config values.
+  </Accordion>
+  <Accordion title="Payments">
+    Stripe and Polar as payment rails. Kerne is always the source of truth for entitlements; the provider only handles money movement.
+  </Accordion>
+  <Accordion title="Admin">
+    A single admin flag per user (`global_role`), not a permissions system.
+  </Accordion>
+</AccordionGroup>
 
 ## What's intentionally not built yet
 
 Being explicit about this matters more than it sounds - a doc that describes a half-built feature as if it were finished costs you more trust than one that says "not yet."
 
-- **Organizations / teams.** Every scope is a single user. A workspace shared by multiple people, with pooled or per-member quotas, isn't implemented.
-- **Role-based access control.** There's no permission system beyond one admin/non-admin flag - no custom roles, no per-resource permissions.
-- **OAuth / social login.** Only email+password and magic-link-style flows exist.
+<AccordionGroup>
+  <Accordion title="Organizations / teams">
+    Every scope is a single user. A workspace shared by multiple people, with pooled or per-member quotas, isn't implemented.
+  </Accordion>
+  <Accordion title="Role-based access control">
+    There's no permission system beyond one admin/non-admin flag - no custom roles, no per-resource permissions.
+  </Accordion>
+  <Accordion title="OAuth / social login">
+    Only email+password and magic-link-style flows exist.
+  </Accordion>
+</AccordionGroup>
 
 If your product needs any of these today, it's worth knowing before you build against Kerne - not after.
 

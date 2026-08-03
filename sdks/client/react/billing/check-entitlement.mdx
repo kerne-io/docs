@@ -1,6 +1,6 @@
 ---
 title: "Check an entitlement"
-description: "useEntitlement and <HasFeature> - both scoped to the logged-in user automatically"
+description: "useAllows/useCheck and <Allows> - all scoped to the logged-in user automatically"
 ---
 
 Unlike the server SDK, there's no `scope` parameter here - the client always checks the currently authenticated user, resolved from their own session.
@@ -8,13 +8,13 @@ Unlike the server SDK, there's no `scope` parameter here - the client always che
 ## The hook
 
 ```tsx
-import { useEntitlement } from '@kerne/react';
+import { useAllows } from '@kerne/react';
 
 function ExportButton() {
-  const { hasAccess, isLoading } = useEntitlement('export_pdf');
+  const { allowed, isLoading } = useAllows('export_pdf');
 
   if (isLoading) return <Spinner />;
-  if (!hasAccess) return <UpgradePrompt />;
+  if (!allowed) return <UpgradePrompt />;
   return <button onClick={exportPdf}>Export</button>;
 }
 ```
@@ -22,30 +22,44 @@ function ExportButton() {
 For a quota feature, pass `requested` to check "can I use N more":
 
 ```tsx
-const { hasAccess } = useEntitlement('api_calls', 5);
+const { allowed } = useAllows('api_calls', 5);
+```
+
+Need more than yes/no - how much of the quota is left, for example - use `useCheck` instead, it returns the full entitlement detail:
+
+```tsx
+import { useCheck } from '@kerne/react';
+
+function ApiCallsMeter() {
+  const { check, isLoading } = useCheck('api_calls');
+
+  if (isLoading || !check) return <Spinner />;
+  return <p>{check.remaining} / {check.limit} calls left this period</p>;
+}
 ```
 
 ## The guard component
 
-`<HasFeature>` wraps the same check for declarative gating:
+`<Allows>` wraps `useAllows` for declarative gating:
 
 ```tsx
-import { HasFeature } from '@kerne/react';
+import { Allows } from '@kerne/react';
 
-<HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+<Allows feature="export_pdf" fallback={<UpgradePrompt />}>
   <button onClick={exportPdf}>Export</button>
-</HasFeature>
+</Allows>
 ```
 
-## Lower-level: `useBilling().checkEntitlement`
+## Lower-level: `useClient().allows()` / `.check()`
 
-Both of the above call this internally - reach for it directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
+Both hooks above call these internally on the underlying `KerneClient` - reach for them directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
 
 ```tsx
-import { useBilling } from '@kerne/react';
+import { useClient } from '@kerne/react';
 
-const { checkEntitlement } = useBilling();
-const hasAccess = await checkEntitlement('export_pdf'); // boolean, throws on a real error (401/500) - it does not swallow failures into `false`
+const client = useClient();
+const allowed = await client.allows('export_pdf'); // boolean, throws on a real error (401/500) - it does not swallow failures into `false`
+const check = await client.check('export_pdf'); // full EntitlementCheck detail
 ```
 
 ## Why there's no `consume()` here

@@ -18,31 +18,25 @@ import { Authenticated, Unauthenticated, AuthLoading } from '@kerne/react';
 ## Billing guards
 
 ```tsx
-import { HasSubscription, RequirePlan, HasFeature } from '@kerne/react';
+import { HasSubscription, Allows } from '@kerne/react';
 
 <HasSubscription fallback={<UpgradePrompt />}>
   <PremiumArea />
 </HasSubscription>
 
-<RequirePlan plans={['pro', 'enterprise']} fallback={<UpgradePrompt />}>
-  <AdvancedFeature />
-</RequirePlan>
-
-<HasFeature feature="export_pdf" fallback={<UpgradePrompt />}>
+<Allows feature="export_pdf" fallback={<UpgradePrompt />}>
   <ExportButton />
-</HasFeature>
+</Allows>
 ```
 
-<Warning>
-`RequirePlan` matches on plan **slug** - it has no idea what a plan grants, only its name. If you rename a plan, or a customer is on an equivalent plan under a different slug, this silently stops matching. Prefer `HasFeature` (checks the actual entitlement) unless you specifically mean "this exact plan tier."
-</Warning>
+There's no plan-slug guard on purpose - matching on a plan **name** breaks silently the moment you rename a plan, or a customer ends up on an equivalent plan under a different slug. `Allows` always checks the actual entitlement instead, so the check keeps working no matter how the plan behind it is restructured.
 
 ## Combined guard
 
 ```tsx
 import { Protected } from '@kerne/react';
 
-<Protected auth plans="pro" authFallback={<Login />} billingFallback={<Upgrade />}>
+<Protected auth feature="export_pdf" authFallback={<Login />} billingFallback={<Upgrade />}>
   <ProFeature />
 </Protected>
 ```

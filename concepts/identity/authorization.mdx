@@ -27,3 +27,14 @@ await kerne.users.update(userId, { /* ... */ });
 ```
 
 `global_role` isn't settable through the self-service `users.update()` params today - promoting a user to `ADMIN` is a tenant-configuration action, done through the dashboard or the control-plane API, not something a plain end-user request can do to itself (the server strips `global_role` from the update body unless the caller is already an admin).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Admin: usage corrections" icon="sliders" href="/sdks/server/admin/usage-corrections">
+    `setUsage`/`adjustUsage`/`resetUsage` reference.
+  </Card>
+  <Card title="Admin: overrides" icon="user-shield" href="/sdks/server/admin/overrides">
+    `grant`/`revokeGrant` reference.
+  </Card>
+</CardGroup>
