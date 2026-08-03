@@ -29,7 +29,8 @@ Pack v2 (ACTIVE after publish)  → Subscriber B (signs up after) gets v2
 
 ## What you don't need to think about
 
-Your application code never references a pack directly - `kerne.allows()`/`check()`/`entitlements()` all resolve through the subscriber's pinned pack automatically. Packs are configured once, in the dashboard, precisely so your runtime code never has to think about versioning - see [Entitlements](/concepts/monetization/entitlements) for the actual runtime check.
+Packs are created and versioned in the dashboard under **Catalog → Plans**.
+Your application code never references a pack directly - `kerne.allows()`/`check()`/`entitlements()` all resolve through the subscriber's pinned pack automatically - see [Entitlements](/concepts/monetization/entitlements) for the actual runtime check.
 
 ## Next
 

@@ -18,11 +18,9 @@ Your registration mode is one of the first decisions to make, and it's controlle
 
 ## Setting it
 
-Registration mode is tenant *configuration* - the rules your SaaS runs under - not something a running request should be able to flip. Kerne keeps that distinction sharp on purpose: you set it once, in the dashboard, and every runtime SDK call (`kerne.auth.signup()`, `kerne.auth.config()`) simply operates under whatever rule is currently in force. That's why there's no `kerne.settings.update()` next to `signup()` - mixing "define the rules" and "apply the rules" into the same surface is exactly what makes a SaaS's auth config accidentally mutable from application code.
+Registration mode is configured in the dashboard under **Settings → Authentication**.
 
-## What Kerne doesn't have (yet) that might change your plan
-
-Be honest with yourself about these before committing to a model - working around a missing feature is more expensive than knowing upfront it isn't there:
+## What Kerne doesn't have (yet)
 
 - **No organizations/teams.** Every scope is one user - there's no "colleague joins the same workspace" concept. If your product is inherently collaborative (shared workspace, seats, team billing), that's not built yet.
 - **No SSO/MFA.** Email+password and a passwordless-start flow (see [Identity overview](/concepts/identity)) - nothing enterprise-auth yet.

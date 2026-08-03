@@ -26,7 +26,7 @@ A plain `USER` can only ever act on their own scope (their own profile, their ow
 await kerne.users.update(userId, { /* ... */ });
 ```
 
-`global_role` isn't settable through the self-service `users.update()` params today - promoting a user to `ADMIN` is a tenant-configuration action, done through the dashboard or the control-plane API, not something a plain end-user request can do to itself (the server strips `global_role` from the update body unless the caller is already an admin).
+Promoting an user to `ADMIN` is done in the dashboard under **Users**.
 
 ## Next
 

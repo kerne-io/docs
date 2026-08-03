@@ -1,30 +1,35 @@
 ---
 title: "Introduction"
-description: "The infrastructure for monetized software"
+description: "The authorization layer for monetized software"
 ---
 
 ## What is Kerne?
 
-Kerne unifies authentication and billing into one API. Instead of stitching together an auth provider, Stripe, and your own quota-tracking code, you get one model: a user, a plan, and the entitlements that plan grants.
+Kerne is the decision layer between your users and your product.
 
-Every request your app makes boils down to the same question:
+It answers one question on every request:
+
+> What is this user allowed to do, in this product, under this business context?
+
+Instead of scattering authorization logic across identity providers, billing systems, and `if (user.plan === 'pro')` checks, you call a single primitive:
 
 ```
-User wants to do X  →  kerne.allows('X')  →  Kerne decides  →  allowed: your app does X
-                                                              →  denied: your app shows an upgrade prompt
+User wants to do X  →  kerne.allows('X')  →  Kerne decides
+                                              → allowed: your app does X
+                                              → denied: your app shows an upgrade prompt
 ```
 
-That one call - `allows()` - is what replaces scattered `if (user.plan === 'pro')` checks across your codebase.
+That one call — `allows()` — is what replaces scattered plan checks and duplicated business rules across your codebase.
 
 <CardGroup cols={2}>
   <Card title="5-minute quickstart" icon="rocket" href="/quickstart">
-    Deploy your first monetized app in minutes.
+    Deploy your first gated feature in minutes.
   </Card>
   <Card title="Node.js SDK" icon="node" href="/sdks/server/overview">
-    `@kerne/server` for your backend - the only place that holds your secret key.
+    `@kerne/server` for your backend — the only place that holds your secret key.
   </Card>
   <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
-    `@kerne/react` for your frontend - session state and entitlement guards.
+    `@kerne/react` for your frontend — session state and entitlement guards.
   </Card>
   <Card title="API reference" icon="terminal" href="/api-reference">
     The full REST API, generated from the same spec Kerne itself runs against.
@@ -49,7 +54,7 @@ if (await kerne.allows('export_pdf', { scope: userId })) {
 ```
 
 ```tsx Client (@kerne/react)
-import { KerneProvider, useAuth, Allows } from '@kerne/react';
+import { KerneProvider, Allows } from '@kerne/react';
 
 function Root() {
   return (
@@ -71,4 +76,11 @@ function ExportButton() {
 
 ## What's here today
 
-Kerne is early: single-user scopes only (no organizations/teams yet), Stripe and Polar as payment providers, no built-in RBAC beyond a single admin flag. See [Platform foundations](/concepts/overview) for exactly what exists and what's intentionally not built yet.
+Kerne currently provides the foundation of that decision layer:
+
+- **Identity** — authentication, sessions, registration modes, waitlist, invitations
+- **Billing** — plans, subscriptions, Stripe & Polar
+- **Entitlements** — boolean, quota, and static capabilities granted by a plan
+
+Organizations, full RBAC, and policy engines are intentionally not built yet.  
+See [Platform foundations](/concepts/overview) for the exact current boundary.
