@@ -101,7 +101,7 @@ import { Allows } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <Allows feature="export_pdf" fallback={<UpgradePrompt />}>
+    <Allows key="export_pdf" fallback={<UpgradePrompt />}>
       <button onClick={exportPdf}>Export as PDF</button>
     </Allows>
   );

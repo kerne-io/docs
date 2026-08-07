@@ -11,4 +11,4 @@ const user = await kerne.users.update(userId, {
 });
 ```
 
-Only succeeds for the user's own id, unless the caller is an admin - same rule as [`get()`](/sdks/server/users/get). `global_role`/`is_active`/`is_blocked` aren't settable through this method - those are stripped server-side unless the caller is already an admin, since letting a user promote or reactivate themselves would defeat the point of the flag (see [Authorization](/concepts/identity/authorization)).
+Only succeeds for the user's own id, unless the caller authenticates with your secret key - same rule as [`get()`](/sdks/server/users/get). `is_active`/`is_blocked` aren't settable through this method - those are stripped server-side unless the caller is already an admin, since letting a user reactivate or unblock themselves would defeat the point of the flags (see [Authorization](/concepts/identity/authorization)).

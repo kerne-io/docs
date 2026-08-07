@@ -1613,6 +1613,37 @@
         ]
       }
     },
+    "/v1/pricing/plans": {
+      "get": {
+        "description": "Resolves Product.is_default - for tenants with a single product. Requires x-app-id (APP_ID).",
+        "operationId": "PricingController_listPublicPlansForDefaultProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Active plans retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicPlanResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          }
+        ],
+        "summary": "List active plans for the tenant's default product",
+        "tags": [
+          "Pricing"
+        ]
+      }
+    },
     "/v1/pricing/plans/{productIdOrSlug}": {
       "get": {
         "description": "Returns available plans with prices and entitlements for public display. Accepts product ID or slug. Requires x-app-id (APP_ID).",
@@ -2778,6 +2809,9 @@
           "remaining": {
             "type": "number",
             "nullable": true
+          },
+          "overage_behavior": {
+            "type": "string"
           },
           "value": {
             "type": "object"

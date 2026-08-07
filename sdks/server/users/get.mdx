@@ -8,7 +8,7 @@ description: "Retrieve a user's full profile"
 const user = await kerne.users.get(userId);
 ```
 
-Only succeeds for the user's own id, unless the caller is an admin (secret key, or a JWT owner) - see [Authorization](/concepts/identity/authorization).
+Only succeeds for the user's own id, unless the caller authenticates with your secret key - see [Authorization](/concepts/identity/authorization).
 
 ## Response
 
@@ -20,8 +20,5 @@ Only succeeds for the user's own id, unless the caller is an admin (secret key, 
 <ResponseField name="avatar" type="string | null" />
 <ResponseField name="is_active" type="boolean" required />
 <ResponseField name="is_blocked" type="boolean" required />
-<ResponseField name="global_role" type="'USER' | 'ADMIN' | null" required>
-  See [Authorization](/concepts/identity/authorization) - this is the only permission flag Kerne has today.
-</ResponseField>
 <ResponseField name="created_at" type="string" required />
 <ResponseField name="last_login_at" type="string | null" />

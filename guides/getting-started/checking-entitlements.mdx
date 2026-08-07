@@ -38,7 +38,7 @@ const canConsume = await kerneAsUser.allows('api_calls', { requested: 1 });
 ```tsx
 import { Allows } from '@kerne/react';
 
-<Allows feature="advanced_analytics" fallback={<UpgradeBanner />}>
+<Allows key="advanced_analytics" fallback={<UpgradeBanner />}>
   <AnalyticsDashboard />
 </Allows>
 ```

@@ -170,9 +170,16 @@
                   {
                     "group": "Billing",
                     "pages": [
+                      "sdks/client/react/billing/plans",
                       "sdks/client/react/billing/check-entitlement",
+                      "sdks/client/react/billing/entitlements-list",
+                      "sdks/client/react/billing/usage",
                       "sdks/client/react/billing/checkout-and-portal"
                     ]
+                  },
+                  {
+                    "group": "Growth",
+                    "pages": ["sdks/client/react/waitlist", "sdks/client/react/invitations"]
                   },
                   "sdks/client/react/components"
                 ]

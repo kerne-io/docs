@@ -19,3 +19,31 @@ This takes a **`plan_price_id`**, not a plan id - it identifies the specific bil
 The session is created for the caller's own identity (from their JWT) - this isn't something a secret-key-only backend does on behalf of an arbitrary scope; it's the checkout flow your frontend triggers for the logged-in user (typically proxied through your backend using their own token, see [`withToken()`](/sdks/server/users/me)).
 
 The subscription itself is created asynchronously once the provider (Stripe/Polar) confirms payment - not synchronously when this call returns.
+
+## Where the redirect goes if you don't pass `successUrl`/`cancelUrl`
+
+Resolved in this order, for each flow independently (checkout success, checkout cancel, portal return - see [Portal & cancel](/sdks/server/billing/portal-and-cancel)):
+
+1. **The option you passed** (`successUrl`/`cancelUrl` above, `returnUrl` for the portal) - always wins.
+2. **A flow-specific override**, if you've configured one - `callback_url_billing_success`, `callback_url_billing_cancel`, `callback_url_billing_portal`.
+3. **`app_url` + that flow's default path** (`/billing/success`, `/billing/cancel`, `/settings/billing`), if you've set `app_url` but not the specific override above.
+4. **Kerne's own hosted page**, if you've configured neither.
+
+Configure `app_url` and the overrides through the tenant configuration endpoint (not yet wrapped by `@kerne/server` - call it directly with your own token, same auth as the rest of this self-service API):
+
+```bash
+curl -X PATCH https://api.kerne.io/v1/tenants/YOUR_TENANT_ID/configuration \
+  -H "x-app-id: YOUR_APP_ID" \
+  -H "Authorization: Bearer $YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "app_url": "https://app.example.com",
+    "callback_url_billing_success": "https://app.example.com/welcome"
+  }'
+```
+
+`callback_url_billing_success` above is optional - only set a flow-specific override if that one flow needs a different page than `app_url` + its default path.
+
+<Note>
+`app_url` also exists as a base for auth callbacks (`callback_url_verify_email`, `callback_url_reset_password`, `callback_url_magic_link`) - those don't currently fall back to `app_url` + a default path the way billing does, only to their own explicit override or a Kerne-hosted default. Set them individually if you need them.
+</Note>

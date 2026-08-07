@@ -13,7 +13,7 @@ function RegisterForm() {
 }
 ```
 
-Whether this succeeds depends on the tenant's [registration mode](/concepts/identity/registration-modes) - if invitations are required, validate the token/code with the server SDK before showing this form at all, rather than letting the user hit a rejection here.
+Whether this succeeds depends on the tenant's [registration mode](/concepts/identity/registration-modes) - if invitations are required, [validate the token/code](/sdks/client/react/invitations) before showing this form at all, rather than letting the user hit a rejection here.
 
 Same response shape as [login](/sdks/client/react/auth/login) - use `useAuth().user` for the full profile, not the return value of `register()`.
 

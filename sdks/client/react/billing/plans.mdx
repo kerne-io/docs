@@ -1,0 +1,28 @@
+---
+title: "Plans"
+description: "Public pricing data for a pricing page"
+---
+
+Read-only, and public - no user session required beyond `x-app-id`. Same data as the [server SDK's `plans()`](/sdks/server/billing/plans), for rendering a pricing/upgrade page directly from the client.
+
+```tsx
+import { usePlans } from '@kerne/react';
+
+function PricingPage() {
+  const { plans, isLoading } = usePlans();
+
+  if (isLoading) return <Spinner />;
+
+  return plans.map((plan) => (
+    <PlanCard key={plan.id} plan={plan} onSelect={() => openCheckout(plan.prices[0].id)} />
+  ));
+}
+```
+
+Pass a product ID or slug for a tenant with more than one product - omit it to resolve the tenant's default product:
+
+```tsx
+const { plans } = usePlans('enterprise-suite');
+```
+
+Each plan: `{ id, slug, name, is_default, trial_days, prices: [...], entitlements: [...] }` - see [checkout & portal](/sdks/client/react/billing/checkout-and-portal) for turning a selected price into a checkout session.

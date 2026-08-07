@@ -1,0 +1,30 @@
+---
+title: "Invitations"
+description: "Validate an invitation token or code before showing the registration form"
+---
+
+If the tenant is in invite-only mode, validate the invitation *before* rendering the registration form - not after a rejected `register()` call. Read whichever the invite link/form carries (a token from an emailed link, or a shareable code) and pass it in:
+
+```tsx
+import { useInvitation } from '@kerne/react';
+import { useSearchParams } from 'react-router-dom';
+
+function RegisterPage() {
+  const [params] = useSearchParams();
+  const { result, isLoading } = useInvitation({ token: params.get('invite') ?? undefined });
+
+  if (isLoading) return <Spinner />;
+  if (!result?.valid) return <InvalidInvite />;
+
+  return <RegisterForm invitationToken={params.get('invite')!} />;
+}
+```
+
+Or with a code instead of a token:
+
+```tsx
+const { result } = useInvitation({ code: 'JOIN-123' });
+// result: { valid: boolean, canUse?: boolean } for a code, { valid: boolean, email?: string } for a token
+```
+
+Once validated, pass the same token/code to [`register()`](/sdks/client/react/auth/register) (`invitationToken`/`invitationCode` params) to complete signup. See [implementing an invite-only SaaS](/guides/auth/implement-invite-only-saas) for the full flow, and the [server SDK](/sdks/server/invitations/create) for creating/listing/revoking invitations (admin-only, not exposed here).

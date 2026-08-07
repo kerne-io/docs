@@ -11,6 +11,8 @@ A hosted page (Stripe/Polar) where the caller manages their own payment method, 
 const { url } = await kerne.billing.portal({ returnUrl: 'https://app.example.com/settings' });
 ```
 
+If you don't pass `returnUrl`, it's resolved the same cascading way as checkout's `successUrl`/`cancelUrl` - see [Checkout](/sdks/server/billing/checkout#where-the-redirect-goes-if-you-dont-pass-successurlcancelurl).
+
 ## Cancel
 
 ```typescript

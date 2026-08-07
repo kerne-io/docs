@@ -1,32 +1,24 @@
 ---
 title: "Authorization"
-description: "What global_role actually gates today"
+description: "What requires your secret key today"
 ---
 
 <Note>
-There's no permission system here yet - this page describes one boolean flag, not a roles/permissions engine. If you need custom roles or per-resource permissions, that's not built.
+There's no per-user permission system - no custom roles, no per-resource permissions, no admin flag on `User`. Admin access to your tenant is a property of the credential you authenticate with, not of the user.
 </Note>
 
-Every user has a `global_role`: `USER` or `ADMIN`. It exists for one purpose - letting *you* (the tenant) build your own admin dashboard on top of Kerne's API, by giving certain of your users elevated API access (list/manage other users, correct usage, grant overrides). It is **not** a system for managing collaborators on Kerne itself - there's no concept yet of inviting a teammate to help manage your Kerne tenant.
+A regular user session (JWT, from `login()`/`signup()`) can only ever act on its own scope: its own profile, its own entitlements, its own usage. There is no way to elevate a user session to admin - not by setting a field, not by any client-side call.
 
-## What `ADMIN` unlocks
+## What requires your secret key
 
-Routes gated `@RequireAdmin()` server-side accept two kinds of caller: your secret key, or a JWT belonging to a user whose `global_role` is `ADMIN`. That covers things like:
+Routes gated `@RequireAdmin()` server-side accept **only** your secret key - called from your own backend, never from a client session. That covers things like:
 
 - Listing/managing other users (`GET/PATCH /v1/users/:id` for someone other than yourself)
 - Usage corrections (`kerne.admin.setUsage/adjustUsage/resetUsage`)
 - Entitlement overrides (`kerne.admin.grant/revokeGrant`)
 - Waitlist and invitation management
 
-A plain `USER` can only ever act on their own scope (their own profile, their own entitlements, their own usage).
-
-## Setting it
-
-```typescript
-await kerne.users.update(userId, { /* ... */ });
-```
-
-Promoting an user to `ADMIN` is done in the dashboard under **Users**.
+If you're building your own admin dashboard on top of Kerne, that dashboard's backend calls these routes with your secret key after applying your own access control (deciding which of your team members may reach that backend route in the first place) - Kerne has no opinion on who counts as an admin within your product.
 
 ## Next
 

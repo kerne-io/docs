@@ -1,0 +1,32 @@
+---
+title: "List entitlements"
+description: "Hydrate every entitlement for the logged-in user in one call"
+---
+
+Useful for a "your plan" or settings screen, without one `useAllows`/`useCheck` per feature. Like the rest of the client SDK, there's no `scope` parameter - it's always the currently authenticated user.
+
+```tsx
+import { useEntitlements } from '@kerne/react';
+
+function PlanSummary() {
+  const { entitlements, isLoading } = useEntitlements();
+
+  if (isLoading || !entitlements) return <Spinner />;
+
+  return (
+    <ul>
+      {entitlements.entitlements.map((e) => (
+        <li key={e.feature_key}>
+          {e.feature_key}: {e.feature_type === 'QUOTA' ? `${e.used}/${e.limit ?? '∞'}` : e.enabled ? 'on' : 'off'}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+<Note>
+There's no `allowed` field per entry here, unlike [`useAllows`/`useCheck`](/sdks/client/react/billing/check-entitlement) - this response is cached for 60s server-side, and a stale "allowed" verdict on a QUOTA feature would be unsafe. Use this hook to render state (a meter, a list of what's included), and `useAllows`/`useCheck` for the actual go/no-go decision before an action.
+</Note>
+
+`entitlements.subscription_status` and `entitlements.plan_slug` are also on the response, for a header like "Pro plan - active".

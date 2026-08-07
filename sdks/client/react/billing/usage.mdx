@@ -1,0 +1,26 @@
+---
+title: "Usage"
+description: "Render a quota meter for the logged-in user"
+---
+
+```tsx
+import { useUsage } from '@kerne/react';
+
+function ApiCallsMeter() {
+  const { usage, isLoading } = useUsage('api_calls');
+
+  if (isLoading) return <Spinner />;
+  const record = usage[0];
+  if (!record) return null;
+
+  return <p>{record.value} calls used this period</p>;
+}
+```
+
+Omit `featureKey` to get every QUOTA feature's current usage record in one call:
+
+```tsx
+const { usage } = useUsage();
+```
+
+Each record: `{ id, feature_key, value, period_start, period_end, status, ... }` - one per feature per open billing period. For the derived `remaining`/`limit` view (accounting for overrides and rollover), prefer [`useCheck`](/sdks/client/react/billing/check-entitlement) or [`useEntitlements`](/sdks/client/react/billing/entitlements-list) - this hook is the raw counter.

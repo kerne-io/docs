@@ -9,6 +9,12 @@ Read-only, and public - no secret key or user session required beyond `x-app-id`
 const plans = await kerne.billing.plans(productSlugOrId);
 ```
 
+Omit the argument to resolve the tenant's default product (`Product.is_default`) - the common case for a tenant with a single product:
+
+```typescript
+const plans = await kerne.billing.plans();
+```
+
 ```json
 [
   {

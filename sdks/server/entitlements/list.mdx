@@ -10,8 +10,12 @@ Useful for hydrating a settings/billing page without one request per feature:
 
 ```typescript
 const { entitlements, subscription_status, plan_slug } = await kerne.entitlements({ scope: userId });
-// entitlements: [{ feature_key, feature_type, enabled?, limit?, used?, remaining?, value?, has_override }, ...]
+// entitlements: [{ feature_key, feature_type, enabled?, limit?, used?, remaining?, overage_behavior?, value?, has_override }, ...]
 ```
+
+<Note>
+There's no `allowed` field here, unlike [`check()`](/sdks/server/entitlements/allows-enforce-check) - this response is cached for 60s, and a stale "allowed" verdict on a QUOTA feature would be unsafe. Use `remaining`/`overage_behavior` to render state (a meter, a badge), and `check()`/`consume()` for the actual go/no-go decision on an action.
+</Note>
 
 ## Usage records
 

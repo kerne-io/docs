@@ -45,7 +45,7 @@ function ApiCallsMeter() {
 ```tsx
 import { Allows } from '@kerne/react';
 
-<Allows feature="export_pdf" fallback={<UpgradePrompt />}>
+<Allows key="export_pdf" fallback={<UpgradePrompt />}>
   <button onClick={exportPdf}>Export</button>
 </Allows>
 ```

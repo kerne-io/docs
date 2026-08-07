@@ -17,7 +17,7 @@ Every successful signup/login returns a JWT access token plus a refresh token (`
 
 ## Authorization
 
-There's a single flag: a user's `global_role` is either `USER` or `ADMIN`. That's it - no custom roles, no per-resource permissions, no organizations. See [Authorization](/concepts/identity/authorization) for exactly what that flag does and doesn't gate.
+There's no per-user permission system: no custom roles, no per-resource permissions, no organizations. Admin operations on your tenant (managing users, correcting usage, granting overrides) require your secret key - never a user's session. See [Authorization](/concepts/identity/authorization) for exactly what that means in practice.
 
 ## Entitlements
 
@@ -30,6 +30,6 @@ Entitlements answer "what has this user paid for" and are covered in full in [Mo
     Open, invite-only, or closed - and how waitlist fits in.
   </Card>
   <Card title="Authorization" icon="shield" href="/concepts/identity/authorization">
-    What `global_role` actually gates today.
+    What requires your secret key today.
   </Card>
 </CardGroup>

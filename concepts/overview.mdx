@@ -34,7 +34,7 @@ A **scope** is whoever the entitlement belongs to. Today that's always a single 
     Stripe and Polar as payment rails. Kerne is always the source of truth for entitlements; the provider only handles money movement.
   </Accordion>
   <Accordion title="Admin">
-    A single admin flag per user (`global_role`), not a permissions system.
+    No per-user admin flag - admin operations on your tenant require your secret key, not a user session.
   </Accordion>
 </AccordionGroup>
 
@@ -47,7 +47,7 @@ Being explicit about this matters more than it sounds - a doc that describes a h
     Every scope is a single user. A workspace shared by multiple people, with pooled or per-member quotas, isn't implemented.
   </Accordion>
   <Accordion title="Role-based access control">
-    There's no permission system beyond one admin/non-admin flag - no custom roles, no per-resource permissions.
+    There's no per-user permission system at all - no custom roles, no per-resource permissions, no admin flag. Admin operations require your secret key.
   </Accordion>
   <Accordion title="OAuth / social login">
     Only email+password and magic-link-style flows exist.

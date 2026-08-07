@@ -40,6 +40,10 @@ await openPortal(); // redirects the browser
 const portalUrl = await createPortal(); // or get the URL yourself
 ```
 
+## Where the redirect goes if you don't pass a URL
+
+`successUrl`/`cancelUrl`/`returnUrl` above are all optional. Left unset, each resolves independently through your tenant's configured `app_url` before falling back to a Kerne-hosted page - see the server SDK's [Checkout docs](/sdks/server/billing/checkout#where-the-redirect-goes-if-you-dont-pass-successurlcancelurl) for the exact resolution order and how to configure `app_url`.
+
 ## The caller's own subscription
 
 The reactive hook covers most cases:
@@ -58,7 +62,3 @@ import { useClient } from '@kerne/react';
 const client = useClient();
 const sub = await client.getSubscription(); // null if none, or scoped to a product slug: getSubscription('acme')
 ```
-
-<Note>
-`useSubscription()`'s `isPro`/`isEnterprise` flags are hardcoded to plan slugs literally named `pro`/`enterprise` - they won't mean anything if your plans are named differently. Prefer checking a specific entitlement with [`useAllows()`](/sdks/client/react/billing/check-entitlement) instead of a plan name.
-</Note>

@@ -45,7 +45,7 @@ import { Allows } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <Allows feature="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
+    <Allows key="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
       <button>Export Data</button>
     </Allows>
   );

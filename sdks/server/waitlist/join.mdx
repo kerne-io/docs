@@ -8,7 +8,7 @@ description: "Add a user to the waitlist"
 
 <CodeGroup>
 ```typescript Node.js
-const entry = await kerne.waitlist.join({
+const result = await kerne.waitlist.join({
   email: 'alice@company.com',
   name: 'Alice Doe'
 });
@@ -17,12 +17,16 @@ const entry = await kerne.waitlist.join({
 
 ## Response
 
-Returns a `WaitlistEntry` object.
+Always resolves `{ success: true }` - whether the email was newly added,
+already on the waitlist, or already belongs to a registered account are
+deliberately indistinguishable. This is a public, unauthenticated route, so
+the response never reveals which emails already exist in your system.
 
-<ResponseField name="id" type="string" required>
-  Unique ID of the entry.
+<ResponseField name="success" type="boolean" required>
+  Always `true` when the call doesn't throw.
 </ResponseField>
 
-<ResponseField name="status" type="string" required>
-  `PENDING`, `INVITED`, or `REGISTERED`.
-</ResponseField>
+<Note>
+  No confirmation email is sent when someone joins the waitlist - the first
+  email they'll receive is the real invitation, sent when you invite them.
+</Note>
