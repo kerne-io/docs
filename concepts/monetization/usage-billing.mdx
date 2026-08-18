@@ -1,0 +1,149 @@
+---
+title: 'Usage billing'
+description: 'Charge for what people actually use, without ever charging more than you promised'
+---
+
+Most pricing is a flat monthly fee. Usage billing is the other half: your customer pays for what they consume, and you decide where that stops.
+
+Kerne splits that into **three separate decisions**. They look similar and they are not, so it's worth being precise once:
+
+<CardGroup cols={3}>
+  <Card title="What's included" icon="gift">
+    Free every period. `720` hours, `10,000` calls.
+  </Card>
+  <Card title="What it costs after" icon="receipt">
+    A rate from your payment provider, and an optional **ceiling in money**.
+  </Card>
+  <Card title="Where it stops dead" icon="hand">
+    A ceiling in **units**, which actually blocks. Optional, and rarely what you want.
+  </Card>
+</CardGroup>
+
+The one that surprises people: **the money ceiling doesn't block anything.** Past it, your customer keeps working and you stop charging. That's deliberate — see [Why the cap doesn't block](#why-the-cap-doesnt-block).
+
+## A real example
+
+A company rents out macOS machines. Their offer: **0.22 € per hour of machine time, never more than 150 € a month per customer.**
+
+<Steps>
+  <Step title="Create a metered price at Stripe">
+    A **meter** that counts events, and a **recurring price** attached to it. Kerne reads the rate from that price — you never type an amount into Kerne.
+
+    Set the price to `0.22 €` per **60 units**, and meter in minutes. Not `0.0037 € per minute`: 0.22 divided by 60 doesn't have an exact decimal, and rounding it would drift away from what Stripe actually invoices.
+  </Step>
+  <Step title="Create the feature">
+    Type **Quota**, unit `minute`, reset **each period**.
+
+    A billed quota must reset. If it rolled over, last month's consumption would count as billable again this month — Kerne refuses the setup rather than let that happen.
+  </Step>
+  <Step title="Set the entitlement on the plan">
+    Included: `0`. At the limit: **Bill**. Pick the metered price. Billing cap: `150`.
+  </Step>
+  <Step title="Report usage from your backend">
+    ```typescript
+    await kerne.entitlements.consume('machine_minutes', {
+      scope: customerId,
+      delta: 60, // one hour
+    });
+    ```
+  </Step>
+</Steps>
+
+That's it. Kerne counts, and a background worker hands the billable minutes to Stripe. Your customer's invoice grows to 150 € and stops.
+
+## Per machine, per project, per anything
+
+The example above pools every machine into one counter. Often that's exactly right — the customer is billed for total consumption, and which machine produced it is their business.
+
+Sometimes it isn't. **Dimensions** let one quota split into several counters under the same customer:
+
+```typescript
+await kerne.entitlements.consume('machine_minutes', {
+  scope: customerId,
+  dimension: 'machine_42', // ← this
+  delta: 60,
+});
+```
+
+Declare what a feature is counted by (`machine`) on the **feature**, then each plan chooses what that means:
+
+| Allowance | What your customer gets |
+| --- | --- |
+| **Shared across every machine** | One pool. 200 hours total, whoever burns them. |
+| **Each machine gets its own** | 200 hours *per machine*, counted separately. Machine A running out doesn't touch machine B. |
+
+And the cap has its own, independent choice — because these two promise opposite things:
+
+| Cap | What you're promising |
+| --- | --- |
+| **Total for the customer** | "Your bill never exceeds 150 €." Reassuring for them, and it caps what you earn however much they grow. |
+| **Per machine** | "Each machine costs you at most 150 €." Ten machines can bill ten times it — and the cost of adding one more is known in advance, on both sides. |
+
+<Note>
+  Allowance and cap bind independently: "shared pool, one cap" and "own allowance per machine, own cap per machine" are both valid, and so are the two mixes.
+</Note>
+
+Attribution works either way: even on a shared pool, every usage event records which machine it came from, so "which one cost me the most" stays answerable.
+
+## Why the cap doesn't block
+
+This is the part worth understanding, because it's the opposite of what most systems do.
+
+<Columns cols={2}>
+  <Card title="Money and access are separate">
+    Hitting a spending cap means *you* stop charging. Your customer notices nothing. Their machines keep running, their API keeps answering.
+  </Card>
+  <Card title="Blocking is its own setting">
+    If you genuinely want consumption to stop, that's the **hard stop** — a ceiling in units, and it's off by default.
+  </Card>
+</Columns>
+
+The reason is simple: a spending cap is a promise you made about *your invoice*. Turning it into an outage would punish the customer for a promise you made to reassure them.
+
+## What you see
+
+The **Usage billing** screen shows every subscriber on a billed entitlement: consumed, billable, already charged, and how much room is left under the cap.
+
+It also shows two things nothing else would tell you:
+
+- **Capped** — still consuming, no longer charged. Working as designed, but you want to know.
+- **Not billing** — the provider refused this entitlement's usage (its price was archived, its meter was turned off). Access still works, revenue is silently zero. This is the failure this screen exists for.
+
+<Note>
+  The numbers on that screen come from the same function the billing worker uses. What you read is what gets invoiced, not a parallel estimate that can drift.
+</Note>
+
+## Things that will bite you
+
+<AccordionGroup>
+  <Accordion title="Meter in the smallest unit, always">
+    Minutes, not hours. Bytes, not gigabytes. Kerne counts in whole numbers — that's what makes concurrent consumption safe — so a fractional hour has nowhere to go. Same discipline as storing money in cents.
+  </Accordion>
+  <Accordion title="The rate is a pair, not a number">
+    "0.22 € per 60 minutes" is not "0.0037 € per minute". Stripe divides, rounds the block count, *then* multiplies — computing it the other way disagrees by up to a full block, always in the direction that exceeds your cap.
+
+    You never enter a rate in Kerne, precisely so this can't go wrong.
+  </Accordion>
+  <Accordion title="A cap is a block count, not a division">
+    A 150 € cap at 0.22 € per hour doesn't buy 681.8 hours. It buys **681 whole hours**, because the 682nd would round up and invoice 150.04 €. Kerne computes it the provider's way.
+  </Accordion>
+  <Accordion title="Tiered prices work, but can't be capped">
+    Per-unit or tiered — Kerne pushes units and Stripe prices them. But a spending cap is inverted into a unit ceiling ("how many hours fit under 150 €?"), and a tier schedule has no single rate to invert. So: tiered without a cap, or per-unit with one.
+
+    On a tiered price the dashboard shows "tiered pricing, set at Stripe" rather than inventing a rate, and the billed amount reads from your Stripe invoice.
+  </Accordion>
+  <Accordion title="If you archive the metered price at Stripe">
+    Existing subscribers keep billing on it, but nobody new can subscribe to that plan. Kerne flags the entitlement as **Not billing** so you find out from your dashboard rather than from a support ticket.
+  </Accordion>
+</AccordionGroup>
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Designing your pricing" icon="compass" href="/guides/billing/designing-pricing">
+    Which model fits what you sell.
+  </Card>
+  <Card title="consume()" icon="code" href="/sdks/server/entitlements/consume">
+    The call that counts, with every option.
+  </Card>
+</CardGroup>

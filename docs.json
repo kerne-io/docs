@@ -47,7 +47,8 @@
                 "pages": [
                   "concepts/monetization/index",
                   "concepts/monetization/products-and-plans",
-                  "concepts/monetization/entitlements"
+                  "concepts/monetization/entitlements",
+                  "concepts/monetization/usage-billing"
                 ]
               },
               "concepts/error-codes"

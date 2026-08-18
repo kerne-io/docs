@@ -45,11 +45,11 @@ Charge based on consumption (e.g., API calls, emails sent).
 
 ## Model 3: Hybrid (base plan + metered add-on)
 
-A flat monthly fee plus a per-unit metered feature - e.g. $20/mo base, then $0.01/email past what's included. Model it as one plan with two entitlements: a boolean/static one for the base tier, and a `QUOTA` one for the metered part, set to `overage: BILL` (see [Entitlements](/concepts/monetization/entitlements) for how `overage_behavior` works).
+A flat monthly fee plus a per-unit metered feature - e.g. $20/mo base, then $0.01/email past what's included. Model it as one plan with two entitlements: a boolean/static one for the base tier, and a `QUOTA` one for the metered part, set to `overage: BILL` (see [Usage billing](/concepts/monetization/usage-billing) for the whole model, including per-machine and per-project variants).
 
 **Setup, in order:**
 
-1. In Stripe, create a metered price on the product you're billing through Kerne (per-unit or per-tier - Kerne reads whatever pricing shape you set there).
+1. In Stripe, create a metered price on the product you're billing through Kerne — per-unit or tiered, Kerne pushes units and Stripe prices them. The one restriction: a **tiered price can't carry a spending cap**, since a cap is inverted into a unit ceiling and tiers have no single rate.
 2. In the dashboard, under **Catalog → Plans**, open the entitlement and set **At the limit** to **Bill - charge the excess**, then pick that price under **Metered price**. The rate is read from Stripe, never typed in - if you change the price later, create a new one in Stripe and repoint the entitlement to it.
 3. Optionally set a **Billing cap per period** (a money ceiling, e.g. "never bill past €150/month" - past it, usage still counts but stops being forwarded). Leave it empty for a metered add-on meant to scale freely.
 

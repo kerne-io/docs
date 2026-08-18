@@ -10,11 +10,40 @@ const result = await kerne.consume('api_calls', {
   scope: userId,
   delta: 1,              // defaults to 1
   idempotencyKey: requestId, // optional - see below
+  dimension: 'machine_42',   // optional - see below
 });
 // { allowed, limit, used, remaining, overage_behavior, ... }
 ```
 
 If `allowed` is `false`, nothing was incremented - the request never happened as far as the counter is concerned.
+
+## Dimensions
+
+`dimension` names which slice of the scope this consumes - a machine, a project, a device. What it does depends on how the plan is configured:
+
+| Plan setting | Effect |
+| --- | --- |
+| Allowance **shared** | The scope keeps one counter. The dimension is recorded for attribution only - "which machine cost what" stays answerable. |
+| Allowance **per dimension** | Each slice gets the full allowance, counted separately. Required: a call without one is rejected. |
+
+```typescript
+// 200 hours per machine: machine_42 running out doesn't touch machine_43
+await kerne.consume('machine_minutes', {
+  scope: customerId,
+  dimension: 'machine_42',
+  delta: 60,
+});
+```
+
+<Warning>
+  Two mistakes are rejected rather than silently ignored, because both would charge the wrong counter: sending a dimension on a feature that declares none, and omitting one when the plan limits per dimension.
+</Warning>
+
+The billing cap binds independently of the allowance - it can bound the customer's total bill, or each dimension's own. See [Usage billing](/concepts/monetization/usage-billing#per-machine-per-project-per-anything).
+
+<Note>
+  A scope can hold up to 1,000 distinct dimensions per feature per period. Past that, calls naming a *new* one are refused - a guard against a loop accidentally passing a fresh id on every request. Existing dimensions keep working.
+</Note>
 
 ## Idempotency
 
