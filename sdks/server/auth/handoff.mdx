@@ -1,0 +1,39 @@
+---
+title: "Session handoff"
+sidebarTitle: "Handoff"
+description: "Carry a session across origins (portal → tenant app)"
+---
+
+Kerne's hosted auth UI (`<slug>.accs.dev`) runs on its own origin, separate from your app's `app_url` - so a session it creates isn't visible to your app via `localStorage`. A handoff code bridges that gap: mint one on the portal's origin right after login, redirect the browser to your app with it, and exchange it there for a real session.
+
+<Note>
+This pair only matters if you're integrating with Kerne's hosted auth portal. If your app owns its own login form and calls `kerne.auth.login()` directly, you don't need it.
+</Note>
+
+## Mint a code
+
+```typescript
+const { code, expires_at } = await kerne.auth.handoff();
+```
+
+Requires the caller's own Bearer token (the session being handed off) - `code` is single-use and short-lived (`expires_at`). Append it to the destination URL and redirect:
+
+```typescript
+const target = `${appUrl}?kerne_handoff=${code}`;
+```
+
+<Warning>
+Never put the real `token`/`refresh_token` in a URL - it ends up in server logs, browser history, and the `Referer` header of any third-party request made from the landing page. The handoff code exists specifically to avoid that.
+</Warning>
+
+## Exchange it
+
+```typescript
+const { token, refresh_token, user, expires_at } = await kerne.auth.exchangeHandoff(code);
+```
+
+Public route (no auth required) - the code itself is the credential. Same response shape as [`login()`](/sdks/server/auth/login)/[`signup()`](/sdks/server/auth/signup). An invalid, expired, or already-consumed code throws like any other `kerne.auth.*` call - see [Error codes](/concepts/error-codes).
+
+<Info>
+`@kerne/react` handles both sides of this automatically when integrating with the portal - see [Session handoff](/sdks/client/react/auth/handoff) on the client SDK.
+</Info>

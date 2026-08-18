@@ -26,7 +26,7 @@ Resolved in this order, for each flow independently (checkout success, checkout 
 
 1. **The option you passed** (`successUrl`/`cancelUrl` above, `returnUrl` for the portal) - always wins.
 2. **A flow-specific override**, if you've configured one - `callback_url_billing_success`, `callback_url_billing_cancel`, `callback_url_billing_portal`.
-3. **`app_url` + that flow's default path** (`/billing/success`, `/billing/cancel`, `/settings/billing`), if you've set `app_url` but not the specific override above.
+3. **`app_url` + that flow's default path** (`/billing?checkout=success`, `/billing?checkout=cancelled`, `/billing?checkout=portal_return`), if you've set `app_url` but not the specific override above.
 4. **Kerne's own hosted page**, if you've configured neither.
 
 Configure `app_url` and the overrides through the tenant configuration endpoint (not yet wrapped by `@kerne/server` - call it directly with your own token, same auth as the rest of this self-service API):

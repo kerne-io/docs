@@ -24,7 +24,7 @@ import { HasSubscription, Allows } from '@kerne/react';
   <PremiumArea />
 </HasSubscription>
 
-<Allows key="export_pdf" fallback={<UpgradePrompt />}>
+<Allows featureKey="export_pdf" fallback={<UpgradePrompt />}>
   <ExportButton />
 </Allows>
 ```
@@ -36,7 +36,7 @@ There's no plan-slug guard on purpose - matching on a plan **name** breaks silen
 ```tsx
 import { Protected } from '@kerne/react';
 
-<Protected auth key="export_pdf" authFallback={<Login />} billingFallback={<Upgrade />}>
+<Protected auth featureKey="export_pdf" authFallback={<Login />} billingFallback={<Upgrade />}>
   <ProFeature />
 </Protected>
 ```

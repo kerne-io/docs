@@ -26,7 +26,10 @@ An entitlement is one feature's value for one scope, resolved from whatever pack
     // { allowed, limit, used, remaining, overage_behavior }
     ```
 
-    `limit: null` means unlimited. When a limit is hit, `overage_behavior` decides what happens: `BLOCK` refuses further use, `ALLOW` lets it through (a soft limit you can bill for separately).
+    `limit: null` means unlimited. When a limit is hit, `overage_behavior` decides what happens:
+    - `BLOCK` refuses further use.
+    - `ALLOW` lets it through, uncapped, and does nothing about billing it - you'd invoice the overage yourself.
+    - `BILL` lets it through and forwards the overage to your payment provider's metered price automatically, up to an optional cap you set. This is the "$20/mo base, then $0.01 per email past 10,000" model - see [Designing your pricing](/guides/billing/designing-pricing#model-3-hybrid-base-plan-metered-add-on) for the setup steps.
   </Tab>
   <Tab title="Static">
     A config value, not a limit - returned as-is (e.g. `support_level: "gold"`).

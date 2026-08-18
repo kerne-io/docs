@@ -23,12 +23,24 @@ const plans = await kerne.billing.plans();
     "name": "Pro",
     "is_default": false,
     "trial_days": 14,
-    "prices": [{ "id": "price_...", "amount": 2900, "currency": "eur", "interval": "month" }],
+    "prices": [
+      {
+        "id": "price_...",
+        "amount": 2900,
+        "currency": "eur",
+        "interval": "1M",
+        "label": { "slug": "monthly", "name": "Monthly", "sort_order": 0, "display_interval": null }
+      }
+    ],
     "entitlements": [
       { "feature_key": "api_calls", "feature_type": "QUOTA", "limit": 10000 }
     ]
   }
 ]
 ```
+
+`interval` is `{count}{unit}` - `unit` is `D`, `M`, or `Y` (`"1M"` monthly, `"3M"` quarterly, `"1Y"` yearly). Don't parse it yourself for display: `@kerne/react`'s prebuilt components already localize it, and building a pricing page from scratch should split the count and unit rather than showing the raw string to an end user.
+
+`label` groups prices across plans that belong together ("the annual price" for every plan, however each one is priced) - see [Products, plans, and packs](/concepts/monetization/products-and-plans#naming-a-plans-prices).
 
 Features, plans and products are managed in the dashboard under **Catalog**. See [Platform foundations](/concepts/overview) for why that split exists.

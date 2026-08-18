@@ -1,6 +1,6 @@
 ---
-title: "Check an entitlement"
-description: "useAllows/useCheck and <Allows> - all scoped to the logged-in user automatically"
+title: 'Check an entitlement'
+description: 'useAccess and <Allows> - all scoped to the logged-in user automatically'
 ---
 
 Unlike the server SDK, there's no `scope` parameter here - the client always checks the currently authenticated user, resolved from their own session.
@@ -8,10 +8,10 @@ Unlike the server SDK, there's no `scope` parameter here - the client always che
 ## The hook
 
 ```tsx
-import { useAllows } from '@kerne/react';
+import { useAccess } from '@kerne/react';
 
 function ExportButton() {
-  const { allowed, isLoading } = useAllows('export_pdf');
+  const { allowed, isLoading } = useAccess('export_pdf');
 
   if (isLoading) return <Spinner />;
   if (!allowed) return <UpgradePrompt />;
@@ -22,37 +22,41 @@ function ExportButton() {
 For a quota feature, pass `requested` to check "can I use N more":
 
 ```tsx
-const { allowed } = useAllows('api_calls', 5);
+const { allowed } = useAccess('api_calls', 5);
 ```
 
-Need more than yes/no - how much of the quota is left, for example - use `useCheck` instead, it returns the full entitlement detail:
+Need more than yes/no - how much of the quota is left, for example - read `details` from the same hook. There is no second call to make and no flag to set: the endpoint always returns the full record, so `allowed` and `details` come from one request.
 
 ```tsx
-import { useCheck } from '@kerne/react';
+import { useAccess } from '@kerne/react';
 
 function ApiCallsMeter() {
-  const { check, isLoading } = useCheck('api_calls');
+  const { details, isLoading } = useAccess('api_calls');
 
-  if (isLoading || !check) return <Spinner />;
-  return <p>{check.remaining} / {check.limit} calls left this period</p>;
+  if (isLoading || !details) return <Spinner />;
+  return (
+    <p>
+      {details.remaining} / {details.limit} calls left this period
+    </p>
+  );
 }
 ```
 
 ## The guard component
 
-`<Allows>` wraps `useAllows` for declarative gating:
+`<Allows>` wraps `useAccess` for declarative gating:
 
 ```tsx
 import { Allows } from '@kerne/react';
 
-<Allows key="export_pdf" fallback={<UpgradePrompt />}>
+<Allows featureKey="export_pdf" fallback={<UpgradePrompt />}>
   <button onClick={exportPdf}>Export</button>
-</Allows>
+</Allows>;
 ```
 
 ## Lower-level: `useClient().allows()` / `.check()`
 
-Both hooks above call these internally on the underlying `KerneClient` - reach for them directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
+`useAccess` and `<Allows>` call these internally on the underlying `KerneClient` - reach for them directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
 
 ```tsx
 import { useClient } from '@kerne/react';

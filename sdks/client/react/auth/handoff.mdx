@@ -1,0 +1,58 @@
+---
+title: "Session handoff"
+sidebarTitle: "Handoff"
+description: "Bridge a session from apps/portal to your app's own origin"
+---
+
+Kerne's hosted auth UI (`<slug>.accs.dev`) runs on its own origin, so a session it creates there isn't visible to your app via `localStorage` - two origins, two separate storages. `@kerne/react` bridges that with a one-time handoff code instead of putting the real token in a URL.
+
+<Note>
+This only matters if you're integrating with Kerne's hosted auth portal. If your app owns its own login form, you never call any of this - regular `login()`/`register()` already save the session on your app's own origin.
+</Note>
+
+## On the portal: send the user off with a session
+
+Call `redirectWithSession` at the end of a successful auth flow (login, magic-link, register, activation) whenever the destination isn't the portal's own origin:
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function LoginForm() {
+  const { login, redirectWithSession } = useAuth();
+
+  const handleSubmit = async (email: string, password: string) => {
+    await login({ email, password });
+    await redirectWithSession('https://app.customer.com/dashboard');
+  };
+
+  return null; // your form
+}
+```
+
+This mints a handoff code (`kerne.auth.handoff()`) and navigates the browser to `https://app.customer.com/dashboard?kerne_handoff=<code>` - the code is single-use and short-lived, never the real token.
+
+## On the tenant app: nothing to do
+
+Picking the code back up is automatic. On mount, `KerneProvider` checks the URL for `kerne_handoff` before it even looks at local storage - if present, it exchanges the code for a real session, saves it the same way `login()` does, and strips the param from the URL (`history.replaceState`, no new history entry, rest of the query string untouched). `isLoading` covers this exchange the same way it covers the normal session bootstrap, so existing `if (isLoading) return <Spinner />` guards already handle it - there's nothing to wire up.
+
+An invalid, expired, or already-consumed code falls back to "logged out" rather than throwing somewhere the host app can't catch.
+
+## When the handoff fails
+
+Worth handling, because from the user's side nothing visibly went wrong: they followed a valid link, arrived on your app, and are simply not signed in. The SDK can't render UI, so it hands the failure to you:
+
+```tsx
+<KerneProvider
+  appId="your-app-id"
+  onHandoffError={() => toast.error('That sign-in link has expired. Please request a new one.')}
+>
+  {children}
+</KerneProvider>
+```
+
+Two things reach this callback:
+
+- **An expired or already-used code.** Codes are single-use and live 60 seconds — a link opened twice, or a back-navigation, lands here.
+- **A rejected origin.** The exchange is a browser call in public mode, so it's checked against your tenant's **allowed domains**. If the origin you send users back to isn't listed, every handoff fails. That's a configuration fix, not a user-facing one — add it under **API keys → Allowed domains**.
+
+Network blips and 5xx are retried once before this fires, so a callback here means the session really isn't coming back.

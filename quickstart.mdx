@@ -101,7 +101,7 @@ import { Allows } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <Allows key="export_pdf" fallback={<UpgradePrompt />}>
+    <Allows featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
       <button onClick={exportPdf}>Export as PDF</button>
     </Allows>
   );
@@ -109,7 +109,7 @@ function ExportButton() {
 ```
 </CodeGroup>
 
-On the client, `Allows` (and the `useAllows` hook) check the *logged-in* user automatically - no scope needed, the SDK already knows who's authenticated.
+On the client, `Allows` (and the `useAccess` hook) check the *logged-in* user automatically - no scope needed, the SDK already knows who's authenticated.
 
 ## Next steps
 

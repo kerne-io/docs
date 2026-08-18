@@ -25,4 +25,6 @@ Pass a product ID or slug for a tenant with more than one product - omit it to r
 const { plans } = usePlans('enterprise-suite');
 ```
 
-Each plan: `{ id, slug, name, is_default, trial_days, prices: [...], entitlements: [...] }` - see [checkout & portal](/sdks/client/react/billing/checkout-and-portal) for turning a selected price into a checkout session.
+Each plan: `{ id, slug, name, is_default, trial_days, prices: [...], entitlements: [...] }`, and each price carries a `label` (`{ slug, name, sort_order, display_interval }`) grouping it with the equivalent price on every other plan - see [Products, plans, and packs](/concepts/monetization/products-and-plans#naming-a-plans-prices). See [checkout & portal](/sdks/client/react/billing/checkout-and-portal) for turning a selected price into a checkout session.
+
+For a full pricing page, [`<PricingTable>`](/sdks/client/react/ui/pricing-table) already does the label grouping, the interval toggle, and the checkout wiring for you - reach for this hook directly only when you want to build the layout yourself.

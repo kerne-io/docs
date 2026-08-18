@@ -1,0 +1,59 @@
+---
+title: '<PricingTable>'
+description: 'A real pricing page, built from your live catalog'
+---
+
+Different job from [`<SubscriptionCard>`](/sdks/client/react/ui/account): that one is a settings control for someone who already has an account ("here's what you can move to"). `<PricingTable>` is the page that sells - plan cards, a monthly/annual toggle, and a checkout button, built from whatever you've configured in **Catalog**.
+
+```tsx
+import { PricingTable } from '@kerne/react/ui';
+
+<PricingTable defaultLabel="annual">
+  <PricingTable.LabelSwitch />
+  <PricingTable.Plans featuredSlug="pro" featuredBadge="Most popular" />
+</PricingTable>;
+```
+
+That's a complete pricing page: the toggle only appears if you actually sell more than one price label (see [naming a plan's prices](/concepts/monetization/products-and-plans#naming-a-plans-prices)), and switching it animates the price rather than swapping it instantly.
+
+## Building your own layout
+
+`<PricingTable.Plans>` is a shortcut in a responsive grid. Skip it and place `<PricingTable.Plan>` yourself for a custom layout - a plan featured in the middle, a two-column comparison, a page that sells just one plan:
+
+```tsx
+<PricingTable>
+  <PricingTable.LabelSwitch />
+  <div className="my-three-column-layout">
+    <PricingTable.Plan slug="starter" />
+    <PricingTable.Plan slug="pro" featured badge="Most popular" />
+    <PricingTable.Plan slug="business" />
+  </div>
+</PricingTable>
+```
+
+`featured` and `badge` are yours to set - neither is inferred from the plan itself. A plan's `is_default` means "the free tier a signup falls back to with no subscription," not "recommended," so nothing here derives a badge from data.
+
+## Reference
+
+| Prop | On | What it does |
+| --- | --- | --- |
+| `product` | `<PricingTable>` | Which product's plans to show. Omit for your default product. |
+| `defaultLabel` | `<PricingTable>` | Price label selected on first render (e.g. `"annual"`). Falls back to the first one if it doesn't exist. |
+| `onSelectPlan` | `<PricingTable>` | Override the built-in checkout - e.g. to show your own confirmation step first. Called with `(plan, price)`. |
+| `slug` | `<PricingTable.Plan>` | Which plan to render. |
+| `maxFeatures` | `<PricingTable.Plan>`, `<PricingTable.Plans>` | Cap the entitlement list before a "+N more" line. |
+
+## Going fully custom
+
+`usePricingTable()` gives you the same state the components above read, for a page that doesn't use them at all:
+
+```tsx
+import { usePricingTable } from '@kerne/react/ui';
+
+function CustomPlanList() {
+  const { plans, selectedLabelSlug, onSelectPlan } = usePricingTable();
+  return plans.map((plan) => <MyOwnCard key={plan.id} plan={plan} onClick={() => onSelectPlan(plan)} />);
+}
+```
+
+Must be called somewhere under `<PricingTable>` - it reads the same provider `<PricingTable.LabelSwitch>`/`<PricingTable.Plan>` do.

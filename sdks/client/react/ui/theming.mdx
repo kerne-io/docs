@@ -1,0 +1,130 @@
+---
+title: 'Styling & language'
+description: 'Match the screens to your brand, and translate what they say'
+---
+
+There is no CSS file to import. The screens inject their own stylesheet once, and everything they draw resolves from `--kerne-*` custom properties — so you restyle by setting those, not by fighting selectors.
+
+## Your colors
+
+Set the properties anywhere in your own CSS to change every screen at once:
+
+```css
+:root {
+  --kerne-primary: #1d6b52;
+  --kerne-accent: #1d6b52;
+  --kerne-radius: 2px;
+  --kerne-font: Georgia, serif;
+}
+```
+
+Or per instance, with `appearance`:
+
+```tsx
+<AuthFlow
+  appearance={{
+    primaryColor: '#1d6b52',
+    radius: '2px',
+    fontFamily: 'Georgia, serif',
+  }}
+/>
+```
+
+`primaryColor` is usually the only one you need. From it the screens also derive the label on the primary button, its hover, and the accent used for focus rings and links — so a light brand color gets a dark label instead of an unreadable white one, and a branded button no longer turns grey under the cursor. Override any of those with `primaryTextColor` and `accentColor` when you want something else.
+
+`appearance` accepts `primaryColor`, `primaryTextColor`, `accentColor`, `textColor`, `borderColor`, `panelColor`, `background`, `surfaceColor`, `surface`, `fontFamily`, `radius`, `controlHeight`, and `theme`.
+
+Color derivation reads `#rgb`, `#rrggbb` and `rgb()`. Anything else — a named color, `hsl()`, a `var()` reference — is used as-is and nothing is derived from it, so set `primaryTextColor` yourself in that case.
+
+## Light and dark
+
+The screens are light unless you say otherwise. They do **not** follow the visitor's system setting by default: your product decides what it looks like, and a light-only app should not render a dark sign-in form for half its users.
+
+```tsx
+<AuthFlow appearance={{ theme: 'dark' }} />
+```
+
+If your app has its own dark mode, pass whichever one is active:
+
+```tsx
+<AuthFlow appearance={{ theme: isDark ? 'dark' : 'light' }} />
+```
+
+Use `'system'` to opt into following the visitor's OS setting instead.
+
+## Standing on their own
+
+The screens ship flat — no card, no border — because they are built to drop into a page you already designed. When the component *is* the page (a dedicated `/login` route, a hosted portal), `surface: 'card'` gives it a container of its own:
+
+```tsx
+<AuthFlow appearance={{ surface: 'card', surfaceColor: '#ffffff' }} />
+```
+
+Tell it about its background with `background` whenever the component owns the viewport — that is what lets its text and its ground resolve together instead of independently.
+
+## Your logo
+
+```tsx
+<AuthFlow logo={<img src="/logo.svg" alt="Acme" width={120} />} />
+```
+
+## What the screens do on their own
+
+You do not wire any of this — it is what the prebuilt forms already handle:
+
+- **Password fields** carry a show/hide toggle, warn when Caps Lock is on, and — where a password is being *set* — show an advisory strength meter. The meter never blocks a submit: the API's only rule is length (8–128), and a form that disagreed with the server about what is valid would be worse than no meter.
+- **Errors land on the field they belong to** rather than in one banner above the form, so there is nothing to guess at when a submit fails.
+- **Buttons show a spinner while a request is in flight**, instead of only swapping their label.
+- **Outcomes are announced** to screen readers — failures assertively, confirmations politely.
+- **The first field is focused only where there is a real pointer**, so arriving on a phone does not throw the keyboard over the screen.
+
+## Language
+
+Every string the screens render — including the error messages — comes from one dictionary. Override what you need on the provider; anything you leave out stays in English.
+
+```tsx
+import { KerneProvider } from '@kerne/react';
+
+<KerneProvider
+  appId="your-app-id"
+  localization={{
+    signIn: {
+      title: 'Content de vous revoir',
+      submit: 'Se connecter',
+      magicSubmit: 'Recevoir un lien de connexion',
+    },
+    common: {
+      email: 'E-mail',
+      password: 'Mot de passe',
+    },
+  }}
+>
+  {children}
+</KerneProvider>;
+```
+
+### Error messages
+
+Errors are keyed by the API's error code, so you control exactly what a user reads when something fails:
+
+```tsx
+localization={{
+  errors: {
+    K1005: 'Adresse e-mail ou mot de passe incorrect.',
+    K5001: 'Vous avez atteint la limite incluse dans votre offre.',
+    generic: 'Une erreur est survenue. Réessayez.',
+  },
+}}
+```
+
+Codes you do not map fall back to `generic`. The raw API message is never shown — it is written for you, the developer, not for your users.
+
+See [Error codes](/concepts/error-codes) for the full list.
+
+### Starting from the defaults
+
+`defaultLocalization` is exported if you want to see every key, or build a translation on top of it:
+
+```tsx
+import { defaultLocalization } from '@kerne/react';
+```

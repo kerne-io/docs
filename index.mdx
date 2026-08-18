@@ -66,7 +66,7 @@ function Root() {
 
 function ExportButton() {
   return (
-    <Allows key="export_pdf" fallback={<UpgradePrompt />}>
+    <Allows featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
       <button onClick={exportPdf}>Export as PDF</button>
     </Allows>
   );

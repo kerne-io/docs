@@ -38,12 +38,12 @@ const canConsume = await kerneAsUser.allows('api_calls', { requested: 1 });
 ```tsx
 import { Allows } from '@kerne/react';
 
-<Allows key="advanced_analytics" fallback={<UpgradeBanner />}>
+<Allows featureKey="advanced_analytics" fallback={<UpgradeBanner />}>
   <AnalyticsDashboard />
 </Allows>
 ```
 
-`<Allows>` (and the `useAllows` hook underneath it) already handles the loading state and scopes to the logged-in user - no need to hand-roll a `useEffect`/`useState` wrapper around `client.allows()` yourself.
+`<Allows>` (and the `useAccess` hook underneath it) already handles the loading state and scopes to the logged-in user - no need to hand-roll a `useEffect`/`useState` wrapper around `client.allows()` yourself.
 
 <Warning>
 A client-side check is a UX convenience, never a security boundary - anyone can bypass it by editing the page. Always re-check with `allows()`/`enforce()` on the server before doing the thing being gated.

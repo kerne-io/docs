@@ -30,8 +30,7 @@ function Root() {
 ## Core hooks
 
 - **`useAuth()`** - the logged-in user, and every auth action (login/register/logout/password/verification). See [Login](/sdks/client/react/auth/login).
-- **`useAllows(featureKey)`** - `{ allowed, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
-- **`useCheck(featureKey)`** - the full entitlement detail (`limit`/`used`/`remaining`/`overage_behavior`) instead of a plain boolean - for UI that shows *how much* is left, not just yes/no.
+- **`useAccess(featureKey)`** - `{ allowed, details, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). `allowed` is the go/no-go; `details` carries the detail (`limit`/`used`/`remaining`/`overage_behavior`) when you want to show *how much* is left. One request either way. See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
 - **`useCheckout()`** / **`usePortal()`** - start a checkout session, or open the billing portal. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
 - **`useSubscription()`** / **`useUser()`** - reactive reads of the caller's own subscription/profile.
 - **`useClient()`** - the underlying `KerneClient` instance, for anything not covered by the hooks above.
@@ -45,7 +44,7 @@ import { Allows } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <Allows key="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
+    <Allows featureKey="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
       <button>Export Data</button>
     </Allows>
   );

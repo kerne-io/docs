@@ -1,0 +1,111 @@
+---
+title: 'Prebuilt screens'
+description: 'Drop-in sign-in, sign-up and account screens that follow your tenant settings'
+---
+
+The hooks in the rest of this section give you the logic and leave the markup to you. If you would rather not build login and password-reset screens by hand, `@kerne/react/ui` ships them.
+
+They read your tenant's auth settings at runtime. Turn magic link on in your dashboard and the button appears — no code change, no release.
+
+```bash
+npm install @kerne/react
+```
+
+Everything lives under the `/ui` subpath so an app that only uses hooks does not ship the screens.
+
+```tsx
+import { AuthFlow } from '@kerne/react/ui';
+```
+
+## One component for the whole sign-in journey
+
+`<AuthFlow>` covers sign-in, sign-up, forgot/reset password, magic-link landings, email verification and account activation. Moving between them is internal, so you do not wire any navigation:
+
+```tsx
+import { KerneProvider } from '@kerne/react';
+import { AuthFlow } from '@kerne/react/ui';
+
+function App() {
+  return (
+    <KerneProvider appId="your-app-id">
+      <AuthFlow onSuccess={() => (window.location.href = '/dashboard')} />
+    </KerneProvider>
+  );
+}
+```
+
+It picks the right step on its own. A user arriving from an emailed reset link lands on the password form; everyone else lands on sign-in.
+
+<Note>
+  If you route each step yourself, pass `step` and `onStepChange` to drive it from your router — or
+  import the individual screens (`LoginForm`, `RegisterForm`, `ResetPasswordForm`…) and mount one per
+  route.
+</Note>
+
+## What it renders
+
+| Your setting | What the user sees |
+| --- | --- |
+| `enable_magic_link` on | A "send me a sign-in link" button, used by default |
+| `enable_credentials` on | Email + password fields |
+| Both on | Magic link first, with a link to switch to a password |
+| `oauth_providers` set | A button per provider, above the email form |
+| `registration_mode: INVITE_ONLY` | An invitation code field on sign-up |
+| `registration_mode: CLOSED` | No sign-up form, and no link to one |
+
+## The account screen
+
+`<UserProfile>` is a tabbed account manager — profile, security, billing:
+
+```tsx
+import { UserProfile } from '@kerne/react/ui';
+
+<UserProfile />;
+```
+
+Drop tabs you do not need. A free product has no billing to show:
+
+```tsx
+<UserProfile tabs={['profile', 'security']} />
+```
+
+See [Account screens](/sdks/client/react/ui/account) for the individual blocks.
+
+## Selling a plan
+
+`<PricingTable>` is a different job from the account screen above - not "manage your subscription," but the page that sells one, built from your live catalog:
+
+```tsx
+import { PricingTable } from '@kerne/react/ui';
+
+<PricingTable defaultLabel="annual">
+  <PricingTable.LabelSwitch />
+  <PricingTable.Plans featuredSlug="pro" featuredBadge="Most popular" />
+</PricingTable>;
+```
+
+See [`<PricingTable>`](/sdks/client/react/ui/pricing-table) for composing your own layout instead of the grid shortcut.
+
+## Everything exported
+
+**Sign-in journey** — `AuthFlow`, `LoginForm`, `RegisterForm`, `MagicLinkCallback`, `ForgotPasswordForm`, `ResetPasswordForm`, `VerifyEmailForm`, `ActivateAccountForm`
+
+**Account** — `UserProfile`, `ProfileSection`, `SecuritySection`, `BillingSection`, `ChangePasswordForm`
+
+**Billing** — `SubscriptionCard`, `UsageMeters`, `CheckoutResult`, `UpgradePrompt`, `PricingTable`
+
+**Elsewhere** — `WaitlistForm`, `UserButton`, `SignOutButton`
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Account screens" href="/sdks/client/react/ui/account">
+    The profile, billing and usage blocks.
+  </Card>
+  <Card title="Pricing page" href="/sdks/client/react/ui/pricing-table">
+    Plan cards, the label toggle, and composing your own layout.
+  </Card>
+  <Card title="Styling & language" href="/sdks/client/react/ui/theming">
+    Match your brand, and translate the copy.
+  </Card>
+</CardGroup>

@@ -16,6 +16,10 @@ This guide walks through connecting a payment provider, configuring a plan, and 
 
 In the Kerne dashboard: **Settings → Billing → Connect Stripe** (or Polar), then complete the OAuth flow. Use test mode during development.
 
+<Warning>
+Connecting Polar automatically creates a webhook endpoint in your Polar organization so Kerne can sync subscriptions in real time. **Don't delete this endpoint from your Polar dashboard** - Polar gives Kerne no notification when that happens, so billing sync silently stops until you click resync (the refresh icon next to your Polar connection in Kerne's dashboard), which detects the missing endpoint and recreates it.
+</Warning>
+
 ## 2. Create a product and plan
 
 This is a dashboard action, not an SDK call - catalog configuration (products, plans, prices) is control-plane: it's you configuring your own SaaS, not something your running app does. In the dashboard: **Billing → Products** → create a product → add a plan with pricing.
@@ -29,8 +33,18 @@ This is a dashboard action, not an SDK call - catalog configuration (products, p
 const plans = await kerne.billing.plans('acme'); // product slug or id
 ```
 
+`price.interval` is `{count}{unit}` (`unit` is `D`, `M`, or `Y` - e.g. `"1M"`, `"3M"`, `"1Y"`), not a word - never render it directly to an end user:
+
 ```tsx
 import { useCheckout } from '@kerne/react';
+
+const INTERVAL_UNIT = { D: 'day', M: 'month', Y: 'year' } as const;
+
+function formatInterval(interval: string): string {
+  const count = parseInt(interval, 10);
+  const unit = INTERVAL_UNIT[interval.slice(-1) as keyof typeof INTERVAL_UNIT];
+  return count === 1 ? unit : `${count} ${unit}s`;
+}
 
 function PricingPage({ plans }) {
   const { openCheckout } = useCheckout();
@@ -42,7 +56,7 @@ function PricingPage({ plans }) {
           <h3>{plan.name}</h3>
           {plan.prices.map((price) => (
             <button key={price.id} onClick={() => openCheckout(price.id)}>
-              Subscribe - {price.amount / 100} {price.currency}/{price.interval}
+              Subscribe - {price.amount / 100} {price.currency}/{formatInterval(price.interval)}
             </button>
           ))}
         </div>

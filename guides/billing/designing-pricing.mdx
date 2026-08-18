@@ -45,4 +45,12 @@ Charge based on consumption (e.g., API calls, emails sent).
 
 ## Model 3: Hybrid (base plan + metered add-on)
 
-A flat monthly fee plus a per-unit metered feature - e.g. $20/mo base, then $0.01/email past what's included. Model it as one plan with two entitlements: a boolean/static one for the base tier, and a `QUOTA` one (with `overage: ALLOW`) for the metered part - see [Entitlements](/concepts/monetization/entitlements) for how `overage_behavior` works. Kerne doesn't bill the overage automatically yet (see [Enforcing limits](/guides/billing/enforcing-limits-without-breaking-ux)) - you'd read `used` past `limit` and invoice for it separately, or via your payment provider's usage-based pricing feature directly.
+A flat monthly fee plus a per-unit metered feature - e.g. $20/mo base, then $0.01/email past what's included. Model it as one plan with two entitlements: a boolean/static one for the base tier, and a `QUOTA` one for the metered part, set to `overage: BILL` (see [Entitlements](/concepts/monetization/entitlements) for how `overage_behavior` works).
+
+**Setup, in order:**
+
+1. In Stripe, create a metered price on the product you're billing through Kerne (per-unit or per-tier - Kerne reads whatever pricing shape you set there).
+2. In the dashboard, under **Catalog → Plans**, open the entitlement and set **At the limit** to **Bill - charge the excess**, then pick that price under **Metered price**. The rate is read from Stripe, never typed in - if you change the price later, create a new one in Stripe and repoint the entitlement to it.
+3. Optionally set a **Billing cap per period** (a money ceiling, e.g. "never bill past €150/month" - past it, usage still counts but stops being forwarded). Leave it empty for a metered add-on meant to scale freely.
+
+From there it's automatic: usage past the included amount gets forwarded to that Stripe price and shows up on the customer's next invoice. Nothing to poll or reconcile yourself - if you want to show the customer what they're about to be charged, read their current usage with [`useUsage`](/sdks/client/react/billing/usage).

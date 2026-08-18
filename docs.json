@@ -93,7 +93,8 @@
                   "sdks/server/auth/refresh-token",
                   "sdks/server/auth/verify-email",
                   "sdks/server/auth/password-reset",
-                  "sdks/server/auth/config"
+                  "sdks/server/auth/config",
+                  "sdks/server/auth/handoff"
                 ]
               },
               {
@@ -164,7 +165,8 @@
                       "sdks/client/react/auth/register",
                       "sdks/client/react/auth/session",
                       "sdks/client/react/auth/email-verification",
-                      "sdks/client/react/auth/password-reset"
+                      "sdks/client/react/auth/password-reset",
+                      "sdks/client/react/auth/handoff"
                     ]
                   },
                   {
@@ -179,7 +181,19 @@
                   },
                   {
                     "group": "Growth",
-                    "pages": ["sdks/client/react/waitlist", "sdks/client/react/invitations"]
+                    "pages": [
+                      "sdks/client/react/waitlist",
+                      "sdks/client/react/invitations"
+                    ]
+                  },
+                  {
+                    "group": "Prebuilt UI",
+                    "pages": [
+                      "sdks/client/react/ui/overview",
+                      "sdks/client/react/ui/account",
+                      "sdks/client/react/ui/pricing-table",
+                      "sdks/client/react/ui/theming"
+                    ]
                   },
                   "sdks/client/react/components"
                 ]

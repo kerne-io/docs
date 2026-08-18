@@ -44,7 +44,7 @@ A SaaS doesn't need the same access model on day one and at scale. Kerne is buil
     ```tsx
     import { Allows } from '@kerne/react';
 
-    <Allows key="advanced_analytics" fallback={<UpgradePrompt />}>
+    <Allows featureKey="advanced_analytics" fallback={<UpgradePrompt />}>
       <AnalyticsDashboard />
     </Allows>
     ```

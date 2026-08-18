@@ -18,6 +18,7 @@ A hard limit (the "wall") blocks the user's action immediately upon hitting a th
 A soft limit (the "nudge") allows the user to proceed but triggers a notification or overage charge.
 - **Example**: "You have exceeded 10,000 monthly views. We will charge $5 for the next 1,000."
 - **Use for**: Bandwidth, email sends, or usage-based metrics.
+- **How**: set the feature's `overage_behavior` to `BILL` and link a metered price - Kerne forwards and bills the excess for you, no polling or manual invoicing. See [Designing your pricing](/guides/billing/designing-pricing#model-3-hybrid-base-plan-metered-add-on) for the setup.
 
 ## Where to enforce
 
@@ -35,13 +36,13 @@ If the action *is* the usage being counted, use [`consume()`](/sdks/server/entit
 
 ### 2. The client UI (soft limits and UX)
 
-Don't wait for a "Save" click to inform users they've hit a limit - proactively disable buttons or show upgrade nudges, using [`useAllows`](/sdks/client/react/billing/check-entitlement) (which already handles the loading state):
+Don't wait for a "Save" click to inform users they've hit a limit - proactively disable buttons or show upgrade nudges, using [`useAccess`](/sdks/client/react/billing/check-entitlement) (which already handles the loading state):
 
 ```tsx
-import { useAllows } from '@kerne/react';
+import { useAccess } from '@kerne/react';
 
 function AddTeamMember() {
-  const { allowed, isLoading } = useAllows('team_seats');
+  const { allowed, isLoading } = useAccess('team_seats');
 
   return (
     <button disabled={isLoading || !allowed}>

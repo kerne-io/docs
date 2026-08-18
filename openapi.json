@@ -193,6 +193,7 @@
     },
     "/v1/auth/passwordless/start": {
       "post": {
+        "description": "Emails a one-click link for the given address. If the email belongs to an existing user, it's a login link; otherwise, when registration allows it, this creates the account first and the link both confirms the email and logs them in. Always responds identically regardless of outcome.",
         "operationId": "AuthController_startPasswordless",
         "parameters": [],
         "requestBody": {
@@ -222,7 +223,7 @@
             "AppIdentifier": []
           }
         ],
-        "summary": "Start Magic Link login",
+        "summary": "Start passwordless login or signup",
         "tags": [
           "Auth"
         ]
@@ -355,6 +356,148 @@
         ]
       }
     },
+    "/v1/auth/activate": {
+      "get": {
+        "description": "Read-only: tells the caller which UI to render (password form vs magic-link) without consuming the token.",
+        "operationId": "AuthController_getActivationContext",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivationContextResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          }
+        ],
+        "summary": "Get activation context for a token",
+        "tags": [
+          "Auth"
+        ]
+      },
+      "post": {
+        "description": "Sets a password (credentials mode) or simply confirms the account (magic-link mode), then logs the user in.",
+        "operationId": "AuthController_completeActivation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteActivationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          }
+        ],
+        "summary": "Complete account activation",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/handoff": {
+      "post": {
+        "description": "For apps/portal (hosted auth UI, a different origin than the tenant's app_url) to hand its session off after redirecting - the code, not the session itself, travels through the URL.",
+        "operationId": "AuthController_handoff",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandoffResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Mint a one-time cross-origin session handoff code",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/handoff/exchange": {
+      "post": {
+        "description": "Single use: the code is deleted from Redis atomically on the first successful exchange.",
+        "operationId": "AuthController_exchangeHandoff",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandoffExchangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          }
+        ],
+        "summary": "Exchange a handoff code for a session",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/v1/auth/config": {
       "get": {
         "operationId": "AuthController_getAuthConfig",
@@ -386,6 +529,16 @@
       "post": {
         "operationId": "VerificationController_sendVerification",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendVerificationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -690,7 +843,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WaitlistEntryDto"
+                  "$ref": "#/components/schemas/JoinWaitlistResponseDto"
                 }
               }
             }
@@ -970,6 +1123,7 @@
             "name": "immediately",
             "required": false,
             "in": "query",
+            "description": "Omit to resolve from the product billing_config.on_cancel (defaults to end-of-period). Set explicitly to override it for this call.",
             "schema": {
               "type": "string"
             }
@@ -1615,44 +1769,13 @@
     },
     "/v1/pricing/plans": {
       "get": {
-        "description": "Resolves Product.is_default - for tenants with a single product. Requires x-app-id (APP_ID).",
-        "operationId": "PricingController_listPublicPlansForDefaultProduct",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Active plans retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PublicPlanResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "AppIdentifier": []
-          }
-        ],
-        "summary": "List active plans for the tenant's default product",
-        "tags": [
-          "Pricing"
-        ]
-      }
-    },
-    "/v1/pricing/plans/{productIdOrSlug}": {
-      "get": {
-        "description": "Returns available plans with prices and entitlements for public display. Accepts product ID or slug. Requires x-app-id (APP_ID).",
+        "description": "Resolves Product.is_default if no product (id/slug) is provided. Requires x-app-id (APP_ID).",
         "operationId": "PricingController_listPublicPlans",
         "parameters": [
           {
-            "name": "productIdOrSlug",
+            "name": "product",
             "required": true,
-            "in": "path",
+            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -1678,7 +1801,7 @@
             "AppIdentifier": []
           }
         ],
-        "summary": "List active plans for a product",
+        "summary": "List active plans for the default or specified product",
         "tags": [
           "Pricing"
         ]
@@ -1723,6 +1846,10 @@
   ],
   "servers": [
     {
+      "url": "http://localhost:4000",
+      "description": "Development Server"
+    },
+    {
       "url": "https://api.kerne.io",
       "description": "Production Server"
     }
@@ -1757,6 +1884,7 @@
             "description": "User password (minimum 8 characters)",
             "example": "SecurePassword123!",
             "minLength": 8,
+            "maxLength": 128,
             "format": "password"
           },
           "first_name": {
@@ -1808,11 +1936,6 @@
                 "type": "string",
                 "description": "User email address",
                 "example": "user@example.com"
-              },
-              "role": {
-                "type": "string",
-                "description": "User global role",
-                "example": "USER"
               }
             }
           },
@@ -1880,6 +2003,10 @@
           "email": {
             "type": "string",
             "example": "user@example.com"
+          },
+          "callback_url": {
+            "type": "string",
+            "example": "https://app.tenant.com/auth/reset-password"
           }
         },
         "required": [
@@ -1911,7 +2038,8 @@
           "password": {
             "type": "string",
             "example": "NewSecurePassword123!",
-            "minLength": 8
+            "minLength": 8,
+            "maxLength": 128
           }
         },
         "required": [
@@ -1933,6 +2061,7 @@
             "description": "New password (minimum 8 characters)",
             "example": "NewSecurePassword123!",
             "minLength": 8,
+            "maxLength": 128,
             "format": "password"
           }
         },
@@ -1951,6 +2080,14 @@
           "callback_url": {
             "type": "string",
             "example": "https://app.tenant.com/auth/callback"
+          },
+          "invitationToken": {
+            "type": "string",
+            "description": "JWT invitation token received via email"
+          },
+          "invitationCode": {
+            "type": "string",
+            "description": "Short invitation code"
           }
         },
         "required": [
@@ -2006,14 +2143,112 @@
           "email_verified"
         ]
       },
+      "ActivationContextResponseDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "credentials",
+              "magic-link"
+            ],
+            "description": "Which sign-in mode the tenant currently has active - decides what UI to render"
+          }
+        },
+        "required": [
+          "email",
+          "mode"
+        ]
+      },
+      "CompleteActivationDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "password": {
+            "type": "string",
+            "description": "Required only if the tenant currently has credentials sign-in enabled",
+            "example": "SecurePassword123!",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "HandoffResponseDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "One-time opaque code for cross-origin session handoff",
+            "example": "k7F3n2pQ8wZmR1yT9bLxC0aVjHsUdEoI3mNcG5rXfB6hYvW"
+          },
+          "expires_at": {
+            "type": "string",
+            "description": "Code expiration timestamp (ISO) - short-lived, single use",
+            "example": "2025-01-01T00:01:00.000Z"
+          }
+        },
+        "required": [
+          "code",
+          "expires_at"
+        ]
+      },
+      "HandoffExchangeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "One-time code minted by POST /auth/handoff",
+            "example": "k7F3n2pQ8wZmR1yT9bLxC0aVjHsUdEoI3mNcG5rXfB6hYvW"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "PasswordPolicyDto": {
+        "type": "object",
+        "properties": {
+          "min_length": {
+            "type": "number",
+            "description": "Minimum length the server will accept (never below 8)."
+          },
+          "require_uppercase": {
+            "type": "boolean"
+          },
+          "require_number": {
+            "type": "boolean"
+          },
+          "require_symbol": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "min_length",
+          "require_uppercase",
+          "require_number",
+          "require_symbol"
+        ]
+      },
       "AuthConfigDto": {
         "type": "object",
         "properties": {
-          "allow_registration": {
-            "type": "boolean"
-          },
-          "require_invitation": {
-            "type": "boolean"
+          "registration_mode": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "INVITE_ONLY",
+              "CLOSED"
+            ]
           },
           "enable_magic_link": {
             "type": "boolean"
@@ -2027,9 +2262,34 @@
               "type": "string"
             }
           },
+          "show_kerne_branding": {
+            "type": "boolean",
+            "description": "Whether the prebuilt @kerne/react components render \"Powered by Kerne\". Resolved from the owner's platform_kerne_branding entitlement - true when unconfigured."
+          },
+          "brand_primary_color": {
+            "type": "string",
+            "nullable": true,
+            "description": "CSS color value the tenant set for the prebuilt components and hosted portal."
+          },
+          "brand_logo_url": {
+            "type": "string",
+            "nullable": true
+          },
           "callback_url": {
             "type": "string",
             "nullable": true
+          },
+          "use_hosted_portal": {
+            "type": "boolean"
+          },
+          "portal_redirect_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "post_auth_redirect_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where apps/portal hands the session back once auth/billing is done - portal_redirect_url if set, else app_url."
           },
           "user_registration_limit": {
             "type": "number",
@@ -2038,18 +2298,67 @@
           "app_name": {
             "type": "string",
             "nullable": true
+          },
+          "onboarding_dismissed_at": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "access_token_ttl_seconds": {
+            "type": "number",
+            "nullable": true,
+            "description": "Access token TTL in seconds (null = default: 3600s / 1h)"
+          },
+          "refresh_token_ttl_seconds": {
+            "type": "number",
+            "nullable": true,
+            "description": "Refresh token TTL in seconds (null = default: 604800s / 7d)"
+          },
+          "overview_metrics": {
+            "description": "Overview tiles the tenant selected, as BillingStatsDto keys. Empty = never customised, so the dashboard applies its own default set. Filtered server-side against the supported keys.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "password_policy": {
+            "description": "What the server will accept as a password for this tenant. Public so the prebuilt components can state the rules in the form instead of surfacing them through a rejected submit.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PasswordPolicyDto"
+              }
+            ]
           }
         },
         "required": [
-          "allow_registration",
-          "require_invitation",
+          "registration_mode",
           "enable_magic_link",
           "enable_credentials",
           "oauth_providers",
+          "show_kerne_branding",
+          "brand_primary_color",
+          "brand_logo_url",
           "callback_url",
+          "use_hosted_portal",
+          "portal_redirect_url",
+          "post_auth_redirect_url",
           "user_registration_limit",
-          "app_name"
+          "app_name",
+          "onboarding_dismissed_at",
+          "access_token_ttl_seconds",
+          "refresh_token_ttl_seconds",
+          "overview_metrics",
+          "password_policy"
         ]
+      },
+      "SendVerificationDto": {
+        "type": "object",
+        "properties": {
+          "callback_url": {
+            "type": "string",
+            "example": "https://app.tenant.com/auth/verify-email"
+          }
+        }
       },
       "VerifyCodeDto": {
         "type": "object",
@@ -2126,6 +2435,14 @@
             "description": "Expiration date for the invitation code (ISO 8601 format). Null or omitted means no expiration",
             "example": "2025-12-31T23:59:59.000Z",
             "format": "date-time"
+          },
+          "maxUses": {
+            "type": "number",
+            "description": "How many times this code can be redeemed before it stops working. Defaults to 1 (single-use).",
+            "example": 1,
+            "default": 1,
+            "minimum": 1,
+            "maximum": 1000
           }
         }
       },
@@ -2139,11 +2456,15 @@
             "format": "date-time",
             "type": "string",
             "nullable": true
+          },
+          "maxUses": {
+            "type": "number"
           }
         },
         "required": [
           "code",
-          "expiresAt"
+          "expiresAt",
+          "maxUses"
         ]
       },
       "InvitationTokenEntryDto": {
@@ -2333,6 +2654,17 @@
           "email"
         ]
       },
+      "JoinWaitlistResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
       "WaitlistEntryDto": {
         "type": "object",
         "properties": {
@@ -2511,6 +2843,10 @@
           "feature_type": {
             "type": "string"
           },
+          "feature_unit_label": {
+            "type": "string",
+            "nullable": true
+          },
           "limit": {
             "type": "number",
             "nullable": true
@@ -2523,8 +2859,17 @@
             "type": "string",
             "enum": [
               "BLOCK",
-              "ALLOW"
+              "ALLOW",
+              "BILL"
             ]
+          },
+          "overage_value": {
+            "type": "string",
+            "nullable": true
+          },
+          "overage_cap_amount": {
+            "type": "number",
+            "nullable": true
           },
           "overage_rate": {
             "type": "number",
@@ -2536,9 +2881,12 @@
           "feature_key",
           "feature_name",
           "feature_type",
+          "feature_unit_label",
           "limit",
           "value",
           "overage",
+          "overage_value",
+          "overage_cap_amount",
           "overage_rate"
         ]
       },
@@ -2564,6 +2912,14 @@
             "type": "string"
           },
           "pack_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "pending_plan_price_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "pending_pack_id": {
             "type": "string",
             "nullable": true
           },
@@ -2654,6 +3010,8 @@
           "scope_id",
           "plan_price_id",
           "pack_id",
+          "pending_plan_price_id",
+          "pending_pack_id",
           "provider",
           "provider_subscription_id",
           "provider_customer_id",
@@ -2694,6 +3052,14 @@
             "type": "string"
           },
           "pack_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "pending_plan_price_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "pending_pack_id": {
             "type": "string",
             "nullable": true
           },
@@ -2769,6 +3135,8 @@
           "scope_id",
           "plan_price_id",
           "pack_id",
+          "pending_plan_price_id",
+          "pending_pack_id",
           "provider",
           "provider_subscription_id",
           "provider_customer_id",
@@ -3169,6 +3537,19 @@
           },
           "cancel_url": {
             "type": "string"
+          },
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "description": "Required when scope_id has no matching Kerne User row (external scope)."
           }
         },
         "required": [
@@ -3191,8 +3572,41 @@
         "properties": {
           "return_url": {
             "type": "string"
+          },
+          "scope_type": {
+            "type": "string",
+            "enum": [
+              "USER"
+            ]
+          },
+          "scope_id": {
+            "type": "string"
           }
         }
+      },
+      "PublicPriceLabelSummaryDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "number"
+          },
+          "display_interval": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "sort_order",
+          "display_interval"
+        ]
       },
       "PublicPlanPriceSummaryDto": {
         "type": "object",
@@ -3212,6 +3626,9 @@
           "trial_days": {
             "type": "number",
             "nullable": true
+          },
+          "label": {
+            "$ref": "#/components/schemas/PublicPriceLabelSummaryDto"
           }
         },
         "required": [
@@ -3219,7 +3636,8 @@
           "amount",
           "currency",
           "interval",
-          "trial_days"
+          "trial_days",
+          "label"
         ]
       },
       "PublicPlanEntitlementSummaryDto": {

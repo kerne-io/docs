@@ -16,6 +16,10 @@ Product  →  Plan  →  PlanPrice        (what you sell, and how you charge for
 - **PlanPrice** - a specific billing option for a plan (monthly, yearly, a specific currency). Maps to a Stripe/Polar price. A plan can have several.
 - **Pack** - the actual set of feature entitlements attached to a plan, and the piece that makes grandfathering automatic (see below).
 
+## Naming a plan's prices
+
+Once a plan has more than one price, each one gets a **label** ("Monthly", "Annual", "Early bird") so a pricing page knows what to call it and which ones belong together across plans - "the annual price" is the same label on every plan, which is what lets a single toggle switch the whole page at once. Set it when you create the price in the dashboard; [`<PricingTable>`](/sdks/client/react/ui/pricing-table) reads it to build that toggle for you, including the "Save 20%" hint when an annual price is genuinely cheaper per month than the monthly one.
+
 ## Why Pack exists: grandfathering by default
 
 When a subscriber signs up, their subscription pins the plan's **currently-active pack** - not a live reference to "whatever the Pro plan currently includes." If you later publish a new pack version for the Pro plan (raise a quota, add a feature), that change only applies to *new* subscribers. Everyone already on Pro keeps exactly what they signed up for, forever - until you explicitly migrate them.

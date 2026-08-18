@@ -1,0 +1,88 @@
+---
+title: 'Account screens'
+description: 'Profile, plan, usage and the paywall - as one screen or separate blocks'
+---
+
+`<UserProfile>` is the whole account area: a sidebar and three tabs.
+
+```tsx
+import { UserProfile } from '@kerne/react/ui';
+
+<UserProfile />;
+```
+
+| Tab | Contains |
+| --- | --- |
+| Profile | Name, and the email address with its verification state |
+| Security | Password, delete account |
+| Billing | Current plan, usage meters, plan switcher |
+
+Show only the tabs you need:
+
+```tsx
+<UserProfile tabs={['profile', 'security']} />
+```
+
+Add your own:
+
+```tsx
+<UserProfile
+  extraTabs={[{ id: 'team', label: 'Team', content: <TeamSettings /> }]}
+/>
+```
+
+To drive tabs from your router, pass `activeTab` and `onTabChange`.
+
+## Using the blocks on their own
+
+If you already have a settings page, mount just the part you want. Each one works standalone:
+
+```tsx
+import { SubscriptionCard, UsageMeters, ChangePasswordForm } from '@kerne/react/ui';
+
+<SubscriptionCard portalReturnUrl="/settings" />
+<UsageMeters />
+<ChangePasswordForm />
+```
+
+### `<UsageMeters>`
+
+Shows what has been consumed against the plan's limits. It only meters what can be metered: features with no ceiling are hidden, and the rows closest to their limit come first, so what is about to run out is at the top.
+
+```tsx
+<UsageMeters featureKeys={['api_calls', 'team_seats']} />
+```
+
+Pass `labels` if your feature keys are not the wording you want users to read:
+
+```tsx
+<UsageMeters labels={{ api_calls: 'Requests' }} />
+```
+
+### `<SubscriptionCard>`
+
+Current plan, price, renewal date, and a button through to your payment provider's portal. Renders a real "you are on the free plan" state rather than nothing when there is no subscription.
+
+## Paywalling a feature
+
+`<UpgradePrompt>` renders your feature when the user is entitled to it, and an upgrade message when they are not:
+
+```tsx
+import { UpgradePrompt } from '@kerne/react/ui';
+
+<UpgradePrompt featureKey="advanced_analytics" upgradeUrl="/pricing">
+  <AnalyticsDashboard />
+</UpgradePrompt>;
+```
+
+The message follows the reason. Someone who ran out of a monthly quota sees a different sentence from someone whose plan never included the feature — telling the first to upgrade when they only need to wait for the reset is a good way to lose them.
+
+## After checkout
+
+`<CheckoutResult>` goes on the URLs you set as your checkout success and cancel callbacks:
+
+```tsx
+<CheckoutResult outcome="success" continueUrl="/dashboard" />
+```
+
+It confirms the subscription really exists before saying so. Coming back from Stripe or Polar only means the payment went through on their side — the subscription lands a moment later, over a webhook. This waits for it instead of announcing a success the rest of your app cannot see yet.

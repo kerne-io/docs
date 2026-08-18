@@ -23,4 +23,4 @@ Omit `featureKey` to get every QUOTA feature's current usage record in one call:
 const { usage } = useUsage();
 ```
 
-Each record: `{ id, feature_key, value, period_start, period_end, status, ... }` - one per feature per open billing period. For the derived `remaining`/`limit` view (accounting for overrides and rollover), prefer [`useCheck`](/sdks/client/react/billing/check-entitlement) or [`useEntitlements`](/sdks/client/react/billing/entitlements-list) - this hook is the raw counter.
+Each record: `{ id, feature_key, value, period_start, period_end, status, ... }` - one per feature per open billing period. For the derived `remaining`/`limit` view (accounting for overrides and rollover), prefer [`useAccess`](/sdks/client/react/billing/check-entitlement) or [`useEntitlements`](/sdks/client/react/billing/entitlements-list) - this hook is the raw counter.
