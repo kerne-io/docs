@@ -16,7 +16,7 @@ const { url } = await kerne.billing.checkout(planPriceId, {
 This takes a **`plan_price_id`**, not a plan id - it identifies the specific billing variant (monthly vs. yearly, currency). Sending a plan id here fails with a validation error.
 </Warning>
 
-The session is created for the caller's own identity (from their JWT) - this isn't something a secret-key-only backend does on behalf of an arbitrary scope; it's the checkout flow your frontend triggers for the logged-in user (typically proxied through your backend using their own token, see [`withToken()`](/sdks/server/users/me)).
+The session is created for the caller's own identity (from their JWT) - this isn't something a secret-key-only backend does on behalf of an arbitrary subject; it's the checkout flow your frontend triggers for the logged-in user (typically proxied through your backend using their own token, see [`withToken()`](/sdks/server/users/me)).
 
 The subscription itself is created asynchronously once the provider (Stripe/Polar) confirms payment - not synchronously when this call returns.
 

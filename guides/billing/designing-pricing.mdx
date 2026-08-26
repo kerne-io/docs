@@ -5,52 +5,110 @@ description: "From simple subscriptions to usage-based models"
 
 A well-designed pricing model is scalable, easy to understand, and maps directly to your code. Kerne allows you to iterate on pricing without rewriting your application logic.
 
-## The core concepts
+## Two separate decisions
 
-1.  **Entitlements (Features)**: What the user *gets* (e.g., "Can export PDF").
-2.  **Plans (Tiers)**: A bundle of entitlements (e.g., "Pro Plan").
-3.  **Prices (Billing)**: How much they pay for the plan (e.g., "$29/mo").
+Pricing design is really two independent questions, and it's worth keeping them apart because they get configured in different places and don't have to move together:
+
+1.  **Bundling** — which features does each plan include? This is what makes "Free" different from "Pro". It's a per-*plan* question.
+2.  **Metering** — for any one feature that has a countable allowance, what happens once someone uses more than what's included? This is a per-*feature* question, and the answer can be different for every feature, on every plan. A plan can mix a feature that hard-stops with one that bills overage with one that's free forever.
+
+**Entitlements (features)** are what a subject *gets*. **Plans** bundle entitlements together. **Prices** are how much a plan costs. Your code should always check the entitlement, never the plan name:
 
 <Tip>
-**Golden Rule**: Your code should check **entitlements**, never plans.
 *   **Bad**: `if (user.plan === 'pro')`
-*   **Good**: `if (await kerne.allows('export_pdf', { scope: userId }))`
+*   **Good**: `if (await kerne.allows('export_pdf', { subject: userId }))`
 </Tip>
 
-## Model 1: The "Good-Better-Best" (Flat Rate)
+## Decision 1: Bundling — what's on each plan
 
-This is the standard SaaS model.
-- **Free**: Limited features.
-- **Pro**: All features.
+The standard "Good-Better-Best" shape: every plan is a different bundle of entitlements, and most of them are simple booleans or a shared numeric limit.
 
-**Implementation**:
 1.  Create features: `can_access_dashboard`, `can_invite_members`.
 2.  Create plans:
     - **Free Plan**: Includes `can_access_dashboard`.
     - **Pro Plan**: Includes `can_access_dashboard` + `can_invite_members`.
 
-## Model 2: The "Pay-as-you-go" (Usage Based)
+That's it for boolean features. A numeric feature (seats, projects, usage) also needs a metering decision — that's Decision 2, and it's set per feature, per plan, independently of what else is on that plan.
 
-Charge based on consumption (e.g., API calls, emails sent).
+## Decision 2: Metering — what happens past the included amount
 
-**Implementation**:
-1.  Create a feature `emails_sent` with type **Quota**.
-2.  Set the **Reset Policy**:
-    - `RESET`: Counter resets every month (e.g., "1000 emails/mo included").
-    - `ACCUMULATE`: Credits roll over (e.g., "Pre-paid email credits").
-3.  Report usage via the SDK:
-    ```typescript
-    await kerne.reportUsage('emails_sent', { scope: userId, delta: 1 });
-    ```
+For any feature with a numeric allowance, pick one of three behaviors once it's used up. Nothing here is "more advanced" than the others — they're three different answers to the same question, and which one fits depends on what you're selling, not on how sophisticated your pricing looks.
 
-## Model 3: Hybrid (base plan + metered add-on)
+### Option A: Stop there — a hard limit, never billed
 
-A flat monthly fee plus a per-unit metered feature - e.g. $20/mo base, then $0.01/email past what's included. Model it as one plan with two entitlements: a boolean/static one for the base tier, and a `QUOTA` one for the metered part, set to `overage: BILL` (see [Usage billing](/concepts/monetization/usage-billing) for the whole model, including per-machine and per-project variants).
+Nobody pays their way past this. The plan simply refuses once the allowance is gone. This is **not** usage-based pricing — nothing is ever charged for going over, because going over isn't allowed. Right for things a customer should decide to buy more of by upgrading, not discover as a surprise line on an invoice: seats, projects, connected devices.
 
-**Setup, in order:**
+1. Create a feature `team_seats` with type **Quota**. A seat is a standing count rather than a monthly consumption, so set it to **never renew** instead of resetting each period.
+2. On the plan, set the allowance to `5` and choose to stop access past it.
+3. Gate the action with [`consume()`](/sdks/server/entitlements/consume), which checks and increments atomically:
 
-1. In Stripe, create a metered price on the product you're billing through Kerne — per-unit or tiered, Kerne pushes units and Stripe prices them. The one restriction: a **tiered price can't carry a spending cap**, since a cap is inverted into a unit ceiling and tiers have no single rate.
-2. In the dashboard, under **Catalog → Plans**, open the entitlement and set **At the limit** to **Bill - charge the excess**, then pick that price under **Metered price**. The rate is read from Stripe, never typed in - if you change the price later, create a new one in Stripe and repoint the entitlement to it.
-3. Optionally set a **Billing cap per period** (a money ceiling, e.g. "never bill past €150/month" - past it, usage still counts but stops being forwarded). Leave it empty for a metered add-on meant to scale freely.
+```typescript
+const { allowed } = await kerne.consume('team_seats', { subject: orgId });
+if (!allowed) return res.status(403).json({ error: 'Seat limit reached' });
+```
 
-From there it's automatic: usage past the included amount gets forwarded to that Stripe price and shows up on the customer's next invoice. Nothing to poll or reconcile yourself - if you want to show the customer what they're about to be charged, read their current usage with [`useUsage`](/sdks/client/react/billing/usage).
+Removing a member gives the seat back: `kerne.admin.adjustUsage('team_seats', { subject: orgId, delta: -1 })`. A counter that never renews is the one place that matters — a per-period quota would have cleared itself anyway.
+
+### Option B: Keep going and charge for it — pay-as-you-go past the included amount
+
+The same feature, the opposite choice: past the included amount the customer keeps going and you bill the excess. This is "$20/mo base, then $0.01 per email past 10,000" — genuinely usage-based, unlike Option A.
+
+1. Open that feature's cell on the plan and choose to keep serving past the allowance and charge for it.
+2. Write the rate the way you sell it — `0.01 EUR per message`, or `5.00 EUR per 1,000` if that's the quantity you price by. Kerne creates the meter and its price at Stripe; you never leave for the Stripe dashboard and never copy an id back.
+3. Optionally add a spending cap — a ceiling in money. Past it usage still counts and still works, it just stops being billed. Leave it empty for an add-on meant to scale freely.
+
+From there it's automatic: usage past the included amount reaches the customer's next invoice with nothing to poll or reconcile. To show them what they're about to be charged, read their current usage with [`useUsage`](/sdks/client/react/billing/usage).
+
+Rates aren't limited to one number. The quantity you sell by, a schedule of tiers, and whether a tier reprices everything or only its own slice are all part of the same rate — see [Usage billing](/concepts/monetization/usage-billing#the-rate).
+
+### Option C: Scope the allowance to something inside the account
+
+Orthogonal to A and B, not a third alternative to them: the customer is one payer, but the thing you meter isn't one pool — per machine, per project, per seat, per one of *their* clients. Declare what the feature is counted by, then apply Option A or B on top, and choose whether the allowance and the ceiling are shared across the account or per slice.
+
+```typescript
+await kerne.consume('compute_minutes', {
+  subject: customerId,
+  dimension: 'project_7',
+  delta: 60,
+});
+```
+
+"1,000 credits per user, then billed, never past 20 € per user" and "one shared pool of 200 hours, never past 120 € in total" are the same feature with two different plan settings. See [per machine, per project, per seat](/concepts/monetization/usage-billing#per-machine-per-project-per-seat).
+
+## Add-ons
+
+A subject holds **one live subscription at a time** — one payer, one plan. That is enforced in the database, and it is the first thing to know before designing an add-on, because it rules out the shape most people reach for: an add-on is never a second subscription sitting next to the first.
+
+It is one of these instead:
+
+<CardGroup cols={3}>
+  <Card title="A metered feature" icon="gauge">
+    Nothing included, a rate, no cap. The customer pays for exactly what they turn on, and it reaches the same invoice. This is the usual answer.
+  </Card>
+  <Card title="A plan variant" icon="layer-group">
+    Two plans that differ by one entitlement. Right when the add-on is a lasting choice rather than something toggled.
+  </Card>
+  <Card title="An override" icon="user-pen">
+    A negotiated extra on one account, outside the catalog. For deals, not for a product line.
+  </Card>
+</CardGroup>
+
+The first covers most add-ons and needs nothing new — it is [Model 3](#model-3-included-allowance-then-charge-for-it) with an allowance of `0` and the ceiling left empty. Combine it with [Model 4](#model-4-priced-per-something-inside-the-account) when the add-on is bought per project or per seat rather than once per account.
+
+<Note>
+  Because add-ons ride the subscription rather than sitting beside it, a plan change carries them along: switching plans re-pins entitlements to the new plan, so an add-on that exists on one plan and not the other stops with the switch. Model an add-on you intend to survive a plan change as a feature present on every plan, with a different allowance.
+</Note>
+
+## Which shape fits
+
+| What you sell | Included | Past it | Ceiling |
+| --- | --- | --- | --- |
+| Team seats | 5 | access stops | — |
+| Transactional email | 10,000 | charge 0.01 EUR each | — |
+| Laser-cutter time | 0 | charge 0.35 EUR per 60 minutes | never past 120 EUR a month |
+| Model calls | 1,000,000 tokens | charge 2.00 EUR per 1,000,000 | — |
+| Object storage | 100 GB | charge 0.10 EUR per GB | cut off at 1,000 GB |
+
+<Note>
+  A quota that gets billed has to restart at zero each period. "Unused allowance carries over" and "bill the excess" together would charge last period's units again, so the two can't be combined.
+</Note>

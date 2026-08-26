@@ -1004,7 +1004,7 @@
         "operationId": "BillingController_listSubscriptions",
         "parameters": [
           {
-            "name": "scope_type",
+            "name": "subject_type",
             "required": false,
             "in": "query",
             "schema": {
@@ -1160,7 +1160,7 @@
         "operationId": "BillingController_getEntitlements",
         "parameters": [
           {
-            "name": "scope_id",
+            "name": "subject_id",
             "required": false,
             "in": "query",
             "schema": {
@@ -1199,7 +1199,7 @@
         "operationId": "BillingController_listOverrides",
         "parameters": [
           {
-            "name": "scope_id",
+            "name": "subject_id",
             "required": false,
             "in": "query",
             "schema": {
@@ -1207,7 +1207,7 @@
             }
           },
           {
-            "name": "scope_type",
+            "name": "subject_type",
             "required": false,
             "in": "query",
             "schema": {
@@ -1377,7 +1377,7 @@
             }
           },
           {
-            "name": "scope_id",
+            "name": "subject_id",
             "required": false,
             "in": "query",
             "schema": {
@@ -1386,6 +1386,14 @@
           },
           {
             "name": "requested",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dimension_id",
             "required": false,
             "in": "query",
             "schema": {
@@ -1424,7 +1432,7 @@
         "operationId": "BillingController_getUsage",
         "parameters": [
           {
-            "name": "scope_id",
+            "name": "subject_id",
             "required": false,
             "in": "query",
             "schema": {
@@ -1643,7 +1651,7 @@
             }
           },
           {
-            "name": "scope_id",
+            "name": "subject_id",
             "required": false,
             "in": "query",
             "schema": {
@@ -2863,6 +2871,20 @@
               "BILL"
             ]
           },
+          "limit_binding": {
+            "type": "string",
+            "enum": [
+              "SUBJECT",
+              "DIMENSION"
+            ]
+          },
+          "cap_binding": {
+            "type": "string",
+            "enum": [
+              "SUBJECT",
+              "DIMENSION"
+            ]
+          },
           "overage_value": {
             "type": "string",
             "nullable": true
@@ -2874,6 +2896,17 @@
           "overage_rate": {
             "type": "number",
             "nullable": true
+          },
+          "billed_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "cap_reached": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -2885,9 +2918,14 @@
           "limit",
           "value",
           "overage",
+          "limit_binding",
+          "cap_binding",
           "overage_value",
           "overage_cap_amount",
-          "overage_rate"
+          "overage_rate",
+          "billed_amount",
+          "currency",
+          "cap_reached"
         ]
       },
       "SubscriptionWithPlanResponseDto": {
@@ -2899,13 +2937,13 @@
           "tenant_id": {
             "type": "string"
           },
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "plan_price_id": {
@@ -3006,8 +3044,8 @@
         "required": [
           "id",
           "tenant_id",
-          "scope_type",
-          "scope_id",
+          "subject_type",
+          "subject_id",
           "plan_price_id",
           "pack_id",
           "pending_plan_price_id",
@@ -3039,13 +3077,13 @@
           "tenant_id": {
             "type": "string"
           },
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "plan_price_id": {
@@ -3131,8 +3169,8 @@
         "required": [
           "id",
           "tenant_id",
-          "scope_type",
-          "scope_id",
+          "subject_type",
+          "subject_id",
           "plan_price_id",
           "pack_id",
           "pending_plan_price_id",
@@ -3193,7 +3231,7 @@
       "EntitlementsResponseDto": {
         "type": "object",
         "properties": {
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "subscription_id": {
@@ -3216,7 +3254,7 @@
           }
         },
         "required": [
-          "scope_id",
+          "subject_id",
           "subscription_id",
           "subscription_status",
           "plan_slug",
@@ -3232,7 +3270,7 @@
           "tenant_id": {
             "type": "string"
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "feature_id": {
@@ -3276,7 +3314,7 @@
         "required": [
           "id",
           "tenant_id",
-          "scope_id",
+          "subject_id",
           "feature_id",
           "feature_key",
           "feature_name",
@@ -3292,13 +3330,13 @@
       "CreateOverrideDto": {
         "type": "object",
         "properties": {
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "feature_key": {
@@ -3315,7 +3353,7 @@
           }
         },
         "required": [
-          "scope_id",
+          "subject_id",
           "feature_key"
         ]
       },
@@ -3363,6 +3401,10 @@
           "overage_behavior": {
             "type": "string"
           },
+          "access_limit": {
+            "type": "number",
+            "nullable": true
+          },
           "value": {
             "type": "object"
           },
@@ -3393,7 +3435,7 @@
             "type": "string",
             "nullable": true
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "feature_id": {
@@ -3445,13 +3487,13 @@
       "ReportUsageDto": {
         "type": "object",
         "properties": {
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "feature_key": {
@@ -3475,7 +3517,7 @@
           }
         },
         "required": [
-          "scope_id",
+          "subject_id",
           "feature_key"
         ]
       },
@@ -3490,13 +3532,13 @@
       "AdjustUsageDto": {
         "type": "object",
         "properties": {
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "feature_key": {
@@ -3510,7 +3552,7 @@
           }
         },
         "required": [
-          "scope_id",
+          "subject_id",
           "feature_key",
           "delta"
         ]
@@ -3522,6 +3564,9 @@
             "type": "number"
           },
           "idempotency_key": {
+            "type": "string"
+          },
+          "dimension_id": {
             "type": "string"
           }
         }
@@ -3538,18 +3583,18 @@
           "cancel_url": {
             "type": "string"
           },
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           },
           "email": {
             "type": "string",
-            "description": "Required when scope_id has no matching Kerne User row (external scope)."
+            "description": "Required when subject_id has no matching Kerne User row (external subject)."
           }
         },
         "required": [
@@ -3573,13 +3618,13 @@
           "return_url": {
             "type": "string"
           },
-          "scope_type": {
+          "subject_type": {
             "type": "string",
             "enum": [
               "USER"
             ]
           },
-          "scope_id": {
+          "subject_id": {
             "type": "string"
           }
         }

@@ -3,12 +3,12 @@ title: "Overrides"
 description: "grant / listGrants / revokeGrant"
 ---
 
-An entitlement override replaces a scope's **limit** for a feature - "this customer has a 1,000/mo deal" - and renews every period exactly like the plan's own limit would, until it expires (or forever, if you don't set an expiry). It has no effect on period boundaries, resets, or rollover - only the limit itself.
+An entitlement override replaces a subject's **limit** for a feature - "this customer has a 1,000/mo deal" - and renews every period exactly like the plan's own limit would, until it expires (or forever, if you don't set an expiry). It has no effect on period boundaries, resets, or rollover - only the limit itself.
 
 ```typescript
-// Grant - creates one, or updates it if this scope+feature already has one
+// Grant - creates one, or updates it if this subject+feature already has one
 await kerne.admin.grant('api_calls', {
-  scope: userId,
+  subject: userId,
   value: '50000',           // same encoding as a normal entitlement value
   reason: 'Annual contract - negotiated limit',
   expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
@@ -16,7 +16,7 @@ await kerne.admin.grant('api_calls', {
 
 // List
 const grants = await kerne.admin.listGrants();          // every override in the tenant
-const forUser = await kerne.admin.listGrants(userId);   // just this scope
+const forUser = await kerne.admin.listGrants(userId);   // just this subject
 
 // Revoke
 await kerne.admin.revokeGrant(overrideId);

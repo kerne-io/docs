@@ -1,6 +1,6 @@
 ---
-title: "Portal & cancel"
-description: "Customer billing portal and subscription cancellation"
+title: "Portal, cancel & change plan"
+description: "Customer billing portal, subscription cancellation and plan switching"
 ---
 
 ## Billing portal
@@ -19,8 +19,33 @@ If you don't pass `returnUrl`, it's resolved the same cascading way as checkout'
 // Cancel the caller's own active subscription
 await kerne.billing.cancel({ immediately: false }); // false = at period end (default)
 
-// Cancel a specific subscription (admin, any scope)
+// Cancel a specific subscription (admin, any subject)
 await kerne.billing.subscriptions.cancel(subscriptionId, /* immediately */ true);
 ```
 
 `immediately: false` keeps access through the current period's end - the common choice, since an abrupt cutoff mid-period is rarely what you want for a self-service cancel.
+
+Either way the subscription row survives with status `canceled`. Cancelling is not deleting: the billing history stays readable, and the subject can subscribe again without losing what came before.
+
+<Note>
+  The provider is told first, then Kerne. A cancellation really stops the next invoice rather than only closing off access on our side - which is the failure mode this ordering exists to prevent.
+</Note>
+
+## Change plan
+
+```typescript
+await kerne.billing.subscriptions.changePlanPrice(subscriptionId, nextPlanPriceId);
+
+// Skip the provider settling the difference, and just charge the new price next invoice
+await kerne.billing.subscriptions.changePlanPrice(subscriptionId, nextPlanPriceId, {
+  prorationBehavior: 'none',
+});
+```
+
+The swap is **immediate**, upgrade or downgrade alike, and the provider prorates by default.
+
+The subscription's entitlements move with it: `changePlanPrice()` re-pins the pack, so what the subject is allowed to do reflects the new plan on the next check. Deferring a downgrade to the end of the period is not supported yet - see [Products & plans](/concepts/monetization/products-and-plans) for how a pack is pinned in the first place.
+
+<Warning>
+  The second argument is a **`plan_price_id`** - a specific billing variant (monthly vs. yearly), not a plan id.
+</Warning>

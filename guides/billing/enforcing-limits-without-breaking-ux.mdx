@@ -18,7 +18,8 @@ A hard limit (the "wall") blocks the user's action immediately upon hitting a th
 A soft limit (the "nudge") allows the user to proceed but triggers a notification or overage charge.
 - **Example**: "You have exceeded 10,000 monthly views. We will charge $5 for the next 1,000."
 - **Use for**: Bandwidth, email sends, or usage-based metrics.
-- **How**: set the feature's `overage_behavior` to `BILL` and link a metered price - Kerne forwards and bills the excess for you, no polling or manual invoicing. See [Designing your pricing](/guides/billing/designing-pricing#model-3-hybrid-base-plan-metered-add-on) for the setup.
+- **How**: on the plan, choose to keep serving past the allowance and charge for it, then write the rate - Kerne meters and bills the excess for you, no polling or manual invoicing. See [Designing your pricing](/guides/billing/designing-pricing#model-3-included-allowance-then-charge-for-it) for the setup.
+- **The ceiling that isn't a limit**: a *money* ceiling stops the charging, never the service. If you want consumption to actually stop, that's a separate ceiling in units - see [Usage billing](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
 
 ## Where to enforce
 
@@ -27,7 +28,7 @@ A soft limit (the "nudge") allows the user to proceed but triggers a notificatio
 The safest place to enforce limits is your API layer - use `enforce()` if a thrown error fits your middleware pattern, or `allows()` if you'd rather branch yourself:
 
 ```typescript
-if (!(await kerne.allows('api_calls', { scope: userId }))) {
+if (!(await kerne.allows('api_calls', { subject: userId }))) {
   throw new ForbiddenError('You have reached your monthly API quota.');
 }
 ```

@@ -1,9 +1,9 @@
 ---
 title: 'Check an entitlement'
-description: 'useAccess and <Allows> - all scoped to the logged-in user automatically'
+description: 'useAccess and <Access> - all scoped to the logged-in user automatically'
 ---
 
-Unlike the server SDK, there's no `scope` parameter here - the client always checks the currently authenticated user, resolved from their own session.
+Unlike the server SDK, there's no subject parameter here - the client always checks the currently authenticated user, resolved from their own session.
 
 ## The hook
 
@@ -42,21 +42,25 @@ function ApiCallsMeter() {
 }
 ```
 
+<Note>
+  `details.limit` is what the plan **includes**, not where access stops. On a feature that bills or tolerates its overage, `remaining` runs down to zero and then goes negative while `allowed` stays `true` — the user hasn't hit a wall, they've started paying. Read `details.overage_behavior` before rendering "you have reached your limit", and clamp `remaining` before showing it.
+</Note>
+
 ## The guard component
 
-`<Allows>` wraps `useAccess` for declarative gating:
+`<Access>` wraps `useAccess` for declarative gating:
 
 ```tsx
-import { Allows } from '@kerne/react';
+import { Access } from '@kerne/react';
 
-<Allows featureKey="export_pdf" fallback={<UpgradePrompt />}>
+<Access featureKey="export_pdf" fallback={<UpgradePrompt />}>
   <button onClick={exportPdf}>Export</button>
-</Allows>;
+</Access>;
 ```
 
 ## Lower-level: `useClient().allows()` / `.check()`
 
-`useAccess` and `<Allows>` call these internally on the underlying `KerneClient` - reach for them directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
+`useAccess` and `<Access>` call these internally on the underlying `KerneClient` - reach for them directly only if you need to trigger a check imperatively (e.g. on a button click, not on mount):
 
 ```tsx
 import { useClient } from '@kerne/react';

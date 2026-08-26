@@ -3,6 +3,8 @@ title: "Quickstart"
 description: "Deploy your first monetized app in under 5 minutes"
 ---
 
+This gets one feature gated behind a real subscription, end to end: sign a user up, check what they're entitled to, gate a button on it. Kerne sits in front of the Stripe account you connect - Stripe still moves the money, Kerne decides who's allowed to do what.
+
 ## Prerequisites
 
 - Node.js 18 or later
@@ -85,11 +87,11 @@ function LoginForm() {
 
 ## 5. Gate a feature behind an entitlement
 
-On the server, `scope` identifies *whose* entitlement you're checking - with a secret key there's no "current user", so you always pass it explicitly (it's whatever id you used as `scope_id` when creating the subscription, typically your own user id):
+On the server, `subject` says whose entitlement you're checking - with a secret key there's no "current user", so you always pass it explicitly (it's whatever id you used as `subject_id` when creating the subscription, typically your own user id):
 
 <CodeGroup>
 ```typescript Server
-const canExport = await kerne.allows('export_pdf', { scope: user.id });
+const canExport = await kerne.allows('export_pdf', { subject: user.id });
 
 if (!canExport) {
   throw new Error('Upgrade required');
@@ -97,19 +99,19 @@ if (!canExport) {
 ```
 
 ```tsx Client
-import { Allows } from '@kerne/react';
+import { Access } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <Allows featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
+    <Access featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
       <button onClick={exportPdf}>Export as PDF</button>
-    </Allows>
+    </Access>
   );
 }
 ```
 </CodeGroup>
 
-On the client, `Allows` (and the `useAccess` hook) check the *logged-in* user automatically - no scope needed, the SDK already knows who's authenticated.
+On the client, `Access` (and the `useAccess` hook) check the *logged-in* user automatically - no subject to pass, the SDK already knows who's authenticated.
 
 ## Next steps
 

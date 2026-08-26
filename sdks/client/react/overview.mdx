@@ -37,16 +37,16 @@ function Root() {
 
 ## Gating a feature
 
-The guard components (`<Allows>`, `<Authenticated>`, `<Protected>`, ...) wrap the same hooks so you don't hand-roll loading/error state yourself - see [Guard components](/sdks/client/react/components):
+The guard components (`<Access>`, `<Authenticated>`, `<Protected>`, ...) wrap the same hooks so you don't hand-roll loading/error state yourself - see [Guard components](/sdks/client/react/components):
 
 ```tsx
-import { Allows } from '@kerne/react';
+import { Access } from '@kerne/react';
 
 function ExportButton() {
   return (
-    <Allows featureKey="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
+    <Access featureKey="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
       <button>Export Data</button>
-    </Allows>
+    </Access>
   );
 }
 ```

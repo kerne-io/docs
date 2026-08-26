@@ -8,14 +8,14 @@ This guide shows the standard pattern for gating a feature - see [Entitlements](
 
 ## Server-side (the check that actually matters)
 
-`userId` here is whatever you used as `scope_id` when the user's subscription was created - typically your own database id for that user, read from the authenticated request (a session, a JWT, whatever your app already uses):
+`userId` here is whatever you used as `subject_id` when the user's subscription was created - typically your own database id for that user, read from the authenticated request (a session, a JWT, whatever your app already uses):
 
 ```typescript
 // e.g. an Express/Next.js route handler
 async function exportReport(req, res) {
   const userId = req.user.id; // from your own auth middleware, not Kerne's
 
-  if (!(await kerne.allows('advanced_analytics', { scope: userId }))) {
+  if (!(await kerne.allows('advanced_analytics', { subject: userId }))) {
     return res.status(403).json({ error: 'Upgrade required to export reports.' });
   }
 
@@ -36,14 +36,14 @@ const canConsume = await kerneAsUser.allows('api_calls', { requested: 1 });
 ## Client-side (for UI, not security)
 
 ```tsx
-import { Allows } from '@kerne/react';
+import { Access } from '@kerne/react';
 
-<Allows featureKey="advanced_analytics" fallback={<UpgradeBanner />}>
+<Access featureKey="advanced_analytics" fallback={<UpgradeBanner />}>
   <AnalyticsDashboard />
-</Allows>
+</Access>
 ```
 
-`<Allows>` (and the `useAccess` hook underneath it) already handles the loading state and scopes to the logged-in user - no need to hand-roll a `useEffect`/`useState` wrapper around `client.allows()` yourself.
+`<Access>` (and the `useAccess` hook underneath it) already handles the loading state and scopes to the logged-in user - no need to hand-roll a `useEffect`/`useState` wrapper around `client.allows()` yourself.
 
 <Warning>
 A client-side check is a UX convenience, never a security boundary - anyone can bypass it by editing the page. Always re-check with `allows()`/`enforce()` on the server before doing the thing being gated.
@@ -52,7 +52,7 @@ A client-side check is a UX convenience, never a security boundary - anyone can 
 ## Checking quotas
 
 ```typescript
-const { entitlements } = await kerne.entitlements({ scope: userId });
+const { entitlements } = await kerne.entitlements({ subject: userId });
 const apiCalls = entitlements.find((e) => e.feature_key === 'api_calls');
 console.log(`Used: ${apiCalls?.used} / ${apiCalls?.limit}`);
 ```

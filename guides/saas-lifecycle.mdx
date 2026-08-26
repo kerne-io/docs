@@ -42,11 +42,11 @@ A SaaS doesn't need the same access model on day one and at scale. Kerne is buil
     </Info>
 
     ```tsx
-    import { Allows } from '@kerne/react';
+    import { Access } from '@kerne/react';
 
-    <Allows featureKey="advanced_analytics" fallback={<UpgradePrompt />}>
+    <Access featureKey="advanced_analytics" fallback={<UpgradePrompt />}>
       <AnalyticsDashboard />
-    </Allows>
+    </Access>
     ```
   </Step>
 
@@ -59,6 +59,20 @@ A SaaS doesn't need the same access model on day one and at scale. Kerne is buil
     **Kerne strategy:** use an [entitlement override](/sdks/server/admin/overrides) (`kerne.admin.grant()`) - it's the same mechanism as a normal plan limit, just scoped to that one customer instead of everyone on a plan.
     </Info>
 
-    Not built yet if you need it at this stage: SSO, multi-user organizations, and a first-class "enterprise contract" object - see [Platform foundations](/concepts/overview) for the current boundary.
+    Not built yet if you need it at this stage: SSO, billing a group of users as one subject, and a first-class "enterprise contract" object - see [Subject: the concept that decides fit](/concepts/overview#subject-the-concept-that-decides-fit) for the current boundary.
+  </Step>
+
+  <Step title="Stage 5: The deal has to change">
+    Sooner or later you want to sell something different from what you sell today - a higher price, a smaller allowance, a feature moved to a pricier tier. The moment that decision is made, a second one hides right behind it: does everyone who already bought the old deal get moved onto the new one, or do they keep what they signed up for?
+
+    Both answers are ordinary, and you've been on both sides of them without thinking about it. A magazine renews you at the price you first paid, even years later. A phone carrier usually lets existing customers keep their old plan when it launches a new lineup, and only new customers see the new prices. A landlord can't raise a sitting tenant's rent just because new tenants pay more. On the other hand, a car insurer reprices everyone at renewal based on this year's risk, and a security fix has to reach every customer immediately, old and new alike, no exceptions and no opt-out.
+
+    None of these is more "correct" than the others. The right one depends on what you promised when the customer bought in, and why the deal is changing now. A price going up for new customers only is a business decision; being able to answer "what happens to the people already in?" on purpose, instead of by accident, is the part worth being deliberate about.
+
+    <Info>
+    **Goal:** decide, for each change you make, whether it reaches people who already bought in or only the ones who sign up after - and have that be a choice, not a side effect of how you happened to make the change.
+
+    **Kerne strategy:** what a plan includes is versioned automatically. A subscriber is pinned to the version they signed up under, so publishing a change only ever reaches new subscribers by default - existing ones keep exactly what they had until you explicitly move them. See [grandfathering](/concepts/monetization/products-and-plans#why-pack-exists-grandfathering-by-default) for how that pinning works.
+    </Info>
   </Step>
 </Steps>

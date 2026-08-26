@@ -5,13 +5,15 @@ description: "The authorization layer for monetized software"
 
 ## What is Kerne?
 
-Kerne is the decision layer between your users and your product.
+Kerne is an entitlements engine, a usage meter, and a subscription lifecycle manager, sitting in front of Stripe.
 
 It answers one question on every request:
 
 > What is this user allowed to do, in this product, under this business context?
 
-Instead of scattering authorization logic across identity providers, billing systems, and `if (user.plan === 'pro')` checks, you call a single primitive:
+Stripe stays the actual payment processor — it moves money, holds card details, handles the legal side of billing. Kerne doesn't replace it: it decides who gets what, then tells Stripe what to charge, so your code never hardcodes a plan name.
+
+Instead of scattering that logic across identity providers, billing systems, and `if (user.plan === 'pro')` checks, you call a single primitive:
 
 ```
 User wants to do X  →  kerne.allows('X')  →  Kerne decides
@@ -20,6 +22,17 @@ User wants to do X  →  kerne.allows('X')  →  Kerne decides
 ```
 
 That one call — `allows()` — is what replaces scattered plan checks and duplicated business rules across your codebase.
+
+## What Kerne gives you
+
+- **Entitlements per dimension** — meter a quota per machine, per project, or per seat inside one account, not just per account. See [Usage billing](/concepts/monetization/usage-billing).
+- **A configurable billing lifecycle** — grace periods on failed payments, deferred downgrades that don't pull a feature away mid-period, already running in production. See [Billing lifecycle policy](/concepts/monetization/products-and-plans#billing-lifecycle-policy).
+- **No provider lock-in in your own code** — you call `kerne.billing.checkout()`/`subscription()`, never a payment provider's own API directly.
+
+## What it doesn't do yet
+
+- Bill or gate a group of users as one unit — a subject is always one individual user today. See [Subject: the concept that decides fit](/concepts/overview#subject-the-concept-that-decides-fit).
+- Fine-grained roles or per-resource permissions — admin access is a property of your secret key, not a per-user role. See [Authorization](/concepts/identity/authorization).
 
 <CardGroup cols={2}>
   <Card title="5-minute quickstart" icon="rocket" href="/quickstart">
@@ -48,13 +61,13 @@ const kerne = new Kerne({
 });
 
 // Gate an action behind an entitlement, not a plan name
-if (await kerne.allows('export_pdf', { scope: userId })) {
+if (await kerne.allows('export_pdf', { subject: userId })) {
   return generatePdf();
 }
 ```
 
 ```tsx Client (@kerne/react)
-import { KerneProvider, Allows } from '@kerne/react';
+import { KerneProvider, Access } from '@kerne/react';
 
 function Root() {
   return (
@@ -66,9 +79,9 @@ function Root() {
 
 function ExportButton() {
   return (
-    <Allows featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
+    <Access featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
       <button onClick={exportPdf}>Export as PDF</button>
-    </Allows>
+    </Access>
   );
 }
 ```
@@ -76,11 +89,8 @@ function ExportButton() {
 
 ## What's here today
 
-Kerne currently provides the foundation of that decision layer:
-
 - **Identity** — authentication, sessions, registration modes, waitlist, invitations
-- **Billing** — plans, subscriptions, Stripe & Polar
+- **Billing** — plans, subscriptions, Stripe
 - **Entitlements** — boolean, quota, and static capabilities granted by a plan
 
-Organizations, full RBAC, and policy engines are intentionally not built yet.  
 See [Platform foundations](/concepts/overview) for the exact current boundary.

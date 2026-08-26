@@ -7,7 +7,7 @@ description: "What requires your secret key today"
 There's no per-user permission system - no custom roles, no per-resource permissions, no admin flag on `User`. Admin access to your tenant is a property of the credential you authenticate with, not of the user.
 </Note>
 
-A regular user session (JWT, from `login()`/`signup()`) can only ever act on its own scope: its own profile, its own entitlements, its own usage. There is no way to elevate a user session to admin - not by setting a field, not by any client-side call.
+A regular user session (JWT, from `login()`/`signup()`) can only ever act on its own subject: its own profile, its own entitlements, its own usage. There is no way to elevate a user session to admin - not by setting a field, not by any client-side call.
 
 ## What requires your secret key
 

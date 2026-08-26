@@ -9,16 +9,16 @@ This guide walks through connecting a payment provider, configuring a plan, and 
 ## Prerequisites
 
 - A Kerne app
-- A Stripe (or Polar) account
+- A Stripe account
 - Your app already configured with authentication - see [Authentication setup](/guides/getting-started/authentication-setup)
 
 ## 1. Connect a payment provider
 
-In the Kerne dashboard: **Settings → Billing → Connect Stripe** (or Polar), then complete the OAuth flow. Use test mode during development.
+In the Kerne dashboard: **Settings → Billing → Connect Stripe**, then complete the OAuth flow. Use test mode during development.
 
-<Warning>
-Connecting Polar automatically creates a webhook endpoint in your Polar organization so Kerne can sync subscriptions in real time. **Don't delete this endpoint from your Polar dashboard** - Polar gives Kerne no notification when that happens, so billing sync silently stops until you click resync (the refresh icon next to your Polar connection in Kerne's dashboard), which detects the missing endpoint and recreates it.
-</Warning>
+<Note>
+Already connected to Polar? That connection keeps working exactly as before - checkout, webhooks, and the portal are unaffected. Just don't delete the webhook endpoint Kerne created in your Polar organization: Polar gives Kerne no notification when that happens, so billing sync silently stops until you click resync (the refresh icon next to your Polar connection in the dashboard), which detects the missing endpoint and recreates it.
+</Note>
 
 ## 2. Create a product and plan
 

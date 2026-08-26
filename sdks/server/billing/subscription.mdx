@@ -1,6 +1,6 @@
 ---
 title: "Subscription"
-description: "Read the caller's or another scope's subscription"
+description: "Read the caller's or another subject's subscription"
 ---
 
 ## The caller's own subscription
@@ -13,11 +13,11 @@ const sub = await kerne.billing.subscription();
 ## Listing / getting others (admin)
 
 ```typescript
-const subs = await kerne.billing.subscriptions.list({ status: 'ACTIVE', scopeType: 'USER' });
+const subs = await kerne.billing.subscriptions.list({ status: 'ACTIVE', subjectType: 'USER' });
 const one = await kerne.billing.subscriptions.get(subscriptionId);
 ```
 
-A non-admin caller only ever sees their own subscription(s) regardless of filters passed - `scopeType`/`scope` filters only take effect for an admin caller.
+A non-admin caller only ever sees their own subscription(s) regardless of filters passed - `subjectType`/`subject` (the subject filters) only take effect for an admin caller.
 
 ## Shape
 
@@ -38,3 +38,5 @@ A non-admin caller only ever sees their own subscription(s) regardless of filter
 ```
 
 `status` is one of `ACTIVE`, `TRIALING`, `PAST_DUE`, `CANCELED`, `UNPAID`, `PAUSED`.
+
+`PAST_DUE` still counts as a live subscription - access isn't cut until, and unless, the product's [billing lifecycle policy](/concepts/monetization/products-and-plans#billing-lifecycle-policy) says so (by default, it never automatically is). `UNPAID` is the status that actually revokes access, reached only through that same policy.

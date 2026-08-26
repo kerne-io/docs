@@ -9,7 +9,7 @@ If a route you need isn't wrapped by a typed method yet, `kerne.request()` calls
 const data = await kerne.request({
   method: 'GET',
   path: '/v1/billing/usage',
-  query: { scope_id: userId },
+  query: { subject_id: userId },
 });
 ```
 

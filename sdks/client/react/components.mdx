@@ -18,18 +18,18 @@ import { Authenticated, Unauthenticated, AuthLoading } from '@kerne/react';
 ## Billing guards
 
 ```tsx
-import { HasSubscription, Allows } from '@kerne/react';
+import { HasSubscription, Access } from '@kerne/react';
 
 <HasSubscription fallback={<UpgradePrompt />}>
   <PremiumArea />
 </HasSubscription>
 
-<Allows featureKey="export_pdf" fallback={<UpgradePrompt />}>
+<Access featureKey="export_pdf" fallback={<UpgradePrompt />}>
   <ExportButton />
-</Allows>
+</Access>
 ```
 
-There's no plan-slug guard on purpose - matching on a plan **name** breaks silently the moment you rename a plan, or a customer ends up on an equivalent plan under a different slug. `Allows` always checks the actual entitlement instead, so the check keeps working no matter how the plan behind it is restructured.
+There's no plan-slug guard on purpose - matching on a plan **name** breaks silently the moment you rename a plan, or a customer ends up on an equivalent plan under a different slug. `Access` always checks the actual entitlement instead, so the check keeps working no matter how the plan behind it is restructured.
 
 ## Combined guard
 

@@ -6,19 +6,19 @@ description: "Record usage without checking a limit"
 Unlike [`consume()`](/sdks/server/entitlements/consume), `reportUsage()` never blocks on the limit - it always applies. Use it when the thing you're gating was already allowed some other way (e.g. a background job re-syncing usage counts, or metering something after the fact rather than at the moment of use).
 
 ```typescript
-await kerne.reportUsage('storage_gb', {
-  scope: userId,
-  delta: 2.5,
+await kerne.reportUsage('storage_megabytes', {
+  subject: userId,
+  delta: 2560,
   operation: 'INCREMENT', // or 'SET' to replace the value outright
   idempotencyKey: syncJobId,
 });
 ```
 
-<ParamField path="scope" type="string" required>
-  Required here (unlike `consume()`/`check()`) - there's no self-fallback for this one, you always name a scope.
+<ParamField path="subject" type="string" required>
+  Required here (unlike `consume()`/`check()`) - there's no self-fallback for this one, you always name a subject.
 </ParamField>
 <ParamField path="delta" type="number">
-  Defaults to `1`.
+  A whole number, defaults to `1`. Meter in the smallest unit you bill (megabytes, not gigabytes) - a fractional delta is rejected, not rounded.
 </ParamField>
 <ParamField path="operation" type="'INCREMENT' | 'SET'">
   Defaults to `INCREMENT`.
@@ -29,3 +29,7 @@ await kerne.reportUsage('storage_gb', {
 <ParamField path="metadata" type="object">
   Arbitrary context stored alongside the usage event (e.g. `request_id`).
 </ParamField>
+
+## No dimension here
+
+Unlike [`consume()`](/sdks/server/entitlements/consume), this call carries no `dimension` - it always lands on the subject's single counter. On a plan that counts per machine, per project or per seat, use `consume()`, which is the only call that can name which slice the usage belongs to.

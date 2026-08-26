@@ -1,20 +1,20 @@
 ---
 title: "allows() / enforce() / check()"
 sidebarTitle: "Check an entitlement"
-description: "The three ways to ask 'is this scope allowed to do that'"
+description: "The three ways to ask 'is this subject allowed to do that'"
 ---
 
 All three resolve the exact same entitlement - they only differ in what they hand back. Pick based on what you're about to do with the answer.
 
 ```typescript
 // UI conditional, or any branch where a plain boolean is enough
-const canExport = await kerne.allows('export_pdf', { scope: userId });
+const canExport = await kerne.allows('export_pdf', { subject: userId });
 
 // Guard/middleware - let it throw instead of checking a boolean yourself
-await kerne.enforce('export_pdf', { scope: userId });
+await kerne.enforce('export_pdf', { subject: userId });
 
 // You need the detail (a quota's limit/used/remaining), not just yes/no
-const result = await kerne.check('api_calls', { scope: userId });
+const result = await kerne.check('api_calls', { subject: userId });
 // { allowed, feature_key, feature_type, limit, used, remaining, overage_behavior, has_override, ... }
 ```
 
@@ -23,11 +23,11 @@ const result = await kerne.check('api_calls', { scope: userId });
 <ParamField path="featureKey" type="string" required>
   The feature's key, as configured in the dashboard.
 </ParamField>
-<ParamField path="scope" type="string">
-  Whose entitlement to check. With a secret key there's no "current user" - you must pass this explicitly (it's the id you used as `scope_id` when the subscription was created).
+<ParamField path="subject" type="string">
+  Whose entitlement to check. With a secret key there's no "current user" - you must pass this explicitly (it's the id you used as `subject_id` when the subscription was created).
 </ParamField>
 <ParamField path="requested" type="number">
-  For quota features: "can this scope use `requested` more units?" - defaults to `1`.
+  For quota features: "can this subject use `requested` more units?" - defaults to `1`.
 </ParamField>
 
 ## `enforce()` throws a plain `Error`
@@ -36,7 +36,7 @@ Not a typed `KerneError`, and not tied to an API error code - it's a client-side
 
 ```typescript
 try {
-  await kerne.enforce('export_pdf', { scope: userId });
+  await kerne.enforce('export_pdf', { subject: userId });
 } catch {
   return res.status(403).json({ error: 'Upgrade required' });
 }
@@ -44,4 +44,8 @@ try {
 
 ## Reading the result of `check()`
 
-Never negative, even when the scope is carrying a credit (a rollover or an [admin adjustment](/sdks/server/admin/usage-corrections)) - a credit is folded into `limit` instead of making `used` negative. See [Entitlements](/concepts/monetization/entitlements) for the full type breakdown (boolean/quota/static) and what each field means per type.
+`used` is never negative, even when the subject is carrying a credit (a rollover or an [admin adjustment](/sdks/server/admin/usage-corrections)) - a credit is folded into `limit` instead.
+
+`remaining` is plain subtraction and **does** go negative once a subject runs past what its plan includes. That's not an error state: on a feature whose overage is tolerated or billed, `allowed` stays `true` there. Check `overage_behavior` before turning a negative `remaining` into "limit reached" — see [Usage billing](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
+
+See [Entitlements](/concepts/monetization/entitlements) for the full type breakdown (boolean/quota/static) and what each field means per type.

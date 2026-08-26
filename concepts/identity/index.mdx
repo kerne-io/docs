@@ -17,7 +17,9 @@ Every successful signup/login returns a JWT access token plus a refresh token (`
 
 ## Authorization
 
-There's no per-user permission system: no custom roles, no per-resource permissions, no organizations. Admin operations on your tenant (managing users, correcting usage, granting overrides) require your secret key - never a user's session. See [Authorization](/concepts/identity/authorization) for exactly what that means in practice.
+There's no per-user permission system: no custom roles, no per-resource permissions. Admin operations on your tenant (managing users, correcting usage, granting overrides) require your secret key - never a user's session. See [Authorization](/concepts/identity/authorization) for exactly what that means in practice.
+
+Separately, entitlements are always granted to one user, never to a group - see [Subject: the concept that decides fit](/concepts/overview#subject-the-concept-that-decides-fit) if what you bill is a company or a team rather than a person.
 
 ## Entitlements
 

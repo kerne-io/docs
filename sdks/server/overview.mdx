@@ -3,7 +3,7 @@ title: "Overview"
 description: "@kerne/server - your backend's Kerne client"
 ---
 
-`@kerne/server` is the only place that should ever hold your secret key. It's what lets a request act on behalf of *any* scope, not just the caller - that's the whole reason it stays server-side.
+`@kerne/server` is the only place that should ever hold your secret key. It's what lets a request act on behalf of *any* subject, not just the caller - that's the whole reason it stays server-side.
 
 ## Install & configure
 
@@ -30,13 +30,13 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
     The reason this SDK exists. No `.billing.` prefix - these are the calls you'll write the most.
 
     ```typescript
-    kerne.allows(featureKey, { scope })       // boolean, never throws
-    kerne.enforce(featureKey, { scope })      // throws if denied
-    kerne.check(featureKey, { scope })        // full detail: limit/used/remaining/...
-    kerne.consume(featureKey, { scope, delta })
-    kerne.reportUsage(featureKey, { scope, delta })
-    kerne.entitlements({ scope })
-    kerne.usage({ scope, featureKey? })
+    kerne.allows(featureKey, { subject })       // boolean, never throws
+    kerne.enforce(featureKey, { subject })      // throws if denied
+    kerne.check(featureKey, { subject })        // full detail: limit/used/remaining/...
+    kerne.consume(featureKey, { subject, delta })
+    kerne.reportUsage(featureKey, { subject, delta })
+    kerne.entitlements({ subject })
+    kerne.usage({ subject, featureKey? })
     ```
 
     See [Entitlements & usage](/sdks/server/entitlements/allows-enforce-check).

@@ -18,7 +18,7 @@ Change the packaging - move "Advanced Analytics" to a new "Enterprise" tier - an
 Plans grant **entitlements**, defined once in the dashboard (which feature, and what limit). Your code only ever asks about the feature, never the plan:
 
 ```typescript
-if (await kerne.allows('advanced_analytics', { scope: user.id })) {
+if (await kerne.allows('advanced_analytics', { subject: user.id })) {
   showAdvancedAnalytics();
 }
 ```
@@ -29,3 +29,4 @@ Reassign that feature to a different plan in the dashboard, and this line of cod
 
 - **[Products & plans](/concepts/monetization/products-and-plans)** - what you sell, and how a plan's entitlements are versioned so changing a plan never silently changes what existing subscribers get.
 - **[Entitlements](/concepts/monetization/entitlements)** - the three entitlement types (boolean, quota, static) and how overrides/usage corrections work.
+- **[Usage billing](/concepts/monetization/usage-billing)** - charging for what gets consumed: the rate, the money ceiling that never blocks, and counting per machine, project or seat.

@@ -3,12 +3,12 @@ title: "Overview"
 description: "The mental model behind Kerne"
 ---
 
-Kerne answers one question, asked on every request: **does this scope have the right to do that, right now, given what it pays?**
+Kerne answers one question, asked on every request: **does this subject have the right to do that, right now, given what it pays?**
 
 ```
-Scope wants an action  →  kerne.allows() / enforce() / check()
-                       →  Kerne resolves: subscription → pack → entitlement → override
-                       →  Your app reacts: proceed, or show an upgrade prompt
+Subject wants an action  →  kerne.allows() / enforce() / check()
+                         →  Kerne resolves: subscription → pack → entitlement → override
+                         →  Your app reacts: proceed, or show an upgrade prompt
 ```
 
 Everything else in the platform exists to make that one decision correct and fast.
@@ -19,7 +19,15 @@ Everything else in the platform exists to make that one decision correct and fas
 
 **Monetization** - what that user is entitled to. A user subscribes to a `Plan`, which pins a versioned `Pack` (a snapshot of feature entitlements, frozen at subscription time) - see [Monetization](/concepts/monetization).
 
-A **scope** is whoever the entitlement belongs to. Today that's always a single user - in API terms, `scope_type` is always `"USER"`. Organization/team scopes aren't built yet - see below.
+## Subject: the concept that decides fit
+
+Your integration is one Kerne **tenant** - the boundary around your own account. You'll only ever have one; it's not something you configure or think about day to day.
+
+What actually decides whether Kerne's model matches your product is **subject** - which of your own users or accounts a given entitlement belongs to. It's who `kerne.allows()`/`consume()`/`check()` are asked about. Today a subject is always exactly one `User` - in API terms, `subject_type` is always `"USER"`, and it's the SDK's `subject` parameter.
+
+That fits cleanly if you bill and gate individual people: a support-ticketing SaaS charging per agent, a design tool where every seat logs in and pays on its own. It's not a native fit yet if what you bill is **a group as one unit** - "one company, twenty employees, one shared subscription, one pooled quota" - because there's no `subject_type: "ORGANIZATION"` today. The usual workaround is to designate one user (an account owner, a billing contact) as the subject the subscription attaches to, and build your own membership/seats logic on top in your own database - that works, but it's a workaround you build, not something Kerne represents natively yet.
+
+If the thing your product bills is a company or a team rather than a person, know that before you build against Kerne - see [What's intentionally not built yet](#whats-intentionally-not-built-yet) below.
 
 ## What exists today
 
@@ -31,7 +39,7 @@ A **scope** is whoever the entitlement belongs to. Today that's always a single 
     Products, plans versioned via packs - so upgrading a plan's entitlements never silently changes what existing subscribers get, see [grandfathering](/concepts/monetization/products-and-plans) - and three entitlement types: boolean flags, numeric quotas, and static config values.
   </Accordion>
   <Accordion title="Payments">
-    Stripe and Polar as payment rails. Kerne is always the source of truth for entitlements; the provider only handles money movement.
+    Stripe is the payment rail to connect today (Polar also runs, for tenants connected before now). Kerne is always the source of truth for entitlements; the provider only handles money movement.
   </Accordion>
   <Accordion title="Admin">
     No per-user admin flag - admin operations on your tenant require your secret key, not a user session.
@@ -44,7 +52,7 @@ Being explicit about this matters more than it sounds - a doc that describes a h
 
 <AccordionGroup>
   <Accordion title="Organizations / teams">
-    Every scope is a single user. A workspace shared by multiple people, with pooled or per-member quotas, isn't implemented.
+    A subject is always one user - see [Subject: the concept that decides fit](#subject-the-concept-that-decides-fit) above. Billing or gating a whole team or company as a single unit, with a pooled quota, isn't implemented.
   </Accordion>
   <Accordion title="Role-based access control">
     There's no per-user permission system at all - no custom roles, no per-resource permissions, no admin flag. Admin operations require your secret key.

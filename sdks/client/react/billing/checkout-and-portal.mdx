@@ -51,7 +51,7 @@ The reactive hook covers most cases:
 ```tsx
 import { useSubscription } from '@kerne/react';
 
-const { subscription, isActive, isLoading } = useSubscription();
+const { subscription, isActive, isLoading, refetch } = useSubscription();
 ```
 
 For an imperative, one-off read, use the underlying client directly:
@@ -62,3 +62,51 @@ import { useClient } from '@kerne/react';
 const client = useClient();
 const sub = await client.getSubscription(); // null if none, or scoped to a product slug: getSubscription('acme')
 ```
+
+## Cancelling and switching plans
+
+Both act on the payment provider first, then on Kerne — so a cancellation really stops the next invoice, rather than only closing off access on our side.
+
+```tsx
+import { useCancelSubscription, useChangePlan, useSubscription } from '@kerne/react';
+
+function ManagePlan() {
+  const { subscription, refetch } = useSubscription();
+  const { cancelSubscription, isCanceling } = useCancelSubscription();
+  const { changePlan, isChanging } = useChangePlan();
+
+  if (!subscription) return null;
+
+  return (
+    <>
+      <button
+        disabled={isChanging}
+        onClick={async () => {
+          await changePlan(subscription.id, nextPlanPriceId);
+          refetch();
+        }}
+      >
+        Switch plan
+      </button>
+
+      <button
+        disabled={isCanceling}
+        onClick={async () => {
+          await cancelSubscription(subscription.id);
+          refetch();
+        }}
+      >
+        Cancel
+      </button>
+    </>
+  );
+}
+```
+
+Neither hook refreshes `useSubscription()` for you — there is no shared cache to invalidate — so call `refetch()` once the action resolves if the same screen displays the subscription.
+
+<Note>
+  A plan change takes effect **immediately**, upgrade or downgrade alike, and the provider settles the difference by default. Pass `{ prorationBehavior: 'none' }` to skip that and simply charge the new price from the next invoice. Deferring a downgrade to the end of the period is not supported yet.
+</Note>
+
+`cancelSubscription(id)` ends the subscription at the end of the paid period. Pass `true` as the second argument to end it immediately instead. Either way the row survives with status `canceled` — cancelling is not deleting, and the billing history stays readable.
