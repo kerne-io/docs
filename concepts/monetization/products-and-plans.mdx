@@ -42,7 +42,7 @@ A product also decides what happens at moments in a subscriber's life: canceling
 
 <AccordionGroup>
   <Accordion title="On cancel">
-    Always **end of period** by default - access continues through what's already been paid for, and only stops when that period actually ends. Calling `cancel()` (server SDK or `useCancelSubscription`) with `immediate: true` stops access right away instead. This is a per-call choice, not a stored setting.
+    Always **end of period** by default - access continues through what's already been paid for, and only stops when that period actually ends. An explicit `immediately` flag on `cancel()` (server SDK) or `useCancelSubscription` (client) stops access right away instead. This is a per-call choice, not a stored setting.
   </Accordion>
   <Accordion title="On payment failure">
     **None** (default) - Kerne never automatically cuts access for a failed payment; the subscription sits at `PAST_DUE` until the provider resolves it (payment retried, or the provider cancels it). **Block, with a grace period** - after the first failed payment, the subscriber keeps access for `grace_period_days` more days (still `PAST_DUE`), and a background sweep then moves the subscription to `UNPAID` - which does cut access - if nothing was paid by then. Set once per product, on that product's page in the dashboard, below its pricing matrix.

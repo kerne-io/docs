@@ -16,6 +16,8 @@ import { PricingTable } from '@kerne/react/ui';
 
 That's a complete pricing page: the toggle only appears if you actually sell more than one price label (see [naming a plan's prices](/concepts/monetization/products-and-plans#naming-a-plans-prices)), and switching it animates the price rather than swapping it instantly.
 
+Clicking a plan checks out a new subscriber directly. For someone already subscribed, it opens a confirmation panel first, then swaps the plan in place (`changePlanPrice()`) instead of starting a second checkout — Stripe and Polar have no notion of "replace my existing subscription", so a fresh checkout session there would create a second, independent one rather than replacing the first. `onSelectPlan` overrides this whole flow, confirmation included, when you want your own.
+
 ## Building your own layout
 
 `<PricingTable.Plans>` is a shortcut in a responsive grid. Skip it and place `<PricingTable.Plan>` yourself for a custom layout - a plan featured in the middle, a two-column comparison, a page that sells just one plan:
@@ -39,7 +41,7 @@ That's a complete pricing page: the toggle only appears if you actually sell mor
 | --- | --- | --- |
 | `product` | `<PricingTable>` | Which product's plans to show. Omit for your default product. |
 | `defaultLabel` | `<PricingTable>` | Price label selected on first render (e.g. `"annual"`). Falls back to the first one if it doesn't exist. |
-| `onSelectPlan` | `<PricingTable>` | Override the built-in checkout - e.g. to show your own confirmation step first. Called with `(plan, price)`. |
+| `onSelectPlan` | `<PricingTable>` | Override the built-in checkout-or-switch flow - e.g. to show your own confirmation step first. Called with `(plan, price)`. |
 | `slug` | `<PricingTable.Plan>` | Which plan to render. |
 | `maxFeatures` | `<PricingTable.Plan>`, `<PricingTable.Plans>` | Cap the entitlement list before a "+N more" line. |
 
@@ -57,3 +59,17 @@ function CustomPlanList() {
 ```
 
 Must be called somewhere under `<PricingTable>` - it reads the same provider `<PricingTable.LabelSwitch>`/`<PricingTable.Plan>` do.
+
+Formatting a price is more than `${amount}`: a label's `display_interval` needs converting (an annual price shown at its monthly cost), and the amount needs locale-aware currency formatting. Reuse the same helpers the built-in card uses instead of redoing that arithmetic:
+
+```tsx
+import { formatMoney, formatInterval, resolvePriceDisplay, useLocalization } from '@kerne/react/ui';
+
+const l10n = useLocalization();
+const price = plan.prices.find((p) => p.label.slug === selectedLabelSlug) ?? plan.prices[0];
+const { displayAmount, displayInterval } = resolvePriceDisplay(price, price.label.display_interval);
+
+`${formatMoney(displayAmount, price.currency)} / ${formatInterval(displayInterval, l10n.billing)}`; // "€24 / month"
+```
+
+`formatInterval`, `formatDate`, `formatNumber`, `humanizeFeatureKey`, `collectPriceLabels` and `resolveLabelSavings` (the "Save 20%" hint on a label switch) are exported from `@kerne/react/ui` the same way.

@@ -116,7 +116,7 @@ function RegisterForm() {
 
 ## 6. Protect routes
 
-The simplest way is the `<Authenticated>` guard, which handles the loading/logged-out states for you - no redirect wiring needed just to hide a page:
+The simplest way is the `<Authenticated>` guard - no redirect wiring needed just to hide a page:
 
 ```tsx
 import { Authenticated } from '@kerne/react';
@@ -130,7 +130,9 @@ function ProtectedPage() {
 }
 ```
 
-If you specifically need a URL redirect (not just hiding content), do it off `isAuthenticated`/`isLoading` from `useAuth()` with whatever router your framework provides.
+It renders `fallback` for as long as there's no confirmed session - that includes the moment the session is still loading, not only an actual logged-out visitor. If that brief flash matters for a given page, branch on `isLoading` yourself with `useAuth()` before deciding what to show.
+
+If you specifically need a URL redirect (not just hiding content), do the same off `isAuthenticated`/`isLoading` from `useAuth()` with whatever router your framework provides.
 
 ## Next steps
 

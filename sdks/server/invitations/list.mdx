@@ -1,9 +1,11 @@
 ---
 title: "List invitations"
-description: "List all active invitations"
+description: "List every invitation token and code created for this tenant"
 ---
 
-Retrieve a list of all active invitation tokens and codes.
+Requires your secret key, or a JWT owner crossing into their own tenant.
+
+Returns every invitation ever created, most recent first - used and expired ones included, not just the outstanding ones. Filter on `isUsed`/`isExpired` yourself if you only want to show what's still actionable.
 
 ```typescript
 const invitations = await kerne.invitations.list();
@@ -12,27 +14,36 @@ console.log('Tokens:', invitations.tokens);
 console.log('Codes:', invitations.codes);
 ```
 
-### Response
-
-The response contains two arrays: `tokens` and `codes`.
-
 ```json
 {
   "tokens": [
     {
       "id": "inv_123",
-      "email": "user@example.com",
-      "token": "...",
-      "isExpired": false
+      "email": "alice@company.com",
+      "token": "eyJhbGciOi...",
+      "type": "token",
+      "isUsed": false,
+      "isExpired": false,
+      "expires_at": "2026-09-02T00:00:00.000Z",
+      "created_at": "2026-08-26T00:00:00.000Z",
+      "created_by": "user_456"
     }
   ],
   "codes": [
     {
-      "id": "code_456",
-      "code": "TEAM-JOIN",
+      "id": "code_789",
+      "code": "7HK4RXPQ",
+      "type": "code",
+      "isUsed": false,
+      "isExpired": false,
       "max_uses": 100,
-      "used_count": 5
+      "used_count": 5,
+      "expires_at": null,
+      "created_at": "2026-08-26T00:00:00.000Z",
+      "created_by": "user_456"
     }
   ]
 }
 ```
+
+A code's `isUsed` means fully redeemed (`used_count >= max_uses`), not that it's gone - see [Validate](/sdks/server/invitations/validate#canuse-vs-valid) for the same distinction at redemption time.

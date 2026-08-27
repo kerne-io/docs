@@ -4,7 +4,7 @@ sidebarTitle: "List waitlist"
 description: "Retrieve waitlist entries (admin)"
 ---
 
-Requires an admin caller.
+Requires your secret key, or a JWT owner crossing into their own tenant.
 
 ```typescript
 const { entries, pagination } = await kerne.waitlist.list({
@@ -12,6 +12,22 @@ const { entries, pagination } = await kerne.waitlist.list({
   offset: 0,
   status: 'PENDING', // or 'INVITED' | 'REGISTERED'
 });
+```
+
+```json
+{
+  "entries": [
+    {
+      "id": "wl_123",
+      "email": "alice@company.com",
+      "name": "Alice Doe",
+      "status": "PENDING",
+      "metadata": { "referral": "twitter" },
+      "created_at": "2026-08-26T00:00:00.000Z"
+    }
+  ],
+  "pagination": { "total": 240, "limit": 20, "offset": 0, "hasMore": true }
+}
 ```
 
 `status` moves to `REGISTERED` automatically the moment that email successfully signs up - it's bookkeeping, not something that gates the signup itself. See [Registration modes](/concepts/identity/registration-modes) for how a waitlist entry actually becomes an invited user.

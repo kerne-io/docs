@@ -67,6 +67,7 @@ Every error response follows this shape - there's no `{success, data}` envelope 
 | `K4006` | Resource conflict. |
 | `K4007`-`K4009` | Resource creation/deletion/update failed. |
 | `K4011`-`K4016` | Product/plan/feature/subscription/plan price/pack not found. |
+| `K4019` | Payment not found. |
 
 ## Billing and limits (K5xxx)
 
@@ -76,6 +77,7 @@ Every error response follows this shape - there's no `{success, data}` envelope 
 | `K5002` | Plan upgrade required. |
 | `K5003` | Billing payment failed. |
 | `K5004` | No active pack for this plan (a plan with no entitlements configured). |
+| `K5005` | A pack can't be activated with no entitlements configured on it. |
 
 ## Rate limiting (K6xxx)
 
@@ -91,6 +93,7 @@ Every error response follows this shape - there's no `{success, data}` envelope 
 | `K7001` | Stripe service error. |
 | `K7002` | Email service error. |
 | `K7003` | External service unavailable. |
+| `K7004` | Payment provider error (Polar, or a provider-agnostic failure - use `K7001` for Stripe-specific ones). |
 
 ## Internal (K9xxx)
 

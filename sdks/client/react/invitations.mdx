@@ -24,7 +24,7 @@ Or with a code instead of a token:
 
 ```tsx
 const { result } = useInvitation({ code: 'JOIN-123' });
-// result: { valid: boolean, canUse?: boolean } for a code, { valid: boolean, email?: string } for a token
+// result: { valid: boolean, canUse: boolean } for a code, { valid: boolean, email?: string } for a token
 ```
 
 Once validated, pass the same token/code to [`register()`](/sdks/client/react/auth/register) (`invitationToken`/`invitationCode` params) to complete signup. See [implementing an invite-only SaaS](/guides/auth/implement-invite-only-saas) for the full flow, and the [server SDK](/sdks/server/invitations/create) for creating/listing/revoking invitations (admin-only, not exposed here).

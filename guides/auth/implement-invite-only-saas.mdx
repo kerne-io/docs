@@ -3,11 +3,11 @@ title: "Implement invite-only SaaS"
 description: "How to build a private beta or exclusive product"
 ---
 
-Building an invite-only application is a good way to control growth and validate your product with high-quality users.
+Invite-only signup caps growth to whoever you hand a code or token to - a private beta, a launch list you admit by hand, any product that wants qualified users before strangers.
 
 <Steps>
   <Step title="Turn on invite-only mode">
-    In the dashboard, enable `require_invitation`. This is enforced at the API level - even a request that bypasses your frontend entirely still needs a valid token or code.
+    Set the tenant's registration mode to invite-only (`registration_mode: 'INVITE_ONLY'`, under **Settings → Authentication** - see [Registration modes](/concepts/identity/registration-modes)). This is enforced at the API level - even a request that bypasses your frontend entirely still needs a valid token or code.
   </Step>
   <Step title="Create codes/tokens (server-side)">
     ```typescript
@@ -15,15 +15,17 @@ Building an invite-only application is a good way to control growth and validate
     const kerne = new Kerne({ appId, secretKey });
 
     // A reusable code (share it in a launch email, a landing page, etc.)
+    // maxUses defaults to 1 (single-use) - raise it for a code meant for many people, up to 1,000.
     const { code, expiresAt } = await kerne.invitations.createCode({
       expiresAt: '2026-12-31T23:59:59.000Z', // omit for no expiry
+      maxUses: 500,
     });
 
     // Or a token tied to one specific email
     const { token } = await kerne.invitations.createToken({ email: 'alice@company.com' });
     ```
 
-    Codes are server-generated, not something you pick yourself - there's no `code`/`maxUsages` field to set on creation.
+    The code string itself is server-generated - you never pick it yourself.
   </Step>
   <Step title="Signup with the code (client-side)">
     ```tsx

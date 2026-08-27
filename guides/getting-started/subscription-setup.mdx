@@ -26,6 +26,10 @@ This is a dashboard action, not an SDK call - catalog configuration (products, p
 
 ## 3. Display pricing
 
+<Tip>
+This section builds a pricing page from the raw data, to show what's underneath. For a complete one already wired to checkout - plan cards, a price-label toggle - see [`<PricingTable>`](/sdks/client/react/ui/pricing-table) instead.
+</Tip>
+
 `kerne.billing.plans()` is the one catalog read exposed to your app - public, meant for a pricing page:
 
 ```typescript
@@ -33,7 +37,7 @@ This is a dashboard action, not an SDK call - catalog configuration (products, p
 const plans = await kerne.billing.plans('acme'); // product slug or id
 ```
 
-`price.interval` is `{count}{unit}` (`unit` is `D`, `M`, or `Y` - e.g. `"1M"`, `"3M"`, `"1Y"`), not a word - never render it directly to an end user:
+`price.interval` is `{count}{unit}` (`unit` is `D`, `M`, or `Y` - e.g. `"1M"`, `"3M"`, `"1Y"`), not a word - never render it directly to an end user. Written out by hand below; `@kerne/react/ui` exports the same `formatInterval()` (and `formatMoney()`) if you're already pulling in that package:
 
 ```tsx
 import { useCheckout } from '@kerne/react';

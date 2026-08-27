@@ -3,11 +3,11 @@ title: "Verify email"
 description: "Verify and manage email verification status"
 ---
 
-There are two verification flows - a 6-digit code, or a link - plus one legacy single-token method:
+A verification email can carry a 6-digit code, a link, or both - decided by the tenant's own configuration, not by this call. There's also one legacy single-token method, kept for compatibility.
 
 ```typescript
-// Send a verification email (code or link)
-await kerne.auth.sendVerificationEmail('code'); // or 'link' - throttled client-side, 60s cooldown
+// Send a verification email - throttled client-side, 60s cooldown
+await kerne.auth.sendVerificationEmail();
 
 // Verify with the 6-digit code
 const { success, needsTokenRefresh } = await kerne.auth.verifyEmailWithCode('483920');
@@ -18,6 +18,8 @@ await kerne.auth.verifyEmailWithLink(tokenFromLink);
 // Check current status
 const { emailVerified, needsVerification, email } = await kerne.auth.getVerificationStatus();
 ```
+
+`sendVerificationEmail()` still takes a `'code' | 'link'` first argument for backward compatibility, but it's never sent to the server - passing it has no effect.
 
 <Note>
 `needsTokenRefresh: true` means the access token's `email_verified` claim is now stale - call [`refreshToken()`](/sdks/server/auth/refresh-token) to get one that reflects the new status.

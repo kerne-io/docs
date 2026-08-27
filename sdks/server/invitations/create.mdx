@@ -1,20 +1,27 @@
 ---
-title: "Create invitation token"
-sidebarTitle: "Create token"
-description: "Create a unique invitation link"
+title: "Create invitations"
+sidebarTitle: "Create"
+description: "Invite one address by token, or hand out a shareable code"
 ---
 
-## Request
+Two ways to invite someone onto an `INVITE_ONLY` tenant - pick based on whether you know the person's email up front.
 
-<CodeGroup>
-```typescript Node.js
-const result = await kerne.invitations.createToken({
-  email: 'alice@company.com'
-});
-// result.token includes the token string
+## Token - tied to one email
+
+```typescript
+const invite = await kerne.invitations.createToken({ email: 'alice@company.com' });
+// { token, expiresAt, email }
 ```
-</CodeGroup>
 
-## Response
+Kerne emails the invite to that address as part of this call - there's no separate send step. It expires in 7 days, not configurable. Calling this again for the same email replaces the previous unused invitation rather than stacking a second one.
 
-Returns the invitation details including the token.
+## Code - shareable, not tied to an email
+
+```typescript
+const invite = await kerne.invitations.createCode({ maxUses: 25, expiresAt: '2027-01-01T00:00:00.000Z' });
+// { code, expiresAt, maxUses }
+```
+
+`code` is an 8-character string Kerne generates (e.g. `7HK4RXPQ`) - there's no way to set your own. Nothing gets emailed: post it in your own onboarding flow, a Slack invite, wherever it needs to go. `maxUses` defaults to `1`; omit `expiresAt` for a code that never expires.
+
+Both land the invitee on the same [signup](/sdks/server/auth/signup) call, as `invitationToken` or `invitationCode`. Creating either requires your secret key, or a JWT owner crossing into their own tenant - never call these from a request an end user triggered themselves.

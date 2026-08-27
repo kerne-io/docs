@@ -45,5 +45,5 @@ curl -X PATCH https://api.kerne.io/v1/tenants/YOUR_TENANT_ID/configuration \
 `callback_url_billing_success` above is optional - only set a flow-specific override if that one flow needs a different page than `app_url` + its default path.
 
 <Note>
-`app_url` also exists as a base for auth callbacks (`callback_url_verify_email`, `callback_url_reset_password`, `callback_url_magic_link`) - those don't currently fall back to `app_url` + a default path the way billing does, only to their own explicit override or a Kerne-hosted default. Set them individually if you need them.
+`app_url` is also the base for auth callbacks (`callback_url_verify_email`, `callback_url_reset_password`, `callback_url_magic_link`) - same cascade as billing above: the option you passed, then that flow's explicit override, then `app_url` + its default path (`/auth/verify-email`, `/auth/reset-password`, `/auth/magic-login`), then Kerne's hosted fallback.
 </Note>

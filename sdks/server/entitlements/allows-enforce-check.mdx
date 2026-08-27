@@ -48,4 +48,6 @@ try {
 
 `remaining` is plain subtraction and **does** go negative once a subject runs past what its plan includes. That's not an error state: on a feature whose overage is tolerated or billed, `allowed` stays `true` there. Check `overage_behavior` before turning a negative `remaining` into "limit reached" — see [Usage billing](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
 
+On `ALLOW`/`BILL`, `allowed` still flips back to `false` once usage passes `access_limit` - a separate, optional hard ceiling in units (not the same thing as a spending cap), `null` when the feature has none.
+
 See [Entitlements](/concepts/monetization/entitlements) for the full type breakdown (boolean/quota/static) and what each field means per type.

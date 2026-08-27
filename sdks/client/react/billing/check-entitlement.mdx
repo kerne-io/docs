@@ -14,7 +14,7 @@ function ExportButton() {
   const { allowed, isLoading } = useAccess('export_pdf');
 
   if (isLoading) return <Spinner />;
-  if (!allowed) return <UpgradePrompt />;
+  if (!allowed) return <Upgrade />;
   return <button onClick={exportPdf}>Export</button>;
 }
 ```
@@ -53,7 +53,7 @@ function ApiCallsMeter() {
 ```tsx
 import { Access } from '@kerne/react';
 
-<Access featureKey="export_pdf" fallback={<UpgradePrompt />}>
+<Access featureKey="export_pdf" fallback={<Upgrade />}>
   <button onClick={exportPdf}>Export</button>
 </Access>;
 ```

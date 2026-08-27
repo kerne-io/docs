@@ -9,7 +9,7 @@ Identity in Kerne separates two questions: **who is this** (authentication) and 
 
 Kerne supports:
 - **Email and password** - the standard flow, via `kerne.auth.signup()` / `kerne.auth.login()`.
-- **Passwordless start** - `kerne.auth.startPasswordless(email)` sends a one-time link. The verification side of this flow isn't wired up yet - don't build a "magic link login" UI against it today.
+- **Magic link** - `kerne.auth.startPasswordless(email)` emails a one-time link; `kerne.auth.loginWithMagicLink(token)` verifies it and logs the user in, signing them up on first click if registration allows it. Off by default per tenant - see `enable_magic_link` in [Registration modes](/concepts/identity/registration-modes).
 
 Not supported: social/OAuth login (Google, GitHub, etc.) - there's no provider integration, despite `AuthConfig.oauth_providers` existing as a field in the config response (it's always empty today).
 

@@ -23,9 +23,11 @@ await kerne.billing.cancel({ immediately: false }); // false = at period end (de
 await kerne.billing.subscriptions.cancel(subscriptionId, /* immediately */ true);
 ```
 
-`immediately: false` keeps access through the current period's end - the common choice, since an abrupt cutoff mid-period is rarely what you want for a self-service cancel.
+`immediately: false` keeps access through the current period's end - the common choice, since an abrupt cutoff mid-period is rarely what you want for a self-service cancel. It only stamps `canceled_at`: `status` doesn't move to `CANCELED` until the provider's own period-end webhook confirms it later. `immediately: true` flips `status` to `CANCELED` right away instead. Check `canceled_at`, not `status`, if your UI needs to show "cancellation scheduled" before that webhook arrives.
 
-Either way the subscription row survives with status `canceled`. Cancelling is not deleting: the billing history stays readable, and the subject can subscribe again without losing what came before.
+Either way the row is never deleted: the billing history stays readable, and the subject can subscribe again without losing what came before.
+
+`kerne.billing.cancel()` throws a plain `Error` (not a `KerneError`) if the caller has no subscription at all - it's a client-side guard, not a server response, same reasoning as [`enforce()`](/sdks/server/entitlements/allows-enforce-check#enforce-throws-a-plain-error). `kerne.billing.subscriptions.cancel(id, ...)` has no such check; a bad `id` fails with the server's own 404 instead.
 
 <Note>
   The provider is told first, then Kerne. A cancellation really stops the next invoice rather than only closing off access on our side - which is the failure mode this ordering exists to prevent.

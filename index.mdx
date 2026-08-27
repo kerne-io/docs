@@ -26,7 +26,7 @@ That one call — `allows()` — is what replaces scattered plan checks and dupl
 ## What Kerne gives you
 
 - **Entitlements per dimension** — meter a quota per machine, per project, or per seat inside one account, not just per account. See [Usage billing](/concepts/monetization/usage-billing).
-- **A configurable billing lifecycle** — grace periods on failed payments, deferred downgrades that don't pull a feature away mid-period, already running in production. See [Billing lifecycle policy](/concepts/monetization/products-and-plans#billing-lifecycle-policy).
+- **A configurable billing lifecycle** — a grace period on failed payments before access is cut, and a cancel that either ends access right away or lets it run out the period already paid for. See [Billing lifecycle policy](/concepts/monetization/products-and-plans#billing-lifecycle-policy).
 - **No provider lock-in in your own code** — you call `kerne.billing.checkout()`/`subscription()`, never a payment provider's own API directly.
 
 ## What it doesn't do yet

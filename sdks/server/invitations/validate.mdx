@@ -3,7 +3,7 @@ title: "Validate invitation"
 description: "Validate invitation tokens and codes"
 ---
 
-Before allowing a user to accept an invitation, validate it to ensure it hasn't expired or been used.
+Both routes are public - no secret key required - so you can call them straight from a signup page before the user has any session, to show "this invitation isn't valid anymore" before they fill out the form.
 
 ## Validate token
 
@@ -22,9 +22,13 @@ if (result.valid) {
 Validate a shareable join code.
 
 ```typescript
-const result = await kerne.invitations.validateCode('JOIN-123');
+const result = await kerne.invitations.validateCode('7HK4RXPQ');
 
-if (result.valid) {
+if (result.canUse) {
   console.log('Code is valid');
 }
 ```
+
+### `canUse` vs `valid`
+
+A code can be `valid: true` and still `canUse: false` - that's a code that exists and hasn't expired, but has already hit its `maxUses`. `valid: false` means it doesn't exist at all, or has expired. Gate signup on `canUse`, not `valid`. A token has no equivalent split: it's single-use, so being used and being invalid are the same event, and `valid: false` already covers it.

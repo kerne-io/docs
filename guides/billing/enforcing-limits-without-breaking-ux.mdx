@@ -1,31 +1,25 @@
 ---
-title: "Enforcing limits"
-description: "Soft limits vs Hard limits and UX best practices"
+title: "Enforcing limits without breaking UX"
+description: "Where a limit should stop a user, and where it should just start billing them"
 ---
 
-Enforcing billing limits is a delicate balance between protecting your infrastructure and providing a friction-free experience for your customers.
+A limit that blocks and a limit that bills are the same mechanism with a different `overage_behavior` - the judgment call is which one fits what you're limiting, not how to build either.
 
-## Soft vs. hard limits
+## Hard limits: block
 
-### Hard limits
+A hard limit refuses the action once the allowance is gone - "You've reached your 5 team member limit. Upgrade to add more." Right for things a customer should decide to buy more of on purpose: team seats, database storage, expensive infrastructure. Nobody should discover they bought more of these as a surprise line on an invoice.
 
-A hard limit (the "wall") blocks the user's action immediately upon hitting a threshold.
-- **Example**: "You have reached your 5 team member limit. Upgrade to add more."
-- **Use for**: Team seats, database storage, or expensive infrastructure resources.
+## Soft limits: keep going and bill
 
-### Soft limits
+A soft limit lets the action through and charges for the excess instead - "You've used all 10,000 included views this month; the next ones are billed at $0.005 each." Right for bandwidth, email sends, anything usage-shaped where blocking would just make a customer angry instead of protecting anything. On the plan, choose to keep serving past the allowance and charge for it, then write the rate - Kerne meters and bills the excess, no polling or manual invoicing. See [Designing your pricing](/guides/billing/designing-pricing#option-b-keep-going-and-charge-for-it-pay-as-you-go-past-the-included-amount) for the setup.
 
-A soft limit (the "nudge") allows the user to proceed but triggers a notification or overage charge.
-- **Example**: "You have exceeded 10,000 monthly views. We will charge $5 for the next 1,000."
-- **Use for**: Bandwidth, email sends, or usage-based metrics.
-- **How**: on the plan, choose to keep serving past the allowance and charge for it, then write the rate - Kerne meters and bills the excess for you, no polling or manual invoicing. See [Designing your pricing](/guides/billing/designing-pricing#model-3-included-allowance-then-charge-for-it) for the setup.
-- **The ceiling that isn't a limit**: a *money* ceiling stops the charging, never the service. If you want consumption to actually stop, that's a separate ceiling in units - see [Usage billing](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
+One thing to know before you rely on it: a *money* ceiling on a soft limit stops the charging, never the service. If you actually want consumption to stop, that's a separate ceiling in units, one rung below - see [why the cap doesn't block](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
 
 ## Where to enforce
 
-### 1. Backend middleware (hard limits)
+### Backend middleware, for hard limits
 
-The safest place to enforce limits is your API layer - use `enforce()` if a thrown error fits your middleware pattern, or `allows()` if you'd rather branch yourself:
+The safest place to enforce a limit is your API layer - use `enforce()` if a thrown error fits your middleware pattern, or `allows()` if you'd rather branch yourself:
 
 ```typescript
 if (!(await kerne.allows('api_calls', { subject: userId }))) {
@@ -33,11 +27,11 @@ if (!(await kerne.allows('api_calls', { subject: userId }))) {
 }
 ```
 
-If the action *is* the usage being counted, use [`consume()`](/sdks/server/entitlements/consume) instead - it checks and increments atomically, so it doesn't just check but also protects against a burst of concurrent requests all sneaking past the limit at once.
+If the action *is* the usage being counted, use [`consume()`](/sdks/server/entitlements/consume) instead - it checks and increments atomically, so a burst of concurrent requests can't all sneak past the limit at once.
 
-### 2. The client UI (soft limits and UX)
+### The client UI, for soft limits and upfront warnings
 
-Don't wait for a "Save" click to inform users they've hit a limit - proactively disable buttons or show upgrade nudges, using [`useAccess`](/sdks/client/react/billing/check-entitlement) (which already handles the loading state):
+Don't wait for a "Save" click to tell users they've hit a limit - disable the button or show the upgrade nudge ahead of time, with [`useAccess`](/sdks/client/react/billing/check-entitlement) (it already handles the loading state):
 
 ```tsx
 import { useAccess } from '@kerne/react';
@@ -53,11 +47,6 @@ function AddTeamMember() {
 }
 ```
 
-## Preventing "rage quit"
+## Don't lose the user's work over it
 
-Nothing drives churn faster than losing data due to a billing limit.
-- **Scenario**: A user spends 30 minutes writing a report, only to be blocked when clicking "Save".
-- **Bad**: "Error: Storage limit reached." (User loses their work).
-- **Good**: "Draft saved locally. You've reached your storage limit—upgrade your plan to publish this report."
-
-Always check limits **before** the user begins a resource-intensive task.
+Someone who spends 30 minutes writing a report and gets blocked on "Save" doesn't file a support ticket about your quota - they leave. "Error: storage limit reached" throws that work away. "Draft saved locally - upgrade to publish this report" doesn't. Check the limit before the resource-intensive step starts, not only when the user tries to submit its result.

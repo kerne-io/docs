@@ -4,26 +4,13 @@ sidebarTitle: "Remove"
 description: "Remove an entry from the waitlist"
 ---
 
-Remove a user from the waitlist by their email address. This is an admin operation that requires a secret key.
+Remove a user from the waitlist by their email address. Requires your secret key, or a JWT owner crossing into their own tenant.
 
-## Usage
-
-<CodeGroup>
-```typescript Node.js
-// Sends DELETE /v1/waitlist with { email } body
+```typescript
 await kerne.waitlist.remove('user@example.com');
 ```
-</CodeGroup>
 
-## Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `email` | string | Yes | Email address of the waitlist entry to remove |
-
-## Response
-
-Returns `void` on success.
+Unlike `join()`/`list()`, this call also requires the Waitlist feature on your own Kerne plan - if your plan doesn't include it, it's denied with `K5002` even for an admin caller.
 
 ## Errors
 
@@ -31,3 +18,4 @@ Returns `void` on success.
 |------|--------|-------------|
 | `K4005` | 404 | Waitlist entry not found |
 | `K3002` | 403 | Insufficient permissions |
+| `K5002` | 402 | Waitlist not included in your Kerne plan |

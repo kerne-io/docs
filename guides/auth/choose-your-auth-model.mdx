@@ -3,16 +3,16 @@ title: "Choose your auth model"
 description: "Open, waitlist, or invite-only - and what Kerne doesn't have yet"
 ---
 
-Your registration mode is one of the first decisions to make, and it's controlled by two flags read from `GET /v1/auth/config` - see [Registration modes](/concepts/identity/registration-modes) for the exact logic.
+Your registration mode is one of the first decisions to make, controlled by a single `registration_mode` setting read from `GET /v1/auth/config` - see [Registration modes](/concepts/identity/registration-modes) for the exact logic.
 
 ## Recommendation
 
 <CardGroup cols={2}>
   <Card title="Consumer / self-serve" icon="users">
-    Open registration (`allow_registration: true`, `require_invitation: false`). Friction is the enemy - every extra step loses signups.
+    `registration_mode: 'OPEN'`. Friction is the enemy - every extra step loses signups.
   </Card>
   <Card title="Early access / high-touch onboarding" icon="building">
-    Invite-only (`require_invitation: true`) or a waitlist first. Fewer, more qualified signups, and room to onboard people by hand while you're still learning what they need.
+    `registration_mode: 'INVITE_ONLY'`, or a waitlist first. Fewer, more qualified signups, and room to onboard people by hand while you're still learning what they need.
   </Card>
 </CardGroup>
 
@@ -23,7 +23,7 @@ Registration mode is configured in the dashboard under **Settings → Authentica
 ## What Kerne doesn't have (yet)
 
 - **No organizations/teams.** A subject is always one user - there's no "colleague joins the same workspace" concept. If your product bills a group as one unit (shared workspace, seats, team billing), that's not built yet - see [Subject: the concept that decides fit](/concepts/overview#subject-the-concept-that-decides-fit).
-- **No SSO/MFA.** Email+password and a passwordless-start flow (see [Identity overview](/concepts/identity)) - nothing enterprise-auth yet.
+- **No SSO/MFA.** Email+password and magic link (see [Identity overview](/concepts/identity)) - nothing enterprise-auth yet.
 - **No OAuth/social login.** Only credential-based auth.
 
 If any of those are load-bearing for your launch, it's worth knowing now rather than after building against Kerne.

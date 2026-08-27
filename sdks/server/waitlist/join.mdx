@@ -4,27 +4,19 @@ sidebarTitle: "Join waitlist"
 description: "Add a user to the waitlist"
 ---
 
-## Request
-
-<CodeGroup>
-```typescript Node.js
+```typescript
 const result = await kerne.waitlist.join({
   email: 'alice@company.com',
-  name: 'Alice Doe'
+  name: 'Alice Doe',
+  metadata: { referral: 'twitter' }, // optional, stored as-is
 });
+// { success: true }
 ```
-</CodeGroup>
-
-## Response
 
 Always resolves `{ success: true }` - whether the email was newly added,
 already on the waitlist, or already belongs to a registered account are
 deliberately indistinguishable. This is a public, unauthenticated route, so
 the response never reveals which emails already exist in your system.
-
-<ResponseField name="success" type="boolean" required>
-  Always `true` when the call doesn't throw.
-</ResponseField>
 
 <Note>
   No confirmation email is sent when someone joins the waitlist - the first

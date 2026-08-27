@@ -3,10 +3,10 @@ title: "Revoke invitation"
 description: "Revoke an invitation"
 ---
 
-Revoke an invitation token or code by its ID. It will no longer be usable.
+Revoke an invitation token or code by its ID. It will no longer be usable. Requires your secret key, or a JWT owner crossing into their own tenant.
 
 ```typescript
 await kerne.invitations.revoke('inv_123');
 ```
 
-This works for both invitation tokens and join codes.
+This works for both invitation tokens and join codes - `id` is the `id` field [`list()`](/sdks/server/invitations/list) returns for either one.

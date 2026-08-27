@@ -110,3 +110,37 @@ Neither hook refreshes `useSubscription()` for you — there is no shared cache 
 </Note>
 
 `cancelSubscription(id)` ends the subscription at the end of the paid period. Pass `true` as the second argument to end it immediately instead. Either way the row survives with status `canceled` — cancelling is not deleting, and the billing history stays readable.
+
+## Building a plan picker
+
+A page that lets a visitor pick any plan doesn't know upfront whether they're a new signup or already subscribed — and that distinction matters more than it looks. Starting a fresh checkout for someone already subscribed doesn't replace their subscription: Stripe and Polar have no notion of "this session replaces the one on file", so it creates a second, independent subscription while the first keeps billing. `usePlanSwitch()` makes that decision once, for every screen that needs it — it's what [`<PricingTable>`](/sdks/client/react/ui/pricing-table) and the plan switcher inside `<UserProfile>` use internally:
+
+```tsx
+import { usePlanSwitch, useSubscription } from '@kerne/react';
+
+function PlanPicker({ plans }) {
+  const { subscription, refetch } = useSubscription();
+  const { pending, switching, selectPlan, confirmSwitch, dismissSwitch } = usePlanSwitch(
+    subscription,
+    refetch,
+  );
+
+  return (
+    <>
+      {plans.map((plan) => (
+        <button key={plan.id} onClick={() => selectPlan(plan, plan.prices[0])}>
+          {plan.name}
+        </button>
+      ))}
+
+      {pending ? (
+        <ConfirmDialog loading={switching} onConfirm={confirmSwitch} onCancel={dismissSwitch}>
+          Switch to {pending.plan.name}?
+        </ConfirmDialog>
+      ) : null}
+    </>
+  );
+}
+```
+
+No subscription yet (`subscription` is `null`) sends `selectPlan` straight to `openCheckout()` instead — there's nothing to swap, so `pending` never gets set for that visitor. `switchError`, `checkoutError` and `checkoutPriceId` (busy state through the checkout redirect) are also on the return value, same idea as `isCanceling`/`isChanging` above.

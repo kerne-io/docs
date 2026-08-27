@@ -16,14 +16,23 @@ const config = await kerne.auth.config();
   "enable_credentials": true,
   "oauth_providers": [],
   "show_kerne_branding": true,
+  "brand_primary_color": null,
+  "brand_logo_url": null,
   "callback_url": null,
+  "use_hosted_portal": false,
+  "portal_redirect_url": null,
+  "post_auth_redirect_url": null,
   "user_registration_limit": null,
   "app_name": "Acme",
-  "onboarding_dismissed_at": null,
-  "access_token_ttl_seconds": null,
-  "refresh_token_ttl_seconds": null,
-  "overview_metrics": []
+  "password_policy": {
+    "min_length": 8,
+    "require_uppercase": false,
+    "require_number": false,
+    "require_symbol": false
+  }
 }
 ```
+
+`password_policy` is what the server will actually accept - render your signup form's rules from it instead of hardcoding them, so a stricter policy set later doesn't silently start rejecting submissions your form told the user were fine. It's optional on the type only because this response is cached for an hour: a client that fetched it just before the field shipped won't see it until the cache turns over.
 
 `callback_url` here is only the general fallback (sign-up and account-activation links) - magic link, password reset, email verification and checkout each resolve their own override server-side and are not part of this public response. See [Registration modes](/concepts/identity/registration-modes) for what `registration_mode` controls.

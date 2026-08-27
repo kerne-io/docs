@@ -20,12 +20,20 @@ import { Authenticated, Unauthenticated, AuthLoading } from '@kerne/react';
 ```tsx
 import { HasSubscription, Access } from '@kerne/react';
 
-<HasSubscription fallback={<UpgradePrompt />}>
+<HasSubscription fallback={<Upgrade />}>
   <PremiumArea />
 </HasSubscription>
 
-<Access featureKey="export_pdf" fallback={<UpgradePrompt />}>
+<Access featureKey="export_pdf" fallback={<Upgrade />}>
   <ExportButton />
+</Access>
+```
+
+Pass `requested` to check a quantity before it's consumed, not just whether the feature is on. A QUOTA feature with 3 units left still passes a plain `<Access>` (something remains), but fails `requested={5}` up front - useful to block a batch action before the user commits to it instead of after a partial `consume()` fails mid-way:
+
+```tsx
+<Access featureKey="ai_credits" requested={5} fallback={<Upgrade />}>
+  <BatchProcessButton count={5} />
 </Access>
 ```
 

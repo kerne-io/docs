@@ -3,7 +3,7 @@ title: "Designing your pricing"
 description: "From simple subscriptions to usage-based models"
 ---
 
-A well-designed pricing model is scalable, easy to understand, and maps directly to your code. Kerne allows you to iterate on pricing without rewriting your application logic.
+A pricing model maps directly to your code: change what a plan bundles, or what a feature costs past its limit, from the dashboard, and nothing you shipped has to change.
 
 ## Two separate decisions
 
@@ -15,8 +15,8 @@ Pricing design is really two independent questions, and it's worth keeping them 
 **Entitlements (features)** are what a subject *gets*. **Plans** bundle entitlements together. **Prices** are how much a plan costs. Your code should always check the entitlement, never the plan name:
 
 <Tip>
-*   **Bad**: `if (user.plan === 'pro')`
-*   **Good**: `if (await kerne.allows('export_pdf', { subject: userId }))`
+- **Bad**: `if (user.plan === 'pro')`
+- **Good**: `if (await kerne.allows('export_pdf', { subject: userId }))`
 </Tip>
 
 ## Decision 1: Bundling — what's on each plan
@@ -93,7 +93,7 @@ It is one of these instead:
   </Card>
 </CardGroup>
 
-The first covers most add-ons and needs nothing new — it is [Model 3](#model-3-included-allowance-then-charge-for-it) with an allowance of `0` and the ceiling left empty. Combine it with [Model 4](#model-4-priced-per-something-inside-the-account) when the add-on is bought per project or per seat rather than once per account.
+The first covers most add-ons and needs nothing new — it is [Option B](#option-b-keep-going-and-charge-for-it-pay-as-you-go-past-the-included-amount) with an allowance of `0` and the ceiling left empty. Combine it with [Option C](#option-c-scope-the-allowance-to-something-inside-the-account) when the add-on is bought per project or per seat rather than once per account.
 
 <Note>
   Because add-ons ride the subscription rather than sitting beside it, a plan change carries them along: switching plans re-pins entitlements to the new plan, so an add-on that exists on one plan and not the other stops with the switch. Model an add-on you intend to survive a plan change as a feature present on every plan, with a different allowance.
