@@ -1,6 +1,6 @@
 ---
-title: "Overrides"
-description: "grant / listGrants / revokeGrant"
+title: 'Overrides'
+description: 'grant / listGrants / revokeGrant'
 ---
 
 An entitlement override replaces a subject's **limit** for a feature - "this customer has a 1,000/mo deal" - and renews every period exactly like the plan's own limit would, until it expires (or forever, if you don't set an expiry). It has no effect on period boundaries, resets, or rollover - only the limit itself.
@@ -9,19 +9,19 @@ An entitlement override replaces a subject's **limit** for a feature - "this cus
 // Grant - creates one, or updates it if this subject+feature already has one
 await kerne.admin.grant('api_calls', {
   subject: userId,
-  value: '50000',           // same encoding as a normal entitlement value
+  value: '50000', // same encoding as a normal entitlement value
   reason: 'Annual contract - negotiated limit',
   expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
 });
 
 // List
-const grants = await kerne.admin.listGrants();          // every override in the tenant
-const forUser = await kerne.admin.listGrants(userId);   // just this subject
+const grants = await kerne.admin.listGrants(); // every override in the tenant
+const forUser = await kerne.admin.listGrants(userId); // just this subject
 
 // Revoke
 await kerne.admin.revokeGrant(overrideId);
 ```
 
-Each entry includes `is_expired` - an expired override still shows up in the list (for audit history), it's just no longer applied. `overage`/`overage_rate` are never overridden this way - they're always read from the plan's own entitlement definition.
+Each entry includes `is_expired` - an expired override still shows up in the list (for audit history), it's just no longer applied. `overage` are never overridden this way - they're always read from the plan's own entitlement definition.
 
 For a one-off credit instead of a standing deal, use [`adjustUsage()`](/sdks/server/admin/usage-corrections) - it touches the counter, not the limit.

@@ -2885,15 +2885,11 @@
               "DIMENSION"
             ]
           },
-          "overage_value": {
+          "overage_ceiling": {
             "type": "string",
             "nullable": true
           },
           "overage_cap_amount": {
-            "type": "number",
-            "nullable": true
-          },
-          "overage_rate": {
             "type": "number",
             "nullable": true
           },
@@ -2920,9 +2916,8 @@
           "overage",
           "limit_binding",
           "cap_binding",
-          "overage_value",
+          "overage_ceiling",
           "overage_cap_amount",
-          "overage_rate",
           "billed_amount",
           "currency",
           "cap_reached"
