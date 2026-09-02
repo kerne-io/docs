@@ -29,10 +29,9 @@ await kerne.reportUsage('storage_megabytes', {
 <ParamField path="metadata" type="object">
   Arbitrary context stored alongside the usage event (e.g. `request_id`).
 </ParamField>
-
-## No dimension here
-
-Unlike [`consume()`](/sdks/server/entitlements/consume), this call carries no `dimension` - it always lands on the subject's single counter. On a plan that counts per machine, per project or per seat, use `consume()`, which is the only call that can name which slice the usage belongs to.
+<ParamField path="dimension" type="string">
+  Same field as [`consume()`'s `dimension`](/sdks/server/entitlements/consume#dimensions) - routes the write to the right per-dimension counter on a plan that counts per machine, project or seat. One difference: `consume()` requires it on a dimensioned feature (it's gating access), `reportUsage()` doesn't (it never blocks) - omit it there and the write lands on the feature's shared counter instead of a specific dimension.
+</ParamField>
 
 ## Many at once
 
@@ -40,7 +39,12 @@ Unlike [`consume()`](/sdks/server/entitlements/consume), this call carries no `d
 
 ```typescript
 const results = await kerne.reportUsageBatch(
-  machines.map((m) => ({ featureKey: 'machine_minutes', subject: m.ownerId, delta: m.minutes })),
+  machines.map((m) => ({
+    featureKey: 'machine_minutes',
+    subject: m.ownerId,
+    dimension: m.id,
+    delta: m.minutes,
+  })),
 );
 ```
 

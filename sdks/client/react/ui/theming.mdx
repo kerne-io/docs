@@ -5,6 +5,10 @@ description: 'Match the screens to your brand, and translate what they say'
 
 There is no CSS file to import. The screens inject their own stylesheet once, and everything they draw resolves from `--kerne-*` custom properties — so you restyle by setting those, not by fighting selectors.
 
+<Warning>
+  There is no `styles.css` you can import or override, on purpose — theming is exclusively `appearance` and the `--kerne-*` variables below. Under a strict CSP `style-src` that omits `'unsafe-inline'`, this runtime injection is blocked and the screens render unstyled. There is no workaround today.
+</Warning>
+
 ## Your colors
 
 Set the properties anywhere in your own CSS to change every screen at once:
@@ -120,6 +124,28 @@ localization={{
 Codes you do not map fall back to `generic`. The raw API message is never shown — it is written for you, the developer, not for your users.
 
 See [Error codes](/concepts/error-codes) for the full list.
+
+### French
+
+A complete French pack ships as `fr` — pass it directly, or layer overrides on top of it with `mergeLocalization`:
+
+```tsx
+import { KerneProvider } from '@kerne/react';
+import { fr } from '@kerne/react/ui';
+
+<KerneProvider appId="your-app-id" localization={fr}>
+  {children}
+</KerneProvider>;
+```
+
+```tsx
+import { mergeLocalization, fr } from '@kerne/react/ui';
+
+// override is the first argument, the pack to merge onto is the second (defaults to English)
+const localization = mergeLocalization({ common: { email: 'Adresse professionnelle' } }, fr);
+```
+
+No other language ships yet — everything else falls back to English unless you override it yourself.
 
 ### Starting from the defaults
 

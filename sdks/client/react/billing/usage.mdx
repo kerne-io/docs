@@ -45,5 +45,5 @@ function ExportButton() {
 ```
 
 - `consume(featureKey, { delta, dimension })` - checks the limit and records, returns the resulting `EntitlementCheck`. Throws a `ValidationError` (with `.fields`) if `delta` isn't a whole number.
-- `report(featureKey, { delta, operation })` - records without a limit check.
+- `report(featureKey, { delta, operation, dimension })` - records without a limit check. `dimension` routes the write to the same per-machine/per-project/per-seat counter as `consume()`, but is never required here - omit it and the write lands on the feature's shared counter instead.
 - `reportBatch(events)` - up to 100 at once; returns `{ index, status, usage?, error? }[]`, one bad event doesn't sink the rest.
