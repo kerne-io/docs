@@ -2011,10 +2011,6 @@
           "email": {
             "type": "string",
             "example": "user@example.com"
-          },
-          "callback_url": {
-            "type": "string",
-            "example": "https://app.tenant.com/auth/reset-password"
           }
         },
         "required": [
@@ -2084,10 +2080,6 @@
           "email": {
             "type": "string",
             "example": "user@example.com"
-          },
-          "callback_url": {
-            "type": "string",
-            "example": "https://app.tenant.com/auth/callback"
           },
           "invitationToken": {
             "type": "string",
@@ -2283,13 +2275,6 @@
             "type": "string",
             "nullable": true
           },
-          "callback_url": {
-            "type": "string",
-            "nullable": true
-          },
-          "use_hosted_portal": {
-            "type": "boolean"
-          },
           "portal_redirect_url": {
             "type": "string",
             "nullable": true
@@ -2346,8 +2331,6 @@
           "show_kerne_branding",
           "brand_primary_color",
           "brand_logo_url",
-          "callback_url",
-          "use_hosted_portal",
           "portal_redirect_url",
           "post_auth_redirect_url",
           "user_registration_limit",
@@ -2361,12 +2344,7 @@
       },
       "SendVerificationDto": {
         "type": "object",
-        "properties": {
-          "callback_url": {
-            "type": "string",
-            "example": "https://app.tenant.com/auth/verify-email"
-          }
-        }
+        "properties": {}
       },
       "VerifyCodeDto": {
         "type": "object",
@@ -3572,12 +3550,6 @@
           "plan_price_id": {
             "type": "string"
           },
-          "success_url": {
-            "type": "string"
-          },
-          "cancel_url": {
-            "type": "string"
-          },
           "subject_type": {
             "type": "string",
             "enum": [
@@ -3610,9 +3582,6 @@
       "CreatePortalDto": {
         "type": "object",
         "properties": {
-          "return_url": {
-            "type": "string"
-          },
           "subject_type": {
             "type": "string",
             "enum": [

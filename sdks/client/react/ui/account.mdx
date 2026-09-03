@@ -42,7 +42,7 @@ If you already have a settings page, mount just the part you want. Each one work
 ```tsx
 import { SubscriptionCard, UsageMeters, ChangePasswordForm } from '@kerne/react/ui';
 
-<SubscriptionCard portalReturnUrl="/settings" />
+<SubscriptionCard />
 <UsageMeters />
 <ChangePasswordForm />
 ```
@@ -81,7 +81,7 @@ The message follows the reason. Someone who ran out of a monthly quota sees a di
 
 ## After checkout
 
-`<CheckoutResult>` goes on the URLs you set as your checkout success and cancel callbacks:
+`<CheckoutResult>` renders a checkout outcome screen - mount it wherever your app confirms a checkout, passing the outcome:
 
 ```tsx
 <CheckoutResult outcome="success" continueUrl="/dashboard" />

@@ -83,11 +83,7 @@ function UpgradeButton({ planPriceId }: { planPriceId: string }) {
   const { openCheckout } = useCheckout();
 
   return (
-    <button
-      onClick={() =>
-        openCheckout(planPriceId, { successUrl: '/billing/success', cancelUrl: '/pricing' })
-      }
-    >
+    <button onClick={() => openCheckout(planPriceId)}>
       Upgrade
     </button>
   );
@@ -96,7 +92,7 @@ function UpgradeButton({ planPriceId }: { planPriceId: string }) {
 
 ## 5. Handle success
 
-The subscription is created once the provider confirms payment (asynchronously - not necessarily the instant the browser lands back on your success URL):
+The subscription is created once the provider confirms payment (asynchronously - not necessarily the instant the browser lands back on your app after checkout):
 
 ```tsx
 function SuccessPage() {
@@ -116,7 +112,7 @@ import { usePortal } from '@kerne/react';
 
 function BillingSettings() {
   const { openPortal } = usePortal();
-  return <button onClick={() => openPortal('/settings')}>Manage subscription</button>;
+  return <button onClick={() => openPortal()}>Manage subscription</button>;
 }
 ```
 

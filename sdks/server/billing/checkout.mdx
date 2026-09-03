@@ -4,10 +4,7 @@ description: "Create a hosted checkout session"
 ---
 
 ```typescript
-const { url } = await kerne.billing.checkout(planPriceId, {
-  successUrl: 'https://app.example.com/billing/success',
-  cancelUrl: 'https://app.example.com/billing',
-});
+const { url } = await kerne.billing.checkout(planPriceId);
 
 // redirect your user to `url`
 ```
@@ -20,16 +17,16 @@ The session is created for the caller's own identity (from their JWT) - this isn
 
 The subscription itself is created asynchronously once the provider (Stripe/Polar) confirms payment - not synchronously when this call returns.
 
-## Where the redirect goes if you don't pass `successUrl`/`cancelUrl`
+## Where the redirect goes
 
-Resolved in this order, for each flow independently (checkout success, checkout cancel, portal return - see [Portal & cancel](/sdks/server/billing/portal-and-cancel)):
+Checkout success and cancel (and the portal return, see [Portal & cancel](/sdks/server/billing/portal-and-cancel)) all resolve unconditionally to the hosted portal (`apps/portal`):
 
-1. **The option you passed** (`successUrl`/`cancelUrl` above, `returnUrl` for the portal) - always wins.
-2. **A flow-specific override**, if you've configured one - `callback_url_billing_success`, `callback_url_billing_cancel`, `callback_url_billing_portal`.
-3. **`app_url` + that flow's default path** (`/billing?checkout=success`, `/billing?checkout=cancelled`, `/billing?checkout=portal_return`), if you've set `app_url` but not the specific override above.
-4. **Kerne's own hosted page**, if you've configured neither.
+```
+${PORTAL_BASE_URL}/billing?checkout=success&app_id={tenantId}
+${PORTAL_BASE_URL}/billing?checkout=cancelled&app_id={tenantId}
+```
 
-Configure `app_url` and the overrides through the tenant configuration endpoint (not yet wrapped by `@kerne/server` - call it directly with your own token, same auth as the rest of this self-service API):
+The portal then hands the session back to your own app: `portal_redirect_url` if you've set one, otherwise `app_url`. Configure either through the tenant configuration endpoint (not yet wrapped by `@kerne/server` - call it directly with your own token, same auth as the rest of this self-service API):
 
 ```bash
 curl -X PATCH https://api.kerne.io/v1/tenants/YOUR_TENANT_ID/configuration \
@@ -37,13 +34,12 @@ curl -X PATCH https://api.kerne.io/v1/tenants/YOUR_TENANT_ID/configuration \
   -H "Authorization: Bearer $YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "app_url": "https://app.example.com",
-    "callback_url_billing_success": "https://app.example.com/welcome"
+    "app_url": "https://app.example.com"
   }'
 ```
 
-`callback_url_billing_success` above is optional - only set a flow-specific override if that one flow needs a different page than `app_url` + its default path.
+`portal_redirect_url` is optional - only set it if the portal should send the user somewhere other than `app_url` once a flow finishes.
 
 <Note>
-`app_url` is also the base for auth callbacks (`callback_url_verify_email`, `callback_url_reset_password`, `callback_url_magic_link`) - same cascade as billing above: the option you passed, then that flow's explicit override, then `app_url` + its default path (`/auth/verify-email`, `/auth/reset-password`, `/auth/magic-login`), then Kerne's hosted fallback.
+Auth callbacks (verify email, reset password, magic link) resolve the same way - unconditionally to the portal, which then hands off to `portal_redirect_url` or `app_url`.
 </Note>

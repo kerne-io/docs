@@ -10,7 +10,7 @@ function UpgradeButton({ planPriceId }: { planPriceId: string }) {
   const { openCheckout } = useCheckout();
 
   return (
-    <button onClick={() => openCheckout(planPriceId, { successUrl: '/billing/success' })}>
+    <button onClick={() => openCheckout(planPriceId)}>
       Upgrade
     </button>
   );
@@ -40,9 +40,9 @@ await openPortal(); // redirects the browser
 const portalUrl = await createPortal(); // or get the URL yourself
 ```
 
-## Where the redirect goes if you don't pass a URL
+## Where the redirect goes
 
-`successUrl`/`cancelUrl`/`returnUrl` above are all optional. Left unset, each resolves independently through your tenant's configured `app_url` before falling back to a Kerne-hosted page - see the server SDK's [Checkout docs](/sdks/server/billing/checkout#where-the-redirect-goes-if-you-dont-pass-successurlcancelurl) for the exact resolution order and how to configure `app_url`.
+None of these hooks take a URL - checkout success/cancel and the portal return all resolve to the hosted portal, which then hands the session back to your app. See the server SDK's [Checkout docs](/sdks/server/billing/checkout#where-the-redirect-goes) for the exact resolution and how to configure `app_url`/`portal_redirect_url`.
 
 ## The caller's own subscription
 

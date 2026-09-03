@@ -23,7 +23,7 @@ These are two separate mechanisms - joining a waitlist does not grant registrati
 ```typescript
 const config = await kerne.auth.config();
 // { registration_mode, enable_magic_link, enable_credentials,
-//   oauth_providers, callback_url, user_registration_limit, app_name }
+//   oauth_providers, portal_url, user_registration_limit, app_name }
 ```
 
 Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured. `oauth_providers` is the one field here that still describes intent rather than a working flow - there's no OAuth integration yet, see [Identity overview](/concepts/identity).
