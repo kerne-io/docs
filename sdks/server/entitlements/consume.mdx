@@ -17,6 +17,19 @@ const result = await kerne.consume('api_calls', {
 
 If `allowed` is `false`, nothing was incremented - the request never happened as far as the counter is concerned.
 
+<ParamField path="subject" type="string">
+  Whose quota to check and charge. Optional in the type (same as `check()`), but with a secret key there is no implicit "current user" - pass the subject you mean.
+</ParamField>
+<ParamField path="delta" type="number">
+  Whole number, defaults to `1`. A fractional delta is rejected, not rounded.
+</ParamField>
+<ParamField path="idempotencyKey" type="string">
+  Optional. A retry with the same key replays the original decision instead of counting again - see [Idempotency](#idempotency).
+</ParamField>
+<ParamField path="dimension" type="string">
+  Optional. Which slice of the subject to charge - see [Dimensions](#dimensions). The SDK param is `dimension`; it is sent on the wire as `dimension_id`.
+</ParamField>
+
 <Note>
   `delta` is a whole number. Meter in the smallest unit you bill - minutes rather than hours, megabytes rather than gigabytes, tokens rather than thousands of tokens - and let the plan's rate put the offer back ("0.35 EUR per 60 minutes"). A fractional delta is rejected, not rounded.
 </Note>

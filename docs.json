@@ -28,7 +28,9 @@
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart"
+              "quickstart",
+              "guides/is-kerne-a-fit",
+              "concepts/overview"
             ]
           },
           {
@@ -77,7 +79,8 @@
                 "group": "Billing strategy",
                 "pages": [
                   "guides/billing/designing-pricing",
-                  "guides/billing/enforcing-limits-without-breaking-ux"
+                  "guides/billing/enforcing-limits-without-breaking-ux",
+                  "guides/billing/usage-end-to-end"
                 ]
               },
               "guides/saas-lifecycle"

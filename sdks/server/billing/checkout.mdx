@@ -13,7 +13,7 @@ const { url } = await kerne.billing.checkout(planPriceId);
 This takes a **`plan_price_id`**, not a plan id - it identifies the specific billing variant (monthly vs. yearly, currency). Sending a plan id here fails with a validation error.
 </Warning>
 
-The session is created for the caller's own identity (from their JWT) - this isn't something a secret-key-only backend does on behalf of an arbitrary subject; it's the checkout flow your frontend triggers for the logged-in user (typically proxied through your backend using their own token, see [`withToken()`](/sdks/server/users/me)).
+By default the session is created for the caller's own identity (from their JWT) - the checkout flow your frontend triggers for the logged-in user, typically proxied through your backend using their own token (see [`withToken()`](/sdks/server/users/me)). A secret-key (admin) client may instead pass `{ subject }` to create the session for another subject; add `{ email }` too when that subject has no Kerne user row (an externally-managed user).
 
 The subscription itself is created asynchronously once the provider (Stripe/Polar) confirms payment - not synchronously when this call returns.
 
@@ -42,4 +42,32 @@ curl -X PATCH https://api.kerne.io/v1/tenants/YOUR_TENANT_ID/configuration \
 
 <Note>
 Auth callbacks (verify email, reset password, magic link) resolve the same way - unconditionally to the portal, which then hands off to `portal_redirect_url` or `app_url`.
+</Note>
+
+## Headless (embedded card, Stripe only)
+
+`checkout()` is the redirect path - the provider hosts the card form. For an embedded card form you build yourself, there are two server methods. They are Stripe-only, and there is **no React prebuilt for this** - `@kerne/react`'s `useCheckout` / `<PricingTable>` are redirect-oriented.
+
+1. **`createSetupIntent()`** - a Stripe SetupIntent for your own Stripe.js / Payment Element form. No redirect, no charge.
+
+   ```typescript
+   const { clientSecret, customerId } = await kerne.billing.createSetupIntent({ subject: userId });
+   ```
+
+2. Confirm `clientSecret` **client-side with Stripe.js** (`stripe.confirmSetup(...)` / `stripe.confirmCardSetup(...)`). That returns a Stripe payment method id.
+
+3. **`createSubscriptionHeadless()`** - attach that payment method and start the subscription, no browser involved.
+
+   ```typescript
+   const subscription = await kerne.billing.createSubscriptionHeadless({
+     subject: userId,
+     planPriceId,                       // price id or its stable slug
+     stripePaymentMethodId: 'pm_...',   // from the Stripe.js confirmation above
+   });
+   ```
+
+   This is admin-gated (secret key). The payment method id is re-verified against Stripe server-side, so it can't be used to skip payment collection - it requires one Stripe already confirmed belongs to this subject. Pass `email` when `subject` has no matching Kerne user row.
+
+<Note>
+For CI or a seed script with no browser to confirm a SetupIntent, pass `testCardToken` (e.g. `"tok_visa"`) instead of `stripePaymentMethodId` - it mints a fresh payment method server-side on each call. Stripe **test mode only**; rejected otherwise.
 </Note>

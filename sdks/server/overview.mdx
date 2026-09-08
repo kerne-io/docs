@@ -31,24 +31,30 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
 
     ```typescript
     kerne.allows(featureKey, { subject })       // boolean, never throws
-    kerne.enforce(featureKey, { subject })      // throws if denied
+    kerne.enforce(featureKey, { subject })      // throws a plain Error if denied
     kerne.check(featureKey, { subject })        // full detail: limit/used/remaining/...
     kerne.consume(featureKey, { subject, delta })
-    kerne.reportUsage(featureKey, { subject, delta })
+    kerne.reportUsage(featureKey, { subject, delta })   // subject is required here
+    kerne.reportUsageBatch(events)              // each event carries its own subject
     kerne.entitlements({ subject })
     kerne.usage({ subject, featureKey? })
     ```
 
-    See [Entitlements & usage](/sdks/server/entitlements/allows-enforce-check).
+    `subject` is **required** on `reportUsage()` / `reportUsageBatch()`. On `allows()` / `enforce()` / `check()` / `consume()` it is optional in the types, but with a secret key there is no implicit "current user" - pass the subject you mean. See [Entitlements & usage](/sdks/server/entitlements/allows-enforce-check).
   </Step>
   <Step title="Tier 2 - billing the end user touches">
     ```typescript
     kerne.billing.subscription()
     kerne.billing.plans(productIdOrSlug)   // public pricing data, read-only
-    kerne.billing.checkout(planPriceId, options)
-    kerne.billing.portal(options)
+    kerne.billing.priceIdFor(planSlug, priceLabel?)
+    kerne.billing.checkout(planPriceId, options)   // redirect flow
+    kerne.billing.portal(options)                  // redirect flow
     kerne.billing.cancel(options)
     kerne.billing.subscriptions.list/get/cancel/changePlanPrice(...)
+    kerne.billing.isSubscribedTo(subject, planSlug)
+    // Stripe-only, embedded card instead of the redirect (see Checkout > Headless):
+    kerne.billing.createSetupIntent(options)
+    kerne.billing.createSubscriptionHeadless({ subject, planPriceId, stripePaymentMethodId })
     ```
 
     See [Billing](/sdks/server/billing/subscription).
@@ -72,6 +78,35 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
     Same idea as `supabase.auth.admin.*` - one client, a namespace that signals "this call needs elevated trust." See [Admin](/sdks/server/admin/usage-corrections).
   </Step>
 </Steps>
+
+## Next.js (App Router)
+
+There is no Next-specific adapter - `@kerne/server` is the same client in a Route Handler or a Server Action. Take the `subject` from your own session/user record and pass it explicitly:
+
+```typescript
+// app/api/export/route.ts
+import { NextResponse } from 'next/server';
+import { Kerne } from '@kerne/server';
+import { getUserIdFromSession } from '@/lib/session'; // your own auth
+
+const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID!,
+  secretKey: process.env.KERNE_SECRET_KEY!,
+});
+
+export async function POST() {
+  const userId = await getUserIdFromSession();
+  if (!userId) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+
+  if (!(await kerne.allows('export_pdf', { subject: userId }))) {
+    return NextResponse.json({ error: 'upgrade_required' }, { status: 403 });
+  }
+
+  return NextResponse.json(await renderPdf());
+}
+```
+
+Importing from `@kerne/server/next` instead of `@kerne/server` gives you the identical surface plus an `import 'server-only'` guard, so a bundler pulling the module into a Client Component fails at build time rather than shipping the secret key to the browser.
 
 ## Escape hatch
 

@@ -21,6 +21,10 @@ function UpgradeButton({ planPriceId }: { planPriceId: string }) {
 The first argument is a **`plan_price_id`** (a specific billing variant - monthly vs. yearly), not a plan id.
 </Warning>
 
+<Note>
+`useCheckout` / `usePortal` and the prebuilt UI are **redirect-only** - they send the browser to a provider-hosted page. There is no prop that turns them into an embedded card form. For an embedded card you build the form with Stripe.js and drive it from the server's [headless methods](/sdks/server/billing/checkout#headless-embedded-card-stripe-only) (`createSetupIntent` -> confirm client-side -> `createSubscriptionHeadless`); those live on `@kerne/server`, not here.
+</Note>
+
 `openCheckout()` redirects the browser directly (`window.location.href = url`). If you want the URL instead - to open in a new tab, or handle the redirect yourself - use `createCheckout()`, which returns the URL without navigating:
 
 ```tsx

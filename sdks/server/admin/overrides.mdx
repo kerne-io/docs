@@ -14,6 +14,14 @@ await kerne.admin.grant('api_calls', {
   expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
 });
 
+// One counter instead of the whole subject, on a feature limited per dimension
+await kerne.admin.grant('machine_minutes', {
+  subject: userId,
+  dimension: 'machine_42', // only this machine; the others keep the plan's limit
+  value: '180',
+  reason: 'Loaner machine while theirs is repaired',
+});
+
 // List
 const grants = await kerne.admin.listGrants(); // every override in the tenant
 const forUser = await kerne.admin.listGrants(userId); // just this subject
@@ -21,6 +29,14 @@ const forUser = await kerne.admin.listGrants(userId); // just this subject
 // Revoke
 await kerne.admin.revokeGrant(overrideId);
 ```
+
+## Subject, or one counter
+
+Without `dimension`, the grant covers the subject: on a feature limited per dimension, every counter gets that limit of its own. With `dimension`, only that counter moves.
+
+The two stack, most specific first - a counter uses its own grant if it has one, the subject's otherwise, and the plan's if neither exists. So "every machine to 3h, except this one at 5h" is two grants, not a list of every machine.
+
+A `dimension` is only read when the plan limits that feature per dimension. Under a shared limit the grant still saves, but never resolves - naming one machine cannot carve a private allowance out of a pool. Passing one on a feature with no dimension key is rejected.
 
 Each entry includes `is_expired` - an expired override still shows up in the list (for audit history), it's just no longer applied. `overage` are never overridden this way - they're always read from the plan's own entitlement definition.
 

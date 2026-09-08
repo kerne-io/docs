@@ -1,0 +1,108 @@
+---
+title: 'Is Kerne a fit?'
+description: "When Kerne is the right layer for your product — and when it isn't yet"
+---
+
+Kerne answers one question on every request: **does this subject have the right to do that, right now, given what it pays?**
+
+If that is the question your product needs answered cleanly, Kerne is usually a strong fit. If it isn't, or if you need something Kerne deliberately does not do yet, it is better to know before you build.
+
+## When Kerne fits well
+
+Kerne is a good match when most of these are true:
+
+- You sell **to individual users** (or you can designate one user as the billing subject for an account).
+- You want **entitlements**, not plan-name checks, in your code (`allows('export_pdf')` instead of `if (user.plan === 'pro')`).
+- You need **versioned packs** so changing a plan does not silently change what existing subscribers already paid for.
+- You bill through **Stripe** (or already use Polar) and want Kerne as the source of truth for access, with the provider only moving money.
+- You want **usage / metered pricing** with real rates, tiers, caps, and optional dimensions (per project, per machine, per seat) without building the metering layer yourself.
+- You are fine with **email + password and magic link** for authentication today (or you already own identity elsewhere and only need Kerne for monetization — see the caveats below).
+
+In that shape, the model stays small: one subject, one subscription, a pack of entitlements, and a single decision on every gated action.
+
+## When it is not a native fit yet
+
+These are intentional boundaries, not missing checkboxes. They matter more than feature lists.
+
+### Organizations / teams as the billing unit
+
+A **subject is always one user**. There is no `subject_type: "ORGANIZATION"` and no pooled quota that belongs to a company as a first-class object.
+
+If what you sell is “one company, twenty seats, one shared subscription, one shared allowance,” you will either:
+
+- designate one user (owner / billing contact) as the subject and build membership in your own database, or
+- wait until native organization subjects exist.
+
+Both are valid. The first is a workaround you own; the second is not available today.
+
+### Social / OAuth login
+
+Only **email + password** and **magic link** are supported. There is no Google, GitHub, or other OAuth provider integration yet (the `oauth_providers` field on auth config exists but is always empty).
+
+If social login is a hard requirement on day one, either keep identity in your own stack and use Kerne only for entitlements/billing, or plan for OAuth to land later.
+
+### Fine-grained roles and permissions
+
+There is **no per-user RBAC**, no custom roles, and no admin flag on a user session. Admin operations on your tenant require your **secret key**, not a logged-in user’s JWT.
+
+If you need “this teammate can manage billing but not delete the project,” that logic lives in your app for now.
+
+### External subjects without a Kerne user
+
+You cannot attach a subscription or a meter to an arbitrary external ID (Clerk, Auth0, Firebase, …) without a corresponding Kerne user. The subject in `allows` / `consume` is always a Kerne user id.
+
+Workaround: create a Kerne user that mirrors your external identity and use that id as the subject. It works; it is not a pure external-subject model.
+
+## Common product shapes
+
+| What you sell                                                                                       | Fit today              | Notes                                                       |
+| --------------------------------------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------- |
+| Per-seat SaaS where each person logs in and pays (or is invited under one payer you model yourself) | Strong                 | Subject = user is natural                                   |
+| Usage-based API / AI / infrastructure (tokens, minutes, messages)                                   | Strong                 | Meters, rates, caps, dimensions are first-class             |
+| Good-better-best plans with boolean + quota features                                                | Strong                 | Packs + grandfathering are built for this                   |
+| B2B with one company subscription and pooled quotas                                                 | Partial                | Needs a designated billing user + your own membership model |
+| Product that already has Clerk/Auth0 and only wants entitlements                                    | Partial                | Possible via mirrored users; not a pure external subject    |
+| Consumer app that requires “Sign in with Google” on day one                                         | Weak until OAuth ships | Identity is the blocker, not monetization                   |
+
+## What you get if it fits
+
+- One decision API: `allows` / `enforce` / `check` / `consume`
+- Plans that pin a **versioned pack** so existing subscribers are not silently moved
+- Usage billing with rates you write the way you sell them (not only “per unit”), optional money caps, and dimensions
+- Hosted auth + billing portal when you do not want to build those screens
+- React hooks and prebuilt UI when you do
+
+Stripe (or Polar) remains the payment rail. Kerne decides access and what should be charged; the provider moves the money.
+
+## What you should not expect yet
+
+- Native organizations / team subjects
+- OAuth / social login
+- Per-user roles and permissions
+- True external subjects with no Kerne user
+- Catalog management from the server SDK (products, plans, packs stay in the dashboard / control plane)
+
+## Practical rule
+
+If your product’s core loop is **“this user, under this subscription, may do X right now”**, Kerne is usually the right layer.
+
+If your core loop is **“this company, with these roles, under this shared pool, signed in with Google”**, you will be fighting the model or waiting on the roadmap.
+
+Either way, the rest of the docs assume the first shape. The second is called out wherever it would otherwise surprise you.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Platform overview" icon="map" href="/concepts/overview">
+    The mental model: subject, pack, entitlement, decision.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Gate a feature end to end in a few minutes.
+  </Card>
+  <Card title="Designing pricing" icon="compass" href="/guides/billing/designing-pricing">
+    Bundling vs metering, and which shape fits what you sell.
+  </Card>
+  <Card title="Usage billing" icon="gauge" href="/concepts/monetization/usage-billing">
+    Rates, caps, dimensions, and what actually reaches the invoice.
+  </Card>
+</CardGroup>

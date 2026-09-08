@@ -39,6 +39,10 @@ Pass `requested` to check a quantity before it's consumed, not just whether the 
 
 There's no plan-slug guard on purpose - matching on a plan **name** breaks silently the moment you rename a plan, or a customer ends up on an equivalent plan under a different slug. `Access` always checks the actual entitlement instead, so the check keeps working no matter how the plan behind it is restructured.
 
+<Warning>
+`<Access>` (via `useAccess`) is a live per-feature check and is what you gate on. `useEntitlements()` is a **cached list for display** - it has no per-feature `allowed` field, so a QUOTA verdict read from it can be stale. Render meters and "what's included" from `useEntitlements()`; decide whether an action may run with `useAccess` / `<Access>`.
+</Warning>
+
 ## Combined guard
 
 ```tsx

@@ -24,10 +24,13 @@ const result = await kerne.check('api_calls', { subject: userId });
   The feature's key, as configured in the dashboard.
 </ParamField>
 <ParamField path="subject" type="string">
-  Whose entitlement to check. With a secret key there's no "current user" - you must pass this explicitly (it's the id you used as `subject_id` when the subscription was created).
+  Whose entitlement to check. Optional in the type, but with a secret key there's no "current user" - pass it explicitly (it's the id you used as `subject_id` when the subscription was created).
 </ParamField>
 <ParamField path="requested" type="number">
   For quota features: "can this subject use `requested` more units?" - defaults to `1`.
+</ParamField>
+<ParamField path="dimension" type="string">
+  For a feature whose limit binds per dimension (per machine, per project, per seat): which slice to check. The SDK param is `dimension`; it goes on the wire as `dimension_id`. See [`consume()` > Dimensions](/sdks/server/entitlements/consume#dimensions) for the full behavior.
 </ParamField>
 
 ## `enforce()` throws a plain `Error`

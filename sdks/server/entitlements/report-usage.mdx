@@ -30,7 +30,7 @@ await kerne.reportUsage('storage_megabytes', {
   Arbitrary context stored alongside the usage event (e.g. `request_id`).
 </ParamField>
 <ParamField path="dimension" type="string">
-  Same field as [`consume()`'s `dimension`](/sdks/server/entitlements/consume#dimensions) - routes the write to the right per-dimension counter on a plan that counts per machine, project or seat. One difference: `consume()` requires it on a dimensioned feature (it's gating access), `reportUsage()` doesn't (it never blocks) - omit it there and the write lands on the feature's shared counter instead of a specific dimension.
+  Same field as [`consume()`'s `dimension`](/sdks/server/entitlements/consume#dimensions) - routes the write to the right per-dimension counter on a plan that counts per machine, project or seat. The SDK param is `dimension`; it is sent on the wire as `dimension_id`. One difference from `consume()`: that one requires it on a dimensioned feature (it's gating access), `reportUsage()` doesn't (it never blocks) - omit it and the write lands on the feature's shared counter instead of a specific dimension.
 </ParamField>
 
 ## Many at once

@@ -1,25 +1,43 @@
 ---
 title: "Quickstart"
-description: "Deploy your first monetized app in under 5 minutes"
+description: "Gate one real feature behind a Kerne entitlement, end to end"
 ---
 
-This gets one feature gated behind a real subscription, end to end: sign a user up, check what they're entitled to, gate a button on it. Kerne sits in front of the Stripe account you connect - Stripe still moves the money, Kerne decides who's allowed to do what.
+This walkthrough gets a single feature (`export_pdf`) gated on your backend with `kerne.allows()`, and optionally in React with `<Access>`. Kerne resolves the check against a plan you configure in the Dashboard; Stripe still moves the money when a user subscribes.
+
+## What you will have at the end
+
+- `export_pdf` gated on your backend with `kerne.allows('export_pdf', { subject })`, and optionally in the browser with `<Access featureKey="export_pdf">`
+- A user who can sign up and log in (email + password)
+- The check reading a real entitlement from the plan that user is on — a default free plan, or one they subscribed to
 
 ## Prerequisites
 
 - Node.js 18 or later
-- A Kerne app (`x-app-id`) and, for backend calls, a secret key (`sk_live_...` or `sk_test_...`)
+- A Kerne app id (`x-app-id`) and a secret key (`sk_test_...` or `sk_live_...`), from the Kerne Dashboard
+- Stripe connected to your tenant in the Kerne Dashboard — [checkout](#9-optional-subscribe-the-user-first) does not work without it. The entitlement check itself does not need Stripe.
+- Access to the Kerne Dashboard to create a product, a plan, and a feature
 
-## 1. Install the SDKs
+## 1. Create the entitlement in the Dashboard
+
+Kerne resolves every check against the catalog you configure in the Dashboard. Products, plans, and features are **Dashboard-only** — `@kerne/server` and `@kerne/react` never create or edit them.
+
+In the Dashboard, under **Catalog**:
+
+1. Create or open a **product**.
+2. Add a **plan** to it. For a user who has never subscribed to pass a check, this plan must be marked **default**, and both it and its product must be **active** — a subject with no subscription resolves to that plan. If there is no active default plan, a subject gets entitlements only after subscribing ([step 9](#9-optional-subscribe-the-user-first)).
+3. Add a **feature** with the key exactly `export_pdf`. Use feature type **Boolean** for this walkthrough — every sample below assumes Boolean.
+4. On the plan, set `export_pdf`'s value to **enabled**.
+
+If `export_pdf` is not on the plan the subject is on, `allows('export_pdf')` returns `false` and `check()` reports `configured: false`. That is the normal "not sold to this subject" result, not an error.
+
+## 2. Install
 
 <Tabs>
   <Tab title="npm">
     ```bash
-    # For your backend
-    npm install @kerne/server
-
-    # For your React frontend
-    npm install @kerne/react
+    npm install @kerne/server   # backend
+    npm install @kerne/react    # React frontend
     ```
   </Tab>
   <Tab title="pnpm">
@@ -29,9 +47,9 @@ This gets one feature gated behind a real subscription, end to end: sign a user 
   </Tab>
 </Tabs>
 
-## 2. Backend setup
+## 3. Backend client
 
-The server SDK is the only place that should ever hold your secret key - it's what lets you act on behalf of any user (create their subscription, correct their usage, grant an override).
+The secret key belongs only on the server. It lets a request act on behalf of any subject, so it must never reach the browser bundle.
 
 ```typescript
 // src/lib/kerne.ts
@@ -39,13 +57,11 @@ import { Kerne } from '@kerne/server';
 
 export const kerne = new Kerne({
   appId: process.env.KERNE_APP_ID!,
-  secretKey: process.env.KERNE_SECRET_KEY!, // sk_live_...
+  secretKey: process.env.KERNE_SECRET_KEY!, // sk_test_... or sk_live_...
 });
 ```
 
-## 3. Frontend setup
-
-`KerneProvider` never takes a secret key - only `appId`. It manages the session (login state, token refresh) for you.
+## 4. Frontend provider
 
 ```tsx
 // src/providers.tsx
@@ -60,66 +76,134 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## 4. Sign a user up and log them in
+`KerneProvider` takes `appId` only — it never accepts a secret key.
+
+## 5. Sign the user up
 
 <CodeGroup>
 ```typescript Server
-const { token, user } = await kerne.auth.signup({
-  email: 'user@example.com',
+import { kerne } from './lib/kerne';
+
+const { user, token } = await kerne.auth.signup({
+  email: 'alice@example.com',
   password: 'a-strong-password',
 });
+// user.id is the Kerne user id
 ```
 
 ```tsx Client
 import { useAuth } from '@kerne/react';
 
-function LoginForm() {
-  const { login } = useAuth();
+function SignUp() {
+  const { register } = useAuth();
 
   return (
-    <button onClick={() => login({ email, password })}>
-      Log in
+    <button
+      onClick={() =>
+        register({ email: 'alice@example.com', password: 'a-strong-password' })
+      }
+    >
+      Create account
     </button>
   );
 }
 ```
 </CodeGroup>
 
-## 5. Gate a feature behind an entitlement
+Kerne auth is email/password and magic link only. Returning users log in with `kerne.auth.login({ email, password })` on the server, or `useAuth().login({ email, password })` in React.
 
-On the server, `subject` says whose entitlement you're checking - with a secret key there's no "current user", so you always pass it explicitly (it's whatever id you used as `subject_id` when creating the subscription, typically your own user id):
+The `subject` for a server-side check is the user's **Kerne user id** (`user.id`). If you create subscriptions with your own external id as `subject_id`, pass that same value as `subject` instead.
 
-<CodeGroup>
-```typescript Server
-const canExport = await kerne.allows('export_pdf', { subject: user.id });
+## 6. Gate the feature on the backend
 
-if (!canExport) {
-  throw new Error('Upgrade required');
+```typescript
+import { kerne } from './lib/kerne';
+
+// e.g. an Express / Next.js route handler
+export async function exportPdfRoute(req, res) {
+  const userId = req.user.id; // from your own auth — the id you check against
+
+  if (!(await kerne.allows('export_pdf', { subject: userId }))) {
+    return res.status(403).json({ error: 'upgrade_required' });
+  }
+
+  return res.json(await renderPdf());
 }
 ```
 
-```tsx Client
-import { Access } from '@kerne/react';
+`allows()` returns a boolean and never throws for a denial. With a secret key there is no implicit "current user", so always pass the `subject` you mean.
 
+## 7. Gate the feature in React (optional)
+
+```tsx
+import { Access, useAccess } from '@kerne/react';
+
+// Declarative
 function ExportButton() {
   return (
-    <Access featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
+    <Access featureKey="export_pdf" fallback={<a href="/pricing">Upgrade to export</a>}>
       <button onClick={exportPdf}>Export as PDF</button>
     </Access>
   );
 }
-```
-</CodeGroup>
 
-On the client, `Access` (and the `useAccess` hook) check the *logged-in* user automatically - no subject to pass, the SDK already knows who's authenticated.
+// Or imperative
+function ExportButtonHook() {
+  const { allowed, isLoading } = useAccess('export_pdf');
+  if (isLoading) return null;
+  return allowed ? (
+    <button onClick={exportPdf}>Export as PDF</button>
+  ) : (
+    <a href="/pricing">Upgrade</a>
+  );
+}
+```
+
+`<Access>` and `useAccess` check the logged-in user — no `subject` to pass. Do not gate on `useEntitlements()`: that list is for rendering a "your plan" screen and carries no per-feature `allowed` verdict. A client-side check is a UX convenience; the authoritative check stays on your backend (step 6).
+
+## 8. Verify
+
+- Default plan with `export_pdf` enabled → step 6 returns `200`, `<Access>` renders its children.
+- Feature missing from the plan, or no default plan and no subscription → `allows` is `false`, and `check().configured` is `false`.
+
+## 9. Optional: subscribe the user first
+
+If `export_pdf` lives only on a paid plan, the subject needs a subscription before the gate can pass. Checkout is a redirect flow:
+
+```typescript
+import { kerne } from './lib/kerne';
+
+// Resolve the plan's price id (pass a label when the plan has several prices)
+const planPriceId = await kerne.billing.priceIdFor('pro'); // or priceIdFor('pro', 'annual')
+
+const { url } = await kerne.billing.checkout(planPriceId, { subject: userId });
+// redirect the user to `url`; the subscription is created once the provider confirms payment
+```
+
+In React, `useCheckout().openCheckout(planPriceId)` performs the redirect for the logged-in user. See [Checkout](/sdks/server/billing/checkout).
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+| --- | --- |
+| `allows('export_pdf')` is `false` | `export_pdf` not enabled on the subject's plan; no active default plan and no subscription; wrong `subject` id; the Boolean value set to off |
+| `check()` returns `configured: false` | nothing in the catalog resolved for this subject and feature — unknown key, or the feature is not on the resolved plan and has no override |
+| `401` on a backend call | wrong secret key or app id, or the secret key was sent from the browser |
+| `checkout()` fails | Stripe not connected to the tenant in the Dashboard, or a plan **id** passed where a **plan price id** is required |
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Server SDK reference" icon="server" href="/sdks/server/overview">
-    Every method, organized by what it's for.
+    Every method, grouped by who calls it.
   </Card>
   <Card title="React SDK reference" icon="react" href="/sdks/client/react/overview">
     Hooks and guard components for your UI.
+  </Card>
+  <Card title="Entitlements" icon="key" href="/concepts/monetization/entitlements">
+    The three feature types, and what a check returns.
+  </Card>
+  <Card title="Checking entitlements" icon="check" href="/guides/getting-started/checking-entitlements">
+    The standard server + client gating pattern.
   </Card>
 </CardGroup>

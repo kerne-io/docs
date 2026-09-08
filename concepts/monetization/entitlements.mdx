@@ -1,5 +1,5 @@
 ---
-title: "Entitlements"
+title: 'Entitlements'
 description: "What a plan actually grants, and how it's checked"
 ---
 
@@ -14,6 +14,7 @@ An entitlement is one feature's value for one subject, resolved from whatever pa
     ```typescript
     const { allowed } = await kerne.check('sso_enabled', { subject: userId });
     ```
+
   </Tab>
   <Tab title="Quota">
     A numeric limit with usage tracking - `limit`, `used`, `remaining`. The feature says what it counts (`minute`, `token`), how often the count renews (`DAILY`, `WEEKLY`, `MONTHLY`, `BILLING_CYCLE`) and what happens to what's unused:
@@ -32,6 +33,7 @@ An entitlement is one feature's value for one subject, resolved from whatever pa
     - `BILL` lets it through and charges for it, up to an optional money ceiling you set. You write the rate on the plan and Kerne creates the meter and its price at Stripe - this is the "$20/mo base, then $0.01 per email past 10,000" model. See [Usage billing](/concepts/monetization/usage-billing) for how the rate, the money ceiling and the hard stop differ.
 
     Only `RESET` can be billed: a carried-over balance would charge the same units again next period.
+
   </Tab>
   <Tab title="Static">
     A config value, not a limit - returned as-is (e.g. `support_level: "gold"`).
@@ -39,6 +41,7 @@ An entitlement is one feature's value for one subject, resolved from whatever pa
     ```typescript
     const { value } = await kerne.check('support_level', { subject: userId });
     ```
+
   </Tab>
 </Tabs>
 
@@ -46,19 +49,97 @@ An entitlement is one feature's value for one subject, resolved from whatever pa
 
 All three resolve the same entitlement - they differ only in what they hand back:
 
-| | Returns | Use it for |
-|---|---|---|
-| `allows()` | `boolean` | UI conditionals |
-| `enforce()` | nothing, throws if denied | guards/middleware |
-| `check()` | the full object (`limit`/`used`/`remaining`/...) | anywhere you need the detail, not just yes/no |
+|             | Returns                                          | Use it for                                    |
+| ----------- | ------------------------------------------------ | --------------------------------------------- |
+| `allows()`  | `boolean`                                        | UI conditionals                               |
+| `enforce()` | nothing, throws if denied                        | guards/middleware                             |
+| `check()`   | the full object (`limit`/`used`/`remaining`/...) | anywhere you need the detail, not just yes/no |
 
-For quota features specifically, use `consume()` instead of `check()` when the action you're gating *is* the usage - it checks the limit and commits the increment in one atomic step, so two concurrent requests can't both slip through a `BLOCK` limit. `check()`/`allows()` never increment anything.
+`allows()` is exactly `check().allowed` - the same request, with everything but the boolean discarded. It never throws for a denial. `enforce()` runs the same check and throws when `allowed` is `false`; the throw is a plain `Error`, not a typed `KerneError`, and is not tied to an API error code (see [Errors](#errors)).
+
+For quota features specifically, use `consume()` instead of `check()` when the action you're gating _is_ the usage - it checks the limit and commits the increment in one atomic step, so two concurrent requests can't both slip through a `BLOCK` limit. `check()`/`allows()` never increment anything.
+
+## The `check()` result, field by field
+
+`check()` returns an `EntitlementCheck`. Every field, and whether to gate on it:
+
+| Field | Meaning | Use for access control? |
+| --- | --- | --- |
+| `allowed` | May the subject do this **right now** | **Yes - this is the gate** |
+| `configured` | Did the catalog or an override say anything about this feature for this subject | No - diagnostics only |
+| `feature_type` | `BOOLEAN` / `QUOTA` / `STATIC`, or `UNKNOWN` for a key that doesn't exist | Branch on it for display |
+| `enabled` | Boolean features: the resolved on/off value | Same as `allowed` for a boolean; still gate on `allowed` |
+| `limit` / `used` / `remaining` | Quota features: the included allowance, consumed so far, and what's left (`null` = unlimited) | Display and your own logic; still gate on `allowed` |
+| `access_limit` | Where access actually stops: equal to `limit` under `BLOCK`, otherwise the overage ceiling, or `null` when there is none | Advanced |
+| `overage_behavior` | `BLOCK` / `ALLOW` / `BILL` - what happens past `limit` | Display / UX |
+| `cap_reached` | Spending cap hit; billing has stopped, consumption has not | **No - not an access signal by itself** |
+| `has_override` | An admin override applies to this subject and feature | Informational |
+| `subscription_status` | The subject's subscription status, or `NONE` | Display |
+| `value` | Static features: the config value, returned as-is | Read it; `allowed` mirrors `configured` for static |
+
+<Warning>
+`remaining` is plain subtraction and **does** go negative once a subject runs past what its plan includes. On a feature whose overage is `ALLOW` or `BILL`, `allowed` stays `true` there - the subject hasn't hit a wall, they've started paying (or you're tolerating it). Read `overage_behavior` before turning a negative `remaining` into "limit reached". `used` itself is never negative: a credit (rollover, or an [admin adjustment](/sdks/server/admin/usage-corrections)) is folded into `limit` instead.
+</Warning>
+
+## `configured` vs `allowed`
+
+`allowed` is the go/no-go. `configured` only tells you whether the catalog (or an override) *said anything* about this feature for this subject.
+
+### `configured: false` on the public check path always means `allowed: false`
+
+`EntitlementService.checkEntitlement` (the path `@kerne/server` and `@kerne/react` hit) returns `configured: false` and `allowed: false` together in every one of these cases:
+
+- the feature key does not exist (`feature_type: 'UNKNOWN'`)
+- the subject has no subscription **and** no override **and** no active default plan/pack
+- a pack resolved, but this feature isn't in it and there is no override
+
+An unconfigured feature is not a sold capability. There is no `configured: false` + `allowed: true` on this path - that combination only exists for Kerne's own internal platform features, which are not part of this contract.
+
+### What to gate on
+
+```typescript
+// Correct for almost every product check
+if (await kerne.allows('export_pdf', { subject: userId })) {
+  // ...
+}
+
+// Equivalent
+const check = await kerne.check('export_pdf', { subject: userId });
+if (check.allowed) {
+  // ...
+}
+```
+
+Do **not** treat `configured: false` as "open by default". Read `configured` only when you must tell "not sold yet" apart from "sold and denied" - for example, falling back to a documented product default while the catalog is still being filled in, or emitting a diagnostic:
+
+```typescript
+const check = await kerne.check('export_pdf', { subject: userId });
+
+if (!check.configured) {
+  // Catalog never spoke about this feature for this subject.
+  // Your own documented fallback, a metric, or an admin alert - not a grant,
+  // unless granting here is an explicit product decision.
+}
+
+if (check.allowed) {
+  // Subject may proceed
+}
+```
+
+### Quick matrix
+
+| Situation | `configured` | `allowed` |
+| --- | --- | --- |
+| Plan includes the feature, within quota / enabled | `true` | `true` |
+| Plan excludes the feature (boolean off, or quota exhausted under `BLOCK`) | `true` | `false` |
+| Feature missing from pack / no pack / unknown key | `false` | `false` |
+| Active override applies | `true` | `true` / `false` by override value |
 
 ## Two ways an admin can deviate from the plan
 
 These solve different problems - don't reach for one when you mean the other:
 
-- **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift.
+- **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift. It covers the whole subject, or [one counter](/sdks/server/admin/overrides) of a feature limited per dimension.
 - **`kerne.admin.adjustUsage()`** offsets the usage counter by a signed delta, once. This is "credit this customer 500 units back," and has no effect on their limit going forward.
 
 ## Errors

@@ -1,0 +1,190 @@
+Oui — les ` ``` ` à l’intérieur cassaient le fence. Voici le guide **Usage billing end-to-end** avec un fence externe à 4 backticks pour que tout le MDX reste intact :
+
+````mdx
+---
+title: 'Usage billing end-to-end'
+description: "From a blank feature to a line on the customer's invoice"
+---
+
+This walkthrough builds one metered feature from zero: define it, put it on a plan, charge past the included amount, count usage from your backend, and see what reaches the invoice.
+
+The example product is a **makerspace that rents laser cutters**:
+
+> 0 included minutes · **0.35 € per started hour** · never more than **120 € per customer per billing cycle**.
+
+Swap the numbers for tokens, messages, or seats — the shape stays the same.
+
+## What you will have at the end
+
+1. A quota feature `cutter_minutes`
+2. A plan that grants `0` minutes and bills overage
+3. A rate written the way you sell it (`0.35 EUR per 60 minutes`)
+4. A spending cap of `120 EUR`
+5. Backend calls that count usage safely
+6. Visibility on the **Metered usage** screen in the dashboard
+
+## Prerequisites
+
+- A Kerne app with Stripe connected
+- `@kerne/server` on your backend
+- Ability to open the Kerne dashboard (Pricing editor)
+
+## 1. Create the feature
+
+In the dashboard → your product → **Features**:
+
+| Field      | Value               |
+| ---------- | ------------------- |
+| Name       | Laser cutter time   |
+| Key        | `cutter_minutes`    |
+| Type       | Quota               |
+| Unit label | `minute`            |
+| Renews     | Every billing cycle |
+
+Use the **smallest unit you bill** (minutes, not hours). Kerne counts whole numbers; a fractional hour has nowhere to go.
+
+Leave **dimension** empty for a single pool per customer. If you later want “per cutter”, set dimension to `cutter` on the feature — see [per machine, per project, per seat](/concepts/monetization/usage-billing#per-machine-per-project-per-seat).
+
+## 2. Put it on a plan
+
+Open the **Pricing editor** for that product.
+
+1. Select the plan (e.g. Pay-as-you-go).
+2. Find the `cutter_minutes` row.
+3. Set **included** to `0`.
+4. Under **Past the allowance**, choose **Bill it**.
+5. Write the rate as you sell it:
+   - Amount: `0.35`
+   - Currency: `EUR`
+   - Per: `60` minutes
+   - Partial block: **rounded up** (a started hour counts whole)
+
+6. Set a **spending cap**: `120` EUR per billing cycle, applied **per customer**.
+
+Kerne creates the meter and the price at Stripe from that line. You do not copy price IDs back.
+
+Save / publish the pack version so new subscribers get this configuration. Existing subscribers stay on the pack they already had (grandfathering).
+
+## 3. Count usage from your backend
+
+Only the **server** SDK should commit usage. A browser-only check is trivial to bypass.
+
+```typescript
+import { Kerne } from '@kerne/server';
+
+const kerne = new Kerne({
+  appId: process.env.KERNE_APP_ID!,
+  secretKey: process.env.KERNE_SECRET_KEY!,
+});
+
+// One hour of cutter time for this customer
+const result = await kerne.consume('cutter_minutes', {
+  subject: customerId, // Kerne user id
+  delta: 60,
+});
+
+if (!result.allowed) {
+  // Hard limit hit (if you set a unit ceiling), or other denial
+  return res.status(403).json({ error: 'Usage not allowed' });
+}
+```
+````
+
+- `consume` checks **and** increments atomically.
+- Use `reportUsage` only when you intentionally record without gating.
+- For many events at once, prefer `reportBatch` on the server.
+
+With a **spending cap only** (no unit ceiling), usage past 120 € still **works** — Kerne simply stops charging. That is intentional: a money promise should not become an outage. See [Why the cap doesn't block](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
+
+## 4. Show remaining allowance in the UI (optional)
+
+On the client, never `consume`. Only reflect state:
+
+```tsx
+import { useUsage, useAccess } from '@kerne/react';
+
+function CutterStatus() {
+  const { usage } = useUsage('cutter_minutes');
+  const { details } = useAccess('cutter_minutes');
+
+  // details?.remaining, details?.limit, details?.overage_behavior
+  // usage rows carry consumed / period info for display
+}
+```
+
+Or use `<Access featureKey="cutter_minutes">` to hide a control when a hard limit is hit.
+
+## 5. What the customer is charged
+
+A background worker forwards billable units to Stripe. On the next invoice the customer sees the overage line items produced from your rate (and stops accruing charge once the 120 € cap is reached).
+
+In the Kerne dashboard, **Metered usage** shows:
+
+- Consumed / included / billable
+- Amount already billed this period
+- Room left under the cap
+- **Not billing** rows if the provider is rejecting usage (price archived, meter disabled, …)
+- **Capped** rows when access continues but billing has stopped
+
+Those numbers come from the same path the billing worker uses — not a parallel estimate.
+
+## 6. Common mistakes (and how to avoid them)
+
+| Mistake                                           | What happens                            | Fix                                                                                                             |
+| ------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Counting in hours instead of minutes              | Fractional hours can't be stored safely | Always meter the smallest unit; price as “0.35 per 60 minutes”                                                  |
+| Calling `consume` only from the browser           | Users can bypass the gate               | Commit usage on the server                                                                                      |
+| Expecting the money cap to block access           | Access continues after the cap          | Add a **unit ceiling** if you truly need a hard stop                                                            |
+| Combining “carry over unused” with “bill overage” | Would charge last period again          | Billed quotas must reset each period — Kerne refuses the pair                                                   |
+| Changing a rate in place                          | Provider prices are immutable on amount | Replace the rate (dashboard does this); old subscribers keep the price they signed up on until they change plan |
+
+Full reference: [Usage billing](/concepts/monetization/usage-billing) and [Designing your pricing](/guides/billing/designing-pricing).
+
+## 7. Optional: per-cutter pools
+
+If each machine should have its own allowance and/or cap:
+
+1. On the feature, set **dimension** to `cutter`.
+2. On the plan, choose **per cutter** for the allowance and/or the money cap.
+3. Pass the dimension on every consume:
+
+```typescript
+await kerne.consume('cutter_minutes', {
+  subject: customerId,
+  dimension: 'cutter_42',
+  delta: 60,
+});
+```
+
+Same feature, two different commercial promises — without new code paths beyond the dimension argument.
+
+## Checklist
+
+- [ ] Feature `cutter_minutes` (quota, unit = minute, renews on billing cycle)
+- [ ] Plan includes `0`, overage = bill, rate = 0.35 EUR / 60 minutes, cap = 120 EUR
+- [ ] Pack published
+- [ ] Backend uses `consume` with the Kerne user id as `subject`
+- [ ] UI only reads usage / access (no client-side consume)
+- [ ] Metered usage screen shows the subscriber after real traffic
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Usage billing (deep dive)" icon="book" href="/concepts/monetization/usage-billing">
+    Rates, tiers, caps, dimensions, and edge cases.
+  </Card>
+  <Card title="Designing pricing" icon="compass" href="/guides/billing/designing-pricing">
+    Bundling vs metering, hard limits vs pay-as-you-go.
+  </Card>
+  <Card title="consume()" icon="code" href="/sdks/server/entitlements/consume">
+    Full options and return shape.
+  </Card>
+  <Card
+    title="Enforcing limits without breaking UX"
+    icon="shield"
+    href="/guides/billing/enforcing-limits-without-breaking-ux"
+  >
+    How to show upgrade / limit states without dead-ends.
+  </Card>
+</CardGroup>
+````

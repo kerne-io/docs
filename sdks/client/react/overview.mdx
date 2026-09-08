@@ -29,9 +29,11 @@ function Root() {
 
 ## Core hooks
 
-- **`useAuth()`** - the logged-in user, and every auth action (login/register/logout/password/verification). See [Login](/sdks/client/react/auth/login).
+- **`useAuth()`** - the logged-in user, and every auth action (login/register/logout/password/verification). Also `redirectWithSession(url)`, for handing the session back to your app from Kerne's hosted auth origin - see [Handoff](/sdks/client/react/auth/handoff). See [Login](/sdks/client/react/auth/login).
+- **`useAuthConfig()`** - the tenant's public auth config (`enable_credentials`, `enable_magic_link`, `registration_mode`, branding). The prebuilt forms read it to decide what to render; a custom auth UI must read the same thing. See [Auth config](/sdks/server/auth/config#building-a-custom-auth-ui).
 - **`useAccess(featureKey)`** - `{ allowed, details, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). `allowed` is the go/no-go; `details` carries the detail (`limit`/`used`/`remaining`/`overage_behavior`) when you want to show *how much* is left. One request either way. See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
-- **`useCheckout()`** / **`usePortal()`** - start a checkout session, or open the billing portal. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
+- **`useEntitlements()`** - the whole entitlement list for a "your plan" screen. It has **no per-feature `allowed` field** (the list is cached) - never gate on it; use `useAccess` for that. See [List entitlements](/sdks/client/react/billing/entitlements-list).
+- **`useCheckout()`** / **`usePortal()`** - start a checkout session, or open the billing portal. Redirect flows only. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
 - **`useSubscription()`** / **`useUser()`** - reactive reads of the caller's own subscription/profile.
 - **`useClient()`** - the underlying `KerneClient` instance, for anything not covered by the hooks above.
 

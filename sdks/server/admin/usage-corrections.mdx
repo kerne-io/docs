@@ -21,6 +21,8 @@ await kerne.admin.adjustUsage('api_calls', { subject: userId, delta: 3, idempote
 
 A negative delta can push the counter below zero internally - that's correct (it's real slack the subject has), and [`check()`](/sdks/server/entitlements/allows-enforce-check) never surfaces it as a negative number, it folds the credit into the displayed limit instead.
 
+`idempotencyKey` is optional and exists for safe retries: pass a stable key (e.g. the id of the correction you're applying) and a retried call with the same key won't apply the adjustment twice.
+
 ## `setUsage()` - only when you need an exact value
 
 ```typescript

@@ -36,6 +36,36 @@ const config = await kerne.auth.config();
 
 See [Registration modes](/concepts/identity/registration-modes) for what `registration_mode` controls.
 
+## Building a custom auth UI
+
+The prebuilt forms (`<AuthFlow>` and friends in `@kerne/react/ui`) read this endpoint - in React, via `useAuthConfig()` - to decide which fields and buttons to render. A hand-built auth UI has to read the same config, or it will offer a method the tenant has turned off:
+
+| Field | Drives |
+| --- | --- |
+| `enable_credentials` | Show the email + password form |
+| `enable_magic_link` | Show the "email me a link" option |
+| `registration_mode` | `OPEN` - show a sign-up form; `INVITE_ONLY` - require an invitation token/code first; `CLOSED` - no sign-up |
+| `password_policy` | The rules to validate the password field against (already clamped server-side to 8-128) |
+| `brand_primary_color` / `brand_logo_url` / `app_name` | Tenant branding for your screens |
+
+```typescript
+const config = await kerne.auth.config();
+
+if (config.enable_credentials) {
+  // render the password form
+}
+if (config.enable_magic_link) {
+  // render the magic-link option
+}
+if (config.registration_mode === 'CLOSED') {
+  // hide sign-up entirely
+}
+```
+
+<Warning>
+`oauth_providers` is part of the response shape, but there is no OAuth grant type server-side yet - a value there does not enable any sign-in path. The product has no social / OAuth login today; don't build UI off this field.
+</Warning>
+
 `portal_url` is where to actually send an unauthenticated visitor to reach the hosted portal (`apps/portal`) - every auth and billing flow (sign-up, magic link, password reset, email verification, checkout) resolves there, null only if no portal is deployed for this environment. `post_auth_redirect_url` is the opposite direction: where the portal sends the session back once it's done, `= portal_redirect_url ?? app_url`.
 
 <Note>

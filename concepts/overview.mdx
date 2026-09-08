@@ -1,6 +1,6 @@
 ---
-title: "Overview"
-description: "The mental model behind Kerne"
+title: 'Overview'
+description: 'The mental model behind Kerne'
 ---
 
 Kerne answers one question, asked on every request: **does this subject have the right to do that, right now, given what it pays?**
@@ -36,13 +36,17 @@ If the thing your product bills is a company or a team rather than a person, kno
     Email/password and magic-link sessions, invitation-gated or open registration, a waitlist.
   </Accordion>
   <Accordion title="Catalog & entitlements">
-    Products, plans versioned via packs - so upgrading a plan's entitlements never silently changes what existing subscribers get, see [grandfathering](/concepts/monetization/products-and-plans) - and three entitlement types: boolean flags, numeric quotas, and static config values.
+    Products, plans versioned via packs - so upgrading a plan's entitlements never silently changes
+    what existing subscribers get, see [grandfathering](/concepts/monetization/products-and-plans) -
+    and three entitlement types: boolean flags, numeric quotas, and static config values.
   </Accordion>
   <Accordion title="Payments">
-    Stripe is the payment rail to connect today (Polar also runs, for tenants connected before now). Kerne is always the source of truth for entitlements; the provider only handles money movement.
+    Stripe is the payment rail to connect today (Polar also runs, for tenants connected before now).
+    Kerne is always the source of truth for entitlements; the provider only handles money movement.
   </Accordion>
   <Accordion title="Admin">
-    No per-user admin flag - admin operations on your tenant require your secret key, not a user session.
+    No per-user admin flag - admin operations on your tenant require your secret key, not a user
+    session.
   </Accordion>
 </AccordionGroup>
 
@@ -52,10 +56,13 @@ Being explicit about this matters more than it sounds - a doc that describes a h
 
 <AccordionGroup>
   <Accordion title="Organizations / teams">
-    A subject is always one user - see [Subject: the concept that decides fit](#subject-the-concept-that-decides-fit) above. Billing or gating a whole team or company as a single unit, with a pooled quota, isn't implemented.
+    A subject is always one user - see [Subject: the concept that decides
+    fit](#subject-the-concept-that-decides-fit) above. Billing or gating a whole team or company as
+    a single unit, with a pooled quota, isn't implemented.
   </Accordion>
   <Accordion title="Role-based access control">
-    There's no per-user permission system at all - no custom roles, no per-resource permissions, no admin flag. Admin operations require your secret key.
+    There's no per-user permission system at all - no custom roles, no per-resource permissions, no
+    admin flag. Admin operations require your secret key.
   </Accordion>
   <Accordion title="OAuth / social login">
     Only email+password and magic-link-style flows exist.
@@ -63,6 +70,7 @@ Being explicit about this matters more than it sounds - a doc that describes a h
 </AccordionGroup>
 
 If your product needs any of these today, it's worth knowing before you build against Kerne - not after.
+For the full product-fit discussion (including workarounds), see [Is Kerne a fit?](/concepts/is-kerne-a-fit).
 
 ## Next
 
