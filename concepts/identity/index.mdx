@@ -1,37 +1,47 @@
 ---
-title: "Overview"
-description: "Understanding authentication in Kerne"
+title: 'Users and sessions'
+sidebarTitle: 'Overview'
+description: 'Signing people up, logging them in, and who those people are to Kerne'
 ---
 
-Identity in Kerne separates two questions: **who is this** (authentication) and **what have they paid for** (entitlements - see [Monetization](/concepts/monetization)).
+Before Kerne can decide what someone is allowed to do, it needs to know who they are. That part is deliberately small: Kerne holds users and sessions so that a subscription, a usage counter and an entitlement all have someone to belong to.
 
-## Authentication
+If you already run your own identity — Clerk, Auth0, your own table — you can mirror those users into Kerne and use it only for access decisions. That works; see [Is Kerne a fit?](/guides/is-kerne-a-fit#external-subjects-without-a-kerne-user) for what it costs you.
+
+## Signing in
 
 Kerne supports:
-- **Email and password** - the standard flow, via `kerne.auth.signup()` / `kerne.auth.login()`.
-- **Magic link** - `kerne.auth.startPasswordless(email)` emails a one-time link; `kerne.auth.loginWithMagicLink(token)` verifies it and logs the user in, signing them up on first click if registration allows it. Off by default per tenant - see `enable_magic_link` in [Registration modes](/concepts/identity/registration-modes).
 
-Not supported: social/OAuth login (Google, GitHub, etc.) - there's no provider integration, despite `AuthConfig.oauth_providers` existing as a field in the config response (it's always empty today).
+- **Email and password** — the standard flow, via `kerne.auth.signup()` / `kerne.auth.login()`.
+- **Magic link** — `kerne.auth.startPasswordless(email)` emails a one-time link; `kerne.auth.loginWithMagicLink(token)` verifies it and logs the user in, signing them up on first click if registration allows it. Off by default per tenant — see `enable_magic_link` in [Registration modes](/concepts/identity/registration-modes).
 
-Every successful signup/login returns a JWT access token plus a refresh token (`kerne.auth.token()`, or the higher-level `signup()`/`login()`). See [Registration modes](/concepts/identity/registration-modes) for how a tenant controls *who* is allowed to sign up.
+Not supported: social / OAuth login. There's no provider integration, despite `AuthConfig.oauth_providers` existing as a field in the config response — it's always empty today.
 
-## Authorization
+Every successful signup or login returns a JWT access token plus a refresh token (`kerne.auth.token()`, or the higher-level `signup()` / `login()`). [Registration modes](/concepts/identity/registration-modes) covers how a tenant controls *who* is allowed to sign up in the first place.
 
-There's no per-user permission system: no custom roles, no per-resource permissions. Admin operations on your tenant (managing users, correcting usage, granting overrides) require your secret key - never a user's session. See [Authorization](/concepts/identity/authorization) for exactly what that means in practice.
+## Two different questions
 
-Separately, entitlements are always granted to one user, never to a group - see [Subject: the concept that decides fit](/concepts/overview#subject-the-concept-that-decides-fit) if what you bill is a company or a team rather than a person.
+It's worth keeping these apart, because both get called "authorization" and they are not the same thing:
 
-## Entitlements
+| Question | Answered by | Where it lives |
+| --- | --- | --- |
+| Who is this? | Authentication — a session | This page |
+| What are they allowed to do, given what they bought? | [Entitlements](/concepts/monetization/entitlements) | Your catalog and their subscription |
+| May this caller manage my tenant? | The credential it authenticates with | [Admin access](/concepts/identity/admin-access) |
 
-Entitlements answer "what has this user paid for" and are covered in full in [Monetization](/concepts/monetization) - they're a separate axis from authorization. A user can be `ADMIN` and still be on a free plan with no `advanced_analytics` entitlement.
+The middle row is what Kerne is for. The last one is a much narrower thing: Kerne has **no per-user permission system** — no custom roles, no per-resource permissions, no admin flag on a user. Managing users, correcting usage or granting overrides requires your secret key, never a user's session.
+
+## Who an entitlement belongs to
+
+An entitlement is always granted to one user, never to a group. If what you sell is a company or a team as one unit, read [Who a decision is about](/concepts/overview#who-a-decision-is-about) before you design around it.
 
 ## Next
 
 <CardGroup cols={2}>
   <Card title="Registration modes" icon="door-open" href="/concepts/identity/registration-modes">
-    Open, invite-only, or closed - and how waitlist fits in.
+    Open, invite-only, or closed — and where a waitlist fits in.
   </Card>
-  <Card title="Authorization" icon="shield" href="/concepts/identity/authorization">
-    What requires your secret key today.
+  <Card title="Admin access" icon="shield" href="/concepts/identity/admin-access">
+    What requires your secret key, and why it can't come from a user session.
   </Card>
 </CardGroup>

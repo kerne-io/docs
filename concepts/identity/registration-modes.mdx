@@ -26,7 +26,7 @@ const config = await kerne.auth.config();
 //   oauth_providers, portal_url, user_registration_limit, app_name }
 ```
 
-Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured. `oauth_providers` is the one field here that still describes intent rather than a working flow - there's no OAuth integration yet, see [Identity overview](/concepts/identity).
+Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured. `oauth_providers` is the one field here that still describes intent rather than a working flow - there's no OAuth integration yet, see [Users and sessions](/concepts/identity).
 
 For a walkthrough of building an invite-only product end to end, see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).
 

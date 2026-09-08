@@ -31,7 +31,7 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
 
     ```typescript
     kerne.allows(featureKey, { subject })       // boolean, never throws
-    kerne.enforce(featureKey, { subject })      // throws a plain Error if denied
+    kerne.enforce(featureKey, { subject })      // throws EntitlementDeniedError if denied
     kerne.check(featureKey, { subject })        // full detail: limit/used/remaining/...
     kerne.consume(featureKey, { subject, delta })
     kerne.reportUsage(featureKey, { subject, delta })   // subject is required here

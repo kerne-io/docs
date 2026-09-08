@@ -1,6 +1,3 @@
-Oui — les ` ``` ` à l’intérieur cassaient le fence. Voici le guide **Usage billing end-to-end** avec un fence externe à 4 backticks pour que tout le MDX reste intact :
-
-````mdx
 ---
 title: 'Usage billing end-to-end'
 description: "From a blank feature to a line on the customer's invoice"
@@ -88,7 +85,6 @@ if (!result.allowed) {
   return res.status(403).json({ error: 'Usage not allowed' });
 }
 ```
-````
 
 - `consume` checks **and** increments atomically.
 - Use `reportUsage` only when you intentionally record without gating.
@@ -187,4 +183,3 @@ Same feature, two different commercial promises — without new code paths beyon
     How to show upgrade / limit states without dead-ends.
   </Card>
 </CardGroup>
-````

@@ -3,9 +3,15 @@ title: 'Entitlements'
 description: "What a plan actually grants, and how it's checked"
 ---
 
-An entitlement is one feature's value for one subject, resolved from whatever pack their subscription is pinned to (or overridden - see below). Every feature is one of three types.
+Your plans promise things. "Pro includes SSO." "Starter gets 10,000 API calls a month." "Enterprise customers get gold support."
 
-## The three types
+An **entitlement** is one of those promises, made concrete: a named capability with a value, for one specific customer. It's what your application asks about, and it's the reason `allows('sso_enabled')` can keep working after SSO moves from Pro to Enterprise.
+
+Where the value comes from is resolved for you — the plan they're on, the version of that plan they bought, an override negotiated with them specifically. What you configure is the promise; what your code sees is the answer.
+
+Every capability is one of three kinds.
+
+## The three kinds
 
 <Tabs>
   <Tab title="Boolean">
@@ -55,7 +61,7 @@ All three resolve the same entitlement - they differ only in what they hand back
 | `enforce()` | nothing, throws if denied                        | guards/middleware                             |
 | `check()`   | the full object (`limit`/`used`/`remaining`/...) | anywhere you need the detail, not just yes/no |
 
-`allows()` is exactly `check().allowed` - the same request, with everything but the boolean discarded. It never throws for a denial. `enforce()` runs the same check and throws when `allowed` is `false`; the throw is a plain `Error`, not a typed `KerneError`, and is not tied to an API error code (see [Errors](#errors)).
+`allows()` is exactly `check().allowed` - the same request, with everything but the boolean discarded. It never throws for a denial. `enforce()` runs the same check and throws `EntitlementDeniedError` when `allowed` is `false` - a `KerneError` subclass whose `.check` carries the full result (`limit`, `remaining`, `access_limit`, `configured`, ...), so a guard can branch on why (see [Errors](#errors)).
 
 For quota features specifically, use `consume()` instead of `check()` when the action you're gating _is_ the usage - it checks the limit and commits the increment in one atomic step, so two concurrent requests can't both slip through a `BLOCK` limit. `check()`/`allows()` never increment anything.
 
@@ -144,7 +150,7 @@ These solve different problems - don't reach for one when you mean the other:
 
 ## Errors
 
-`allows()`/`check()`/`consume()` never throw for a denial - a denied request comes back as `{ allowed: false, ... }`, a normal (200) response. `enforce()` is the one that throws, and it's a plain `Error` you catch yourself - not tied to an API error code. See [Enforcing limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux) for handling a denial gracefully instead of a hard failure.
+`allows()`/`check()`/`consume()` never throw for a denial - a denied request comes back as `{ allowed: false, ... }`, a normal (200) response. `enforce()` is the one that throws: an `EntitlementDeniedError` (a `KerneError` subclass, `code: 'ENTITLEMENT_DENIED'`) whose `.check` is the same full result the other three return, so you can tell an upgrade case (`configured: true`, quota exhausted) from a misconfiguration (`configured: false`). See [`enforce()` throws `EntitlementDeniedError`](/sdks/server/entitlements/allows-enforce-check#enforce-throws-entitlementdeniederror) and [Enforcing limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux).
 
 ## Next
 

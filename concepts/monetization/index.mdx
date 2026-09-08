@@ -1,9 +1,10 @@
 ---
-title: "Overview"
-description: "Decoupling pricing from code"
+title: 'Pricing lives outside your code'
+sidebarTitle: 'Pricing outside your code'
+description: 'Why your application should never name a plan'
 ---
 
-Without Kerne, billing logic tends to leak into scattered checks across your codebase:
+Here is the line that causes the trouble:
 
 ```typescript
 if (user.plan === 'pro') {
@@ -11,11 +12,13 @@ if (user.plan === 'pro') {
 }
 ```
 
-Change the packaging - move "Advanced Analytics" to a new "Enterprise" tier - and you have to hunt down every one of those checks and redeploy.
+It works. It keeps working right up until the day someone decides Advanced Analytics belongs on a new Enterprise tier — and then you go hunting for every place that name was written, in every service, and redeploy all of them to make a pricing decision take effect.
 
-## The Kerne approach
+The plan name was never the point. What you actually meant was *"is this customer allowed to see advanced analytics?"* — and that's a different question, with an answer that can change without your code changing.
 
-Plans grant **entitlements**, defined once in the dashboard (which feature, and what limit). Your code only ever asks about the feature, never the plan:
+## The shape Kerne gives it
+
+A plan grants **entitlements**: named capabilities, each with a value. Your code asks about the capability, never about the plan:
 
 ```typescript
 if (await kerne.allows('advanced_analytics', { subject: user.id })) {
@@ -23,10 +26,21 @@ if (await kerne.allows('advanced_analytics', { subject: user.id })) {
 }
 ```
 
-Reassign that feature to a different plan in the dashboard, and this line of code doesn't change - `allows()` resolves it dynamically every time.
+Move that feature to a different tier, raise its limit, put it behind a higher price, hand it to one customer as an exception — this line does not change. It resolves against whatever the rules currently say, every time it runs.
 
-## The pieces
+That indirection is the whole trade: you give up naming plans in code, and you get pricing you can change without a deploy.
 
-- **[Products & plans](/concepts/monetization/products-and-plans)** - what you sell, and how a plan's entitlements are versioned so changing a plan never silently changes what existing subscribers get.
-- **[Entitlements](/concepts/monetization/entitlements)** - the three entitlement types (boolean, quota, static) and how overrides/usage corrections work.
-- **[Usage billing](/concepts/monetization/usage-billing)** - charging for what gets consumed: the rate, the money ceiling that never blocks, and counting per machine, project or seat.
+## The three pieces
+
+<CardGroup cols={3}>
+  <Card title="What you sell" icon="tags" href="/concepts/monetization/products-and-plans">
+    Products, plans and prices — and the versioning that keeps existing subscribers on the deal they
+    actually bought.
+  </Card>
+  <Card title="What it grants" icon="key" href="/concepts/monetization/entitlements">
+    The three kinds of capability, how a check resolves, and how one customer gets an exception.
+  </Card>
+  <Card title="What it costs to use" icon="gauge" href="/concepts/monetization/usage-billing">
+    Charging for consumption: rates, spending caps, and counting per project or per machine.
+  </Card>
+</CardGroup>

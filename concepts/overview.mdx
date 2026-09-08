@@ -1,84 +1,103 @@
 ---
-title: 'Overview'
-description: 'The mental model behind Kerne'
+title: 'How Kerne works'
+sidebarTitle: 'How Kerne works'
+description: 'What Kerne holds, and how a decision gets made'
 ---
 
-Kerne answers one question, asked on every request: **does this subject have the right to do that, right now, given what it pays?**
+Kerne sits between two things that change at different speeds: **what you sell**, which changes whenever the business decides it should, and **what your product does**, which you would rather not redeploy every time.
 
-```
-Subject wants an action  →  kerne.allows() / enforce() / check()
-                         →  Kerne resolves: subscription → pack → entitlement → override
-                         →  Your app reacts: proceed, or show an upgrade prompt
-```
+So Kerne holds the part in the middle — the rules that connect a customer's commercial situation to what they can actually do — and answers questions about them.
 
-Everything else in the platform exists to make that one decision correct and fast.
+## What Kerne holds
 
-## The two halves of the model
-
-**Identity** - who is making the request. A user signs up, logs in, and holds a session. See [Identity & access](/concepts/identity).
-
-**Monetization** - what that user is entitled to. A user subscribes to a `Plan`, which pins a versioned `Pack` (a snapshot of feature entitlements, frozen at subscription time) - see [Monetization](/concepts/monetization).
-
-## Subject: the concept that decides fit
-
-Your integration is one Kerne **tenant** - the boundary around your own account. You'll only ever have one; it's not something you configure or think about day to day.
-
-What actually decides whether Kerne's model matches your product is **subject** - which of your own users or accounts a given entitlement belongs to. It's who `kerne.allows()`/`consume()`/`check()` are asked about. Today a subject is always exactly one `User` - in API terms, `subject_type` is always `"USER"`, and it's the SDK's `subject` parameter.
-
-That fits cleanly if you bill and gate individual people: a support-ticketing SaaS charging per agent, a design tool where every seat logs in and pays on its own. It's not a native fit yet if what you bill is **a group as one unit** - "one company, twenty employees, one shared subscription, one pooled quota" - because there's no `subject_type: "ORGANIZATION"` today. The usual workaround is to designate one user (an account owner, a billing contact) as the subject the subscription attaches to, and build your own membership/seats logic on top in your own database - that works, but it's a workaround you build, not something Kerne represents natively yet.
-
-If the thing your product bills is a company or a team rather than a person, know that before you build against Kerne - see [What's intentionally not built yet](#whats-intentionally-not-built-yet) below.
-
-## What exists today
-
-<AccordionGroup>
-  <Accordion title="Identity">
-    Email/password and magic-link sessions, invitation-gated or open registration, a waitlist.
-  </Accordion>
-  <Accordion title="Catalog & entitlements">
-    Products, plans versioned via packs - so upgrading a plan's entitlements never silently changes
-    what existing subscribers get, see [grandfathering](/concepts/monetization/products-and-plans) -
-    and three entitlement types: boolean flags, numeric quotas, and static config values.
-  </Accordion>
-  <Accordion title="Payments">
-    Stripe is the payment rail to connect today (Polar also runs, for tenants connected before now).
-    Kerne is always the source of truth for entitlements; the provider only handles money movement.
-  </Accordion>
-  <Accordion title="Admin">
-    No per-user admin flag - admin operations on your tenant require your secret key, not a user
-    session.
-  </Accordion>
-</AccordionGroup>
-
-## What's intentionally not built yet
-
-Being explicit about this matters more than it sounds - a doc that describes a half-built feature as if it were finished costs you more trust than one that says "not yet."
-
-<AccordionGroup>
-  <Accordion title="Organizations / teams">
-    A subject is always one user - see [Subject: the concept that decides
-    fit](#subject-the-concept-that-decides-fit) above. Billing or gating a whole team or company as
-    a single unit, with a pooled quota, isn't implemented.
-  </Accordion>
-  <Accordion title="Role-based access control">
-    There's no per-user permission system at all - no custom roles, no per-resource permissions, no
-    admin flag. Admin operations require your secret key.
-  </Accordion>
-  <Accordion title="OAuth / social login">
-    Only email+password and magic-link-style flows exist.
-  </Accordion>
-</AccordionGroup>
-
-If your product needs any of these today, it's worth knowing before you build against Kerne - not after.
-For the full product-fit discussion (including workarounds), see [Is Kerne a fit?](/concepts/is-kerne-a-fit).
-
-## Next
+Four kinds of rule, and they compose:
 
 <CardGroup cols={2}>
-  <Card title="Identity & access" icon="fingerprint" href="/concepts/identity">
-    Registration modes, sessions, and what "authorization" means today.
+  <Card title="What you sell" icon="tags">
+    Your catalog: the plans, the prices, and what each plan includes. Configured once, versioned every
+    time you change it.
   </Card>
-  <Card title="Monetization" icon="credit-card" href="/concepts/monetization">
-    Products, plans, packs, and entitlements.
+  <Card title="What each customer bought" icon="receipt">
+    Their subscription, the version of your offer it's pinned to, and its current state — active,
+    past due, canceling at the end of the period.
+  </Card>
+  <Card title="What they've used" icon="gauge">
+    Counters for anything with an allowance: how much this period, against what limit, and what
+    happens once it runs out.
+  </Card>
+  <Card title="What was agreed with them specifically" icon="user-pen">
+    Overrides — the negotiated limit, the goodwill credit, the deal that exists for exactly one
+    customer and isn't part of your catalog.
   </Card>
 </CardGroup>
+
+None of that lives in your application. Your application asks.
+
+## How a decision gets made
+
+Your app names a **capability** — `export_pdf`, `api_calls`, `support_level` — and who it's asking about. Kerne resolves the rules that apply to that person, in this order:
+
+```
+Feature asked about
+  → the subject's subscription (or your default plan, if they have none)
+  → the pack that subscription is pinned to — the version of your offer they bought
+  → the entitlement for that feature in that pack
+  → an override, if one exists for this subject
+  → their usage counter, for anything with an allowance
+  → the answer
+```
+
+Which comes back as one of three things, depending on what you asked for:
+
+| | Hands back | Use it for |
+| --- | --- | --- |
+| [`allows()`](/sdks/server/entitlements/allows-enforce-check) | `true` / `false` | The common case: gate an action |
+| [`check()`](/sdks/server/entitlements/allows-enforce-check) | the whole picture — limit, used, remaining, why | Showing the customer where they stand |
+| [`consume()`](/sdks/server/entitlements/consume) | the same, after counting the usage | When the action *is* the thing being metered |
+
+The point isn't the shape of the call. It's that the answer changes when your pricing changes, when a customer upgrades, when a payment fails, or when you grant someone an exception — and none of those events touch your code.
+
+## Who a decision is about
+
+Every decision is about someone. In Kerne that's the **subject** — the SDK's `subject` parameter, and the thing an entitlement, a subscription, and a usage counter all belong to.
+
+Today a subject is always one user. That fits products where individual people subscribe and are gated individually: a design tool where every seat logs in and pays, a ticketing SaaS charging per agent, an API sold per developer.
+
+It's not a native fit yet if the thing you bill is **a group as one unit** — one company, twenty employees, one shared subscription, one pooled allowance. The usual workaround is to make one user (the account owner, the billing contact) the subject the subscription hangs on, and keep membership in your own database. That works, and it's a workaround you own rather than something Kerne represents. See [Is Kerne a fit?](/guides/is-kerne-a-fit).
+
+<Note>
+  Separately, your whole integration is one Kerne **tenant** — the boundary around your account. You'll
+  only ever have one, and it isn't something you configure day to day.
+</Note>
+
+## Where to go next
+
+<AccordionGroup>
+  <Accordion title="You want to see the pieces">
+    [Pricing lives outside your code](/concepts/monetization) walks the catalog: products, plans,
+    prices, and the versioning that keeps existing customers on the deal they bought.
+  </Accordion>
+  <Accordion title="You want to gate something">
+    [Entitlements](/concepts/monetization/entitlements) covers the three kinds of capability
+    (on/off, an allowance, a config value) and what a check hands back.
+  </Accordion>
+  <Accordion title="You want to charge for consumption">
+    [Usage billing](/concepts/monetization/usage-billing) covers rates, spending caps, and
+    counting per project or per machine instead of per account.
+  </Accordion>
+  <Accordion title="You need users too">
+    [Users and sessions](/concepts/identity) covers sign-up, log-in, and who is allowed to register.
+    Already have an identity provider? You can keep it and mirror your users into Kerne — see
+    [Is Kerne a fit?](/guides/is-kerne-a-fit) for what that costs you.
+  </Accordion>
+</AccordionGroup>
+
+## What isn't built yet
+
+Being explicit about this is worth more than a longer feature list. None of these exist today:
+
+- **Organizations and teams** as the thing you bill — see [Who a decision is about](#who-a-decision-is-about).
+- **Role-based access control** — no custom roles, no per-resource permissions. Admin operations use your secret key, not a user's session.
+- **OAuth and social login** — email + password and magic link only.
+
+The full discussion, including what people do instead, is in [Is Kerne a fit?](/guides/is-kerne-a-fit).

@@ -4,11 +4,11 @@ sidebarTitle: "Entitlements"
 description: "Gate features based on a user's subscription"
 ---
 
-This guide shows the standard pattern for gating a feature - see [Entitlements](/concepts/monetization/entitlements) for the underlying model (the three types, and `allows()`/`enforce()`/`check()`/`consume()`).
+Gating a feature is two checks, not one: an authoritative one on your backend, and a cosmetic one in your UI so the customer isn't surprised. This guide shows the standard shape for both - see [Entitlements](/concepts/monetization/entitlements) for the model underneath.
 
 ## Server-side (the check that actually matters)
 
-`userId` here is whatever you used as `subject_id` when the user's subscription was created - typically your own database id for that user, read from the authenticated request (a session, a JWT, whatever your app already uses):
+`userId` here is the **Kerne user id** - the same id the subscription was created against. Read it from whatever your request already carries (a session, a JWT, your own user record):
 
 ```typescript
 // e.g. an Express/Next.js route handler

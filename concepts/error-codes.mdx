@@ -17,7 +17,9 @@ Every error response follows this shape - there's no `{success, data}` envelope 
 }
 ```
 
-`@kerne/server` throws a typed `KerneError` (or a subclass - `AuthenticationError`, `AuthorizationError`, `NotFoundError`, `ValidationError`, `RateLimitError`) built from this shape, so you can `instanceof` it instead of parsing `code` yourself.
+`@kerne/server` throws a typed `KerneError` (or a subclass - `AuthenticationError`, `AuthorizationError`, `NotFoundError`, `ValidationError`, `RateLimitError`, `EntitlementDeniedError`) built from this shape, so you can `instanceof` it instead of parsing `code` yourself.
+
+A few subclasses are raised **client-side** before a request goes out - `EntitlementDeniedError` from [`enforce()`](/sdks/server/entitlements/allows-enforce-check#enforce-throws-entitlementdeniederror), `NotFoundError` from `billing.cancel()` / `priceIdFor()`, `ValidationError` from `priceIdFor()` on an ambiguous price, `RateLimitError` from `auth.sendVerificationEmail()`'s cooldown. They carry the same `code`/`type`/`statusCode` shape but no `requestId`, since no server request produced them.
 
 ## Auth and registration (K1xxx)
 

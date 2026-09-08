@@ -3,80 +3,87 @@ title: 'Introduction'
 description: 'The authorization layer for monetized software'
 ---
 
-## What is Kerne?
+Pricing changes. Plans get restructured. Some customers keep the deal they signed up on, someone negotiates an exception, and usage grows past whatever looked generous when you first wrote the number down.
 
-Kerne is an entitlements engine, a usage meter, and a subscription lifecycle manager, sitting in front of Stripe.
+All of that eventually ends up in your application code:
 
-It answers one question on every request:
-
-> What is this user allowed to do, in this product, under this business context?
-
-Stripe stays the actual payment processor — it moves money, holds card details, handles the legal side of billing. Kerne doesn't replace it: it decides who gets what, then tells Stripe what to charge, so your code never hardcodes a plan name.
-
-Instead of scattering that logic across identity providers, billing systems, and `if (user.plan === 'pro')` checks, you call a single primitive:
-
-```
-User wants to do X  →  kerne.allows('X')  →  Kerne decides
-→ allowed: your app does X
-→ denied: your app shows an upgrade prompt
+```typescript
+if (user.plan === 'pro') { /* ... */ }
+if (subscription.status === 'active') { /* ... */ }
+if (usage < 10_000) { /* ... */ }
 ```
 
-That one call — `allows()` — is what replaces scattered plan checks and duplicated business rules across your codebase.
+Every one of those lines is a commercial decision written in a place you have to redeploy to change. And there is never just one of them.
 
-## Is Kerne a fit for you?
+## What Kerne does
 
-Kerne is strongest when you gate **individual users** with entitlements, versioned plans, and optional usage billing. It is not yet a native fit for organization-level subjects, social OAuth, or fine-grained roles.
+Kerne keeps those rules outside your application.
 
-Read **[Is Kerne a fit?](/concepts/is-kerne-a-fit)** before you design against the model — five minutes that save weeks of wrong assumptions.
+Your payment provider tells Kerne what a customer bought. You define what that buys them. Kerne tracks the rest — which version of your offer they're on, what they've consumed this period, what was negotiated with them, whether their last payment went through — and turns all of it into an answer your application can act on:
 
-## What Kerne gives you
+> **Can this person do this, right now?**
 
-- **Entitlements per dimension** — meter a quota per machine, per project, or per seat inside one account, not just per account. See [Usage billing](/concepts/monetization/usage-billing).
-- **A configurable billing lifecycle** — a grace period on failed payments before access is cut, and a cancel that either ends access right away or lets it run out the period already paid for.
-- **No provider lock-in in your own code** — you call `kerne.billing.checkout()` / `subscription()`, never a payment provider's own API directly.
-- **Hosted auth & billing portal** — when you don't want to build those screens yourself.
-- **React hooks and prebuilt UI** — session, guards, pricing table, account management.
+```typescript
+if (await kerne.allows('export_pdf', { subject: userId })) {
+  return generatePdf();
+}
+```
 
-## What it doesn't do yet
+Your application doesn't need to know which plan they're on, how that plan is priced, what they've used this month, or what exception applies to them.
 
-- Bill or gate a **group of users as one unit** — a subject is always one individual user today.
-- **Social / OAuth login** — only email + password and magic link.
-- Fine-grained **roles or per-resource permissions** — admin access is a property of your secret key, not a per-user role.
+It needs to know what they're allowed to do.
 
-Full detail: [Is Kerne a fit?](/concepts/is-kerne-a-fit) and [Platform foundations](/concepts/overview).
+**Kerne is the authorization layer for monetized software.**
 
-<CardGroup cols={2}>
-  <Card title="Is Kerne a fit?" icon="circle-check" href="/concepts/is-kerne-a-fit">
-    When the model matches your product — and when it doesn't yet.
-  </Card>
-  <Card title="5-minute quickstart" icon="rocket" href="/quickstart">
-    Deploy your first gated feature in minutes.
-  </Card>
-  <Card title="Node.js SDK" icon="node" href="/sdks/server/overview">
-    `@kerne/server` for your backend — the only place that holds your secret key.
-  </Card>
-  <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
-    `@kerne/react` for your frontend — session state and entitlement guards.
-  </Card>
-</CardGroup>
+## What that changes
 
-## SDK example
+<AccordionGroup>
+  <Accordion title="You can change your pricing without changing what existing customers get" icon="clock-rotate-left">
+    Raise a limit, move a feature to a pricier tier, restructure the whole lineup — the people already
+    subscribed keep exactly what they signed up for, until you decide to move them. That is the
+    default, not something you remember to switch on.
+
+    See [what a plan grants, and how it changes](/concepts/monetization/products-and-plans#changing-your-offer-without-changing-your-customers).
+  </Accordion>
+  <Accordion title="An exception is a setting, not a branch in your code" icon="user-pen">
+    A customer negotiates 1,000 a month instead of 200. You don't invent a plan for them and you don't
+    write `if (customer.id === ...)`. You grant the exception, and every check that already exists
+    starts returning the right answer for that one customer.
+
+    See [overrides](/sdks/server/admin/overrides).
+  </Accordion>
+  <Accordion title="A limit that blocks and a limit that bills are the same line of code" icon="gauge">
+    "Stop at 5 seats" and "keep going past 10,000 emails and charge for the rest" are the same call in
+    your app. Which one happens is decided on the plan, per feature — and can be different on every
+    plan.
+
+    See [usage billing](/concepts/monetization/usage-billing).
+  </Accordion>
+</AccordionGroup>
+
+## Where the money moves
+
+Kerne is not a payment processor. Stripe still moves the money, holds the card details, and handles the legal side of billing.
+
+The split is clean: your provider is told what to charge, Kerne decides what that entitles someone to. Which means your own code never names a plan, a price, or a provider.
+
+## In your app
 
 <CodeGroup>
+
 ```typescript Server (@kerne/server)
 import { Kerne } from '@kerne/server';
 
 const kerne = new Kerne({
-appId: process.env.KERNE*APP_ID!,
-secretKey: process.env.KERNE_SECRET_KEY!, // sk_live*...
+  appId: process.env.KERNE_APP_ID!,
+  secretKey: process.env.KERNE_SECRET_KEY!, // sk_live_...
 });
 
-// Gate an action behind an entitlement, not a plan name
+// Gate on the capability, never on the plan name
 if (await kerne.allows('export_pdf', { subject: userId })) {
-return generatePdf();
+  return generatePdf();
 }
-
-````
+```
 
 ```tsx React (@kerne/react)
 import { KerneProvider, Access } from '@kerne/react';
@@ -91,18 +98,34 @@ function Root() {
 
 function ExportButton() {
   return (
-    <Access featureKey="export_pdf" fallback={<UpgradePrompt featureKey="export_pdf" />}>
+    <Access featureKey="export_pdf" fallback={<UpgradePrompt />}>
       <button onClick={exportPdf}>Export as PDF</button>
     </Access>
   );
 }
-````
+```
 
-## What's here today
+</CodeGroup>
 
-- Identity — authentication, sessions, registration modes, waitlist, invitations
-- Billing — plans, subscriptions, Stripe
-- Entitlements — boolean, quota, and static capabilities granted by a plan
-- Usage billing — rates, tiers, caps, dimensions
+## Before you build against it
 
-See Platform foundations for the exact current boundary.
+Kerne makes some choices deliberately, and a few of them decide whether it fits your product at all — chiefly that access is granted to individual users today, not to a company or a team as one unit.
+
+[**Is Kerne a fit?**](/guides/is-kerne-a-fit) covers that honestly, in five minutes, before you design around the model.
+
+## Start here
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Gate one real feature, end to end, in a few minutes.
+  </Card>
+  <Card title="How Kerne works" icon="map" href="/concepts/overview">
+    What Kerne holds, and how a check resolves.
+  </Card>
+  <Card title="Node.js SDK" icon="node" href="/sdks/server/overview">
+    `@kerne/server` — your backend, and the only place your secret key lives.
+  </Card>
+  <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
+    `@kerne/react` — session state and access-aware UI.
+  </Card>
+</CardGroup>

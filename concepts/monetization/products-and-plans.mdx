@@ -1,9 +1,40 @@
 ---
-title: "Products, plans, and packs"
-description: "Designing your pricing model, and why grandfathering is automatic"
+title: 'What you sell, and how it changes'
+sidebarTitle: 'Products, plans & packs'
+description: 'Tiers, prices, and why existing customers keep the deal they bought'
 ---
 
-## The hierarchy
+You sell one or more tiers. Each tier costs something, and each tier includes something. That's the whole idea, and Kerne doesn't try to make it more interesting than it is.
+
+What Kerne does take seriously is the second half of the story: **your tiers will change**, and the day they do, you have a decision to make about everyone who already bought the old ones.
+
+## Changing your offer without changing your customers
+
+Say you raise the Pro plan's limit from 200 to 500, and add a feature to it. Two things could happen:
+
+- everyone already on Pro is quietly moved to the new terms, or
+- they keep what they signed up for, and only new subscribers see the change.
+
+Both are legitimate. A phone carrier usually leaves existing customers on their old plan when the lineup changes; a car insurer reprices everyone at renewal. What's not legitimate is the third option — *finding out which one happened after it happened*.
+
+So Kerne makes the safe answer the default. When you change what a plan includes, that change reaches **new subscribers only**. Everyone already subscribed keeps exactly what they had, indefinitely, until you deliberately move them.
+
+<Info>
+  The frozen version of what a plan includes is called a **Pack**. Each time you change a plan's
+  entitlements you publish a new pack version; a subscription pins the version that was active when it
+  was created, and stays on it.
+</Info>
+
+```
+Pack v1 (active until v2 ships) → Subscriber A pins v1 forever, even after v2 activates
+Pack v2 (active after publish)  → Subscriber B, who signs up later, gets v2
+```
+
+This is why "we silently changed what our existing customers pay for" is not a bug you can write in Kerne by accident. Migrating everyone is still available — it's just something you do on purpose.
+
+Your application code never mentions a pack. `allows()`, `check()` and `entitlements()` all resolve through the subscriber's pinned pack on their own.
+
+## The pieces
 
 ```
 Product  →  Plan  →  PlanPrice        (what you sell, and how you charge for it)
@@ -11,55 +42,50 @@ Product  →  Plan  →  PlanPrice        (what you sell, and how you charge for
               └──→  Pack (versioned)   →  entitlements per feature
 ```
 
-- **Product** - your application or service line. Most SaaS apps have exactly one.
-- **Plan** - a tier ("Free", "Pro", "Enterprise"). Maps loosely to a Stripe/Polar product.
-- **PlanPrice** - a specific billing option for a plan (monthly, yearly, a specific currency). Maps to a Stripe/Polar price. A plan can have several.
-- **Pack** - the actual set of feature entitlements attached to a plan, and the piece that makes grandfathering automatic (see below).
+- **Product** — your application or service line. Most SaaS apps have exactly one.
+- **Plan** — a tier ("Free", "Pro", "Enterprise"). Maps loosely to a Stripe/Polar product.
+- **PlanPrice** — one way to pay for that plan (monthly, yearly, a specific currency). Maps to a Stripe/Polar price. A plan can have several.
+- **Pack** — what the plan actually includes, versioned as above.
+
+Products, plans, prices and packs are configured in the dashboard, under **Catalog → Plans**. They are not created from the SDK: this is you configuring your own business, not something your running application does.
 
 ## Naming a plan's prices
 
-Once a plan has more than one price, each one gets a **label** ("Monthly", "Annual", "Early bird") so a pricing page knows what to call it and which ones belong together across plans - "the annual price" is the same label on every plan, which is what lets a single toggle switch the whole page at once. Set it when you create the price in the dashboard; [`<PricingTable>`](/sdks/client/react/ui/pricing-table) reads it to build that toggle for you, including the "Save 20%" hint when an annual price is genuinely cheaper per month than the monthly one.
-
-## Why Pack exists: grandfathering by default
-
-When a subscriber signs up, their subscription pins the plan's **currently-active pack** - not a live reference to "whatever the Pro plan currently includes." If you later publish a new pack version for the Pro plan (raise a quota, add a feature), that change only applies to *new* subscribers. Everyone already on Pro keeps exactly what they signed up for, forever - until you explicitly migrate them.
-
-This is deliberate, not a limitation: pricing changes are common, and "we silently changed what our existing customers pay for" is the kind of bug that erodes trust. Kerne makes the safe behavior (don't change existing subscribers) the default, and the unsafe one (migrate everyone immediately) something you do on purpose.
-
-```
-Pack v1 (ACTIVE until v2 ships) → Subscriber A pins v1 forever, even after v2 activates
-Pack v2 (ACTIVE after publish)  → Subscriber B (signs up after) gets v2
-```
-
-## What you don't need to think about
-
-Packs are created and versioned in the dashboard under **Catalog → Plans**.
-Your application code never references a pack directly - `kerne.allows()`/`check()`/`entitlements()` all resolve through the subscriber's pinned pack automatically - see [Entitlements](/concepts/monetization/entitlements) for the actual runtime check.
+Once a plan has more than one price, each one gets a **label** ("Monthly", "Annual", "Early bird") so a pricing page knows what to call it and which ones belong together across plans — "the annual price" is the same label on every plan, which is what lets a single toggle switch the whole page at once. Set it when you create the price in the dashboard; [`<PricingTable>`](/sdks/client/react/ui/pricing-table) reads it to build that toggle for you, including the "Save 20%" hint when an annual price is genuinely cheaper per month than the monthly one.
 
 ## Billing lifecycle policy
 
-A product also decides what happens at moments in a subscriber's life: canceling, and a failed payment.
+Two moments in a subscriber's life need a decision from you, because the obvious answer isn't obvious: they cancel, and their payment fails.
 
 <AccordionGroup>
   <Accordion title="On cancel">
-    Always **end of period** by default - access continues through what's already been paid for, and only stops when that period actually ends. An explicit `immediately` flag on `cancel()` (server SDK) or `useCancelSubscription` (client) stops access right away instead. This is a per-call choice, not a stored setting.
+    **End of period** by default — access continues through what's already been paid for, and stops
+    when that period actually ends. An explicit `immediately` flag on `cancel()` (server SDK) or
+    `useCancelSubscription` (client) cuts access right away instead. This is a per-call choice, not a
+    stored setting.
   </Accordion>
   <Accordion title="On payment failure">
-    **None** (default) - Kerne never automatically cuts access for a failed payment; the subscription sits at `PAST_DUE` until the provider resolves it (payment retried, or the provider cancels it). **Block, with a grace period** - after the first failed payment, the subscriber keeps access for `grace_period_days` more days (still `PAST_DUE`), and a background sweep then moves the subscription to `UNPAID` - which does cut access - if nothing was paid by then. Set once per product, on that product's page in the dashboard, below its pricing matrix.
+    **None** by default — Kerne never automatically cuts access over a failed payment. The
+    subscription sits at `PAST_DUE` until the provider resolves it, one way or the other.
+
+    **Block, with a grace period** — after the first failed payment the subscriber keeps access for
+    `grace_period_days` more days (still `PAST_DUE`), then a background sweep moves the subscription
+    to `UNPAID`, which does cut access, if nothing was paid by then. Set once per product, on that
+    product's page in the dashboard, below its pricing matrix.
   </Accordion>
 </AccordionGroup>
 
-`PAST_DUE` and `UNPAID` are subscription statuses - see the [subscription shape](/sdks/server/billing/subscription#shape) for the full list.
+`PAST_DUE` and `UNPAID` are subscription statuses — see the [subscription shape](/sdks/server/billing/subscription#shape) for the full list.
 
-A downgrade (switching to a cheaper plan on an active subscription) always applies immediately today - there is no end-of-period option yet.
+A downgrade (switching to a cheaper plan on an active subscription) always applies immediately today — there is no end-of-period option yet.
 
 ## Next
 
 <CardGroup cols={2}>
   <Card title="Entitlements" icon="key" href="/concepts/monetization/entitlements">
-    The three feature types, and how a check resolves.
+    What a plan grants, and how a check resolves.
   </Card>
   <Card title="Designing your pricing" icon="tags" href="/guides/billing/designing-pricing">
-    From flat tiers to usage-based models.
+    Bundling, metering, and add-ons.
   </Card>
 </CardGroup>

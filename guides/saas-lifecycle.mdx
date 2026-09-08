@@ -59,7 +59,7 @@ A SaaS doesn't need the same access model on day one and at scale. Kerne is buil
     **Kerne strategy:** use an [entitlement override](/sdks/server/admin/overrides) (`kerne.admin.grant()`) - it's the same mechanism as a normal plan limit, just scoped to that one customer instead of everyone on a plan.
     </Info>
 
-    Not built yet if you need it at this stage: SSO, billing a group of users as one subject, and a first-class "enterprise contract" object - see [Subject: the concept that decides fit](/concepts/overview#subject-the-concept-that-decides-fit) for the current boundary.
+    Not built yet if you need it at this stage: SSO, billing a group of users as one subject, and a first-class "enterprise contract" object - see [Who a decision is about](/concepts/overview#who-a-decision-is-about) for the current boundary.
   </Step>
 
   <Step title="Stage 5: The deal has to change">
@@ -72,7 +72,7 @@ A SaaS doesn't need the same access model on day one and at scale. Kerne is buil
     <Info>
     **Goal:** decide, for each change you make, whether it reaches people who already bought in or only the ones who sign up after - and have that be a choice, not a side effect of how you happened to make the change.
 
-    **Kerne strategy:** what a plan includes is versioned automatically. A subscriber is pinned to the version they signed up under, so publishing a change only ever reaches new subscribers by default - existing ones keep exactly what they had until you explicitly move them. See [grandfathering](/concepts/monetization/products-and-plans#why-pack-exists-grandfathering-by-default) for how that pinning works.
+    **Kerne strategy:** what a plan includes is versioned automatically. A subscriber is pinned to the version they signed up under, so publishing a change only ever reaches new subscribers by default - existing ones keep exactly what they had until you explicitly move them. See [grandfathering](/concepts/monetization/products-and-plans#changing-your-offer-without-changing-your-customers) for how that pinning works.
     </Info>
   </Step>
 </Steps>

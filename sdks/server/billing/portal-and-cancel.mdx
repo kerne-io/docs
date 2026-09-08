@@ -27,7 +27,7 @@ await kerne.billing.subscriptions.cancel(subscriptionId, /* immediately */ true)
 
 Either way the row is never deleted: the billing history stays readable, and the subject can subscribe again without losing what came before.
 
-`kerne.billing.cancel()` throws a plain `Error` (not a `KerneError`) if the caller has no subscription at all - it's a client-side guard, not a server response, same reasoning as [`enforce()`](/sdks/server/entitlements/allows-enforce-check#enforce-throws-a-plain-error). `kerne.billing.subscriptions.cancel(id, ...)` has no such check; a bad `id` fails with the server's own 404 instead.
+`kerne.billing.cancel()` throws a `NotFoundError` (`code: 'NO_ACTIVE_SUBSCRIPTION'`, a `KerneError` subclass) if the caller has no subscription at all - built client-side before any request goes out, so `.requestId` is unset, but it's `instanceof KerneError` like the rest. `kerne.billing.subscriptions.cancel(id, ...)` has no such pre-check; a bad `id` fails with the server's own 404 instead.
 
 <Note>
   The provider is told first, then Kerne. A cancellation really stops the next invoice rather than only closing off access on our side - which is the failure mode this ordering exists to prevent.

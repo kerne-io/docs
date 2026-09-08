@@ -24,7 +24,7 @@ const result = await kerne.check('api_calls', { subject: userId });
   The feature's key, as configured in the dashboard.
 </ParamField>
 <ParamField path="subject" type="string">
-  Whose entitlement to check. Optional in the type, but with a secret key there's no "current user" - pass it explicitly (it's the id you used as `subject_id` when the subscription was created).
+  Whose entitlement to check - a Kerne user id, the same one the subscription was created against. Optional in the type, but with a secret key there's no "current user", so pass it explicitly.
 </ParamField>
 <ParamField path="requested" type="number">
   For quota features: "can this subject use `requested` more units?" - defaults to `1`.
@@ -33,15 +33,28 @@ const result = await kerne.check('api_calls', { subject: userId });
   For a feature whose limit binds per dimension (per machine, per project, per seat): which slice to check. The SDK param is `dimension`; it goes on the wire as `dimension_id`. See [`consume()` > Dimensions](/sdks/server/entitlements/consume#dimensions) for the full behavior.
 </ParamField>
 
-## `enforce()` throws a plain `Error`
+## `enforce()` throws `EntitlementDeniedError`
 
-Not a typed `KerneError`, and not tied to an API error code - it's a client-side convenience for guard code, not something the server ever actually returns. Catch it yourself:
+`enforce()` runs the same `check()` and throws when `allowed` is `false`. The throw is an `EntitlementDeniedError` - a `KerneError` subclass, so `instanceof KerneError` / `isKerneError()` catch it - with:
+
+- `.check` - the full `EntitlementCheck` (`allowed`, `limit`, `used`, `remaining`, `access_limit`, `overage_behavior`, `configured`, `has_override`, ...), so a guard can branch on *why* access was denied without a second call.
+- `.code === 'ENTITLEMENT_DENIED'`, `.statusCode === 403`, `.type === 'AUTHORIZATION_ERROR'`.
+- `.requestId` unset - it's built client-side from a successful (200) `check()`, not from an API error response.
+
+The message text is unchanged (`Entitlement denied for feature '<key>'`), so a bare `catch (e) { e.message }` still works; use `instanceof` only when you branch on the shape.
 
 ```typescript
+import { EntitlementDeniedError } from '@kerne/server';
+
 try {
-  await kerne.enforce('export_pdf', { subject: userId });
-} catch {
-  return res.status(403).json({ error: 'Upgrade required' });
+  await kerne.enforce('api_calls', { subject: userId });
+} catch (err) {
+  if (err instanceof EntitlementDeniedError) {
+    // err.check.configured === false  -> misconfigured, not "upgrade"
+    // err.check.remaining, err.check.overage_behavior -> quota vs hard stop
+    return res.status(403).json({ error: 'upgrade_required' });
+  }
+  throw err;
 }
 ```
 

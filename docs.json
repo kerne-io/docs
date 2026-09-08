@@ -5,7 +5,7 @@
     "dark": "/logo/dark.svg"
   },
   "theme": "maple",
-  "favicon": "/favicon.png",
+  "favicon": "/favicon.svg",
   "colors": {
     "primary": "#164AA3",
     "light": "#0783C9",
@@ -25,33 +25,27 @@
         "icon": "book-open",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Start here",
             "pages": [
               "index",
               "quickstart",
-              "guides/is-kerne-a-fit",
-              "concepts/overview"
+              "guides/is-kerne-a-fit"
             ]
           },
           {
-            "group": "Platform foundations",
+            "group": "How Kerne works",
             "pages": [
               "concepts/overview",
+              "concepts/monetization/index",
+              "concepts/monetization/products-and-plans",
+              "concepts/monetization/entitlements",
+              "concepts/monetization/usage-billing",
               {
-                "group": "Identity & access",
+                "group": "Users & sessions",
                 "pages": [
                   "concepts/identity/index",
                   "concepts/identity/registration-modes",
-                  "concepts/identity/authorization"
-                ]
-              },
-              {
-                "group": "Monetization",
-                "pages": [
-                  "concepts/monetization/index",
-                  "concepts/monetization/products-and-plans",
-                  "concepts/monetization/entitlements",
-                  "concepts/monetization/usage-billing"
+                  "concepts/identity/admin-access"
                 ]
               },
               "concepts/error-codes"
@@ -60,30 +54,25 @@
           {
             "group": "Guides",
             "pages": [
+              "guides/saas-lifecycle",
               {
-                "group": "Getting started",
-                "pages": [
-                  "guides/getting-started/authentication-setup",
-                  "guides/getting-started/subscription-setup",
-                  "guides/getting-started/checking-entitlements"
-                ]
-              },
-              {
-                "group": "Authentication",
-                "pages": [
-                  "guides/auth/choose-your-auth-model",
-                  "guides/auth/implement-invite-only-saas"
-                ]
-              },
-              {
-                "group": "Billing strategy",
+                "group": "Pricing & access",
                 "pages": [
                   "guides/billing/designing-pricing",
+                  "guides/getting-started/subscription-setup",
+                  "guides/getting-started/checking-entitlements",
                   "guides/billing/enforcing-limits-without-breaking-ux",
                   "guides/billing/usage-end-to-end"
                 ]
               },
-              "guides/saas-lifecycle"
+              {
+                "group": "Users & sign-up",
+                "pages": [
+                  "guides/getting-started/authentication-setup",
+                  "guides/auth/choose-your-auth-model",
+                  "guides/auth/implement-invite-only-saas"
+                ]
+              }
             ]
           },
           {
@@ -185,7 +174,7 @@
                     ]
                   },
                   {
-                    "group": "Growth",
+                    "group": "Waitlist & invitations",
                     "pages": [
                       "sdks/client/react/waitlist",
                       "sdks/client/react/invitations"

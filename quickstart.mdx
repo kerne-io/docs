@@ -3,7 +3,9 @@ title: "Quickstart"
 description: "Gate one real feature behind a Kerne entitlement, end to end"
 ---
 
-This walkthrough gets a single feature (`export_pdf`) gated on your backend with `kerne.allows()`, and optionally in React with `<Access>`. Kerne resolves the check against a plan you configure in the Dashboard; Stripe still moves the money when a user subscribes.
+You are going to move one commercial rule out of your code and into Kerne.
+
+The feature is `export_pdf`. You'll say once, in the Dashboard, which plans include it — then gate it on your backend with `kerne.allows()`, and optionally in React with `<Access>`. From then on, who gets it is a pricing decision, not a deploy.
 
 ## What you will have at the end
 
@@ -22,7 +24,7 @@ This walkthrough gets a single feature (`export_pdf`) gated on your backend with
 
 Kerne resolves every check against the catalog you configure in the Dashboard. Products, plans, and features are **Dashboard-only** — `@kerne/server` and `@kerne/react` never create or edit them.
 
-In the Dashboard, under **Catalog**:
+In the Dashboard sidebar, under **Billing → Catalog**:
 
 1. Create or open a **product**.
 2. Add a **plan** to it. For a user who has never subscribed to pass a check, this plan must be marked **default**, and both it and its product must be **active** — a subject with no subscription resolves to that plan. If there is no active default plan, a subject gets entitlements only after subscribing ([step 9](#9-optional-subscribe-the-user-first)).
@@ -112,7 +114,7 @@ function SignUp() {
 
 Kerne auth is email/password and magic link only. Returning users log in with `kerne.auth.login({ email, password })` on the server, or `useAuth().login({ email, password })` in React.
 
-The `subject` for a server-side check is the user's **Kerne user id** (`user.id`). If you create subscriptions with your own external id as `subject_id`, pass that same value as `subject` instead.
+The `subject` for a server-side check is that user's **Kerne user id** - `user.id` from `signup()` / `login()`. A subject is always a Kerne user id today.
 
 ## 6. Gate the feature on the backend
 
@@ -168,19 +170,30 @@ function ExportButtonHook() {
 
 ## 9. Optional: subscribe the user first
 
-If `export_pdf` lives only on a paid plan, the subject needs a subscription before the gate can pass. Checkout is a redirect flow:
+If `export_pdf` lives only on a paid plan, the user needs a subscription before the gate can pass. Checkout is a redirect flow, run for the **logged-in user** - no `subject` to pass.
+
+In React:
+
+```tsx
+import { useCheckout } from '@kerne/react';
+
+function Upgrade({ planPriceId }: { planPriceId: string }) {
+  const { openCheckout } = useCheckout();
+  return <button onClick={() => openCheckout(planPriceId)}>Upgrade</button>;
+}
+```
+
+From your backend, scope the client to that user's own access token first:
 
 ```typescript
 import { kerne } from './lib/kerne';
 
-// Resolve the plan's price id (pass a label when the plan has several prices)
 const planPriceId = await kerne.billing.priceIdFor('pro'); // or priceIdFor('pro', 'annual')
-
-const { url } = await kerne.billing.checkout(planPriceId, { subject: userId });
+const { url } = await kerne.withToken(userAccessToken).billing.checkout(planPriceId);
 // redirect the user to `url`; the subscription is created once the provider confirms payment
 ```
 
-In React, `useCheckout().openCheckout(planPriceId)` performs the redirect for the logged-in user. See [Checkout](/sdks/server/billing/checkout).
+See [Checkout](/sdks/server/billing/checkout).
 
 ## Troubleshooting
 
@@ -201,7 +214,7 @@ In React, `useCheckout().openCheckout(planPriceId)` performs the redirect for th
     Hooks and guard components for your UI.
   </Card>
   <Card title="Entitlements" icon="key" href="/concepts/monetization/entitlements">
-    The three feature types, and what a check returns.
+    The three kinds of capability, and what a check hands back.
   </Card>
   <Card title="Checking entitlements" icon="check" href="/guides/getting-started/checking-entitlements">
     The standard server + client gating pattern.
