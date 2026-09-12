@@ -3,7 +3,10 @@
   "theme": "maple",
   "name": "Kerne",
   "description": "The authorization layer for monetized software.",
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/favicon-32x32.png",
+    "dark": "/images/favicon-32x32.png"
+  },
   "logo": {
     "light": "/logo/logo-dark.png",
     "dark": "/logo/logo.png",
