@@ -3,9 +3,15 @@ title: 'Introduction'
 description: 'The authorization layer for monetized software'
 ---
 
-Pricing changes. Plans get restructured. Some customers keep the deal they signed up on, someone negotiates an exception, and usage grows past whatever looked generous when you first wrote the number down.
+# The authorization layer for monetized software
 
-All of that eventually ends up in your application code:
+**Your pricing changes. Your customers change. Your product shouldn't have to.**
+
+Kerne keeps the rules between what a customer bought and what your application lets them do out of your code.
+
+## The problem
+
+Every commercial decision eventually lands in a source file:
 
 ```typescript
 if (user.plan === 'pro') { /* ... */ }
@@ -13,15 +19,27 @@ if (subscription.status === 'active') { /* ... */ }
 if (usage < 10_000) { /* ... */ }
 ```
 
-Every one of those lines is a commercial decision written in a place you have to redeploy to change. And there is never just one of them.
+Each of those is a business rule written somewhere you have to redeploy to change. And there is never just one of them — they spread across services, drift apart, and quietly disagree.
 
 ## What Kerne does
 
-Kerne keeps those rules outside your application.
+Everything that should change what a customer can do goes in one side. One answer comes out the other.
 
-Your payment provider tells Kerne what a customer bought. You define what that buys them. Kerne tracks the rest — which version of your offer they're on, what they've consumed this period, what was negotiated with them, whether their last payment went through — and turns all of it into an answer your application can act on:
+```
+      Pricing changes
+     Customer upgrades
+  Usage reaches a limit
+Customer gets an exception
+  Payment status changes
+            │
+            ▼
+          Kerne
+            │
+            ▼
+  What the customer can do
+```
 
-> **Can this person do this, right now?**
+Your application asks one question, and never learns why the answer is what it is:
 
 ```typescript
 if (await kerne.allows('export_pdf', { subject: userId })) {
@@ -29,103 +47,69 @@ if (await kerne.allows('export_pdf', { subject: userId })) {
 }
 ```
 
-Your application doesn't need to know which plan they're on, how that plan is priced, what they've used this month, or what exception applies to them.
+## What Kerne handles
 
-It needs to know what they're allowed to do.
+<CardGroup cols={2}>
+  <Card title="Change your offers" icon="clock-rotate-left" href="/concepts/monetization/products-and-plans">
+    Publish a new version of what you sell without silently changing the terms of customers who
+    already bought the old one.
+  </Card>
+  <Card title="Control access" icon="key" href="/concepts/monetization/entitlements">
+    Turn what a customer is entitled to into a decision your application can enforce on every
+    request.
+  </Card>
+  <Card title="Handle usage" icon="gauge" href="/concepts/monetization/usage-billing">
+    Measure something once, then use it for an allowance, a hard stop, or a charge for the excess.
+  </Card>
+  <Card title="Handle exceptions" icon="user-pen" href="/concepts/monetization/overrides">
+    Give one customer different limits or access without inventing a plan for them or touching your
+    catalog.
+  </Card>
+</CardGroup>
 
-**Kerne is the authorization layer for monetized software.**
+## How it works
 
-## What that changes
+<Steps>
+  <Step title="Define what you sell">
+    Create your offers and what each one includes, in the dashboard.
+  </Step>
+  <Step title="A customer gets a version">
+    Their access is tied to the terms they actually received — not to whatever your catalog says
+    today.
+  </Step>
+  <Step title="Your application asks Kerne">
+    ```typescript
+    await kerne.allows('export_pdf', { subject: userId });
+    ```
+  </Step>
+  <Step title="Kerne makes the decision">
+    Your application doesn't need to know whether that access came from a plan, an allowance already
+    spent, a negotiated exception, a failed payment, or a version of your offer you stopped selling
+    two years ago.
 
-<AccordionGroup>
-  <Accordion title="You can change your pricing without changing what existing customers get" icon="clock-rotate-left">
-    Raise a limit, move a feature to a pricier tier, restructure the whole lineup — the people already
-    subscribed keep exactly what they signed up for, until you decide to move them. That is the
-    default, not something you remember to switch on.
-
-    See [what a plan grants, and how it changes](/concepts/monetization/products-and-plans#changing-your-offer-without-changing-your-customers).
-  </Accordion>
-  <Accordion title="An exception is a setting, not a branch in your code" icon="user-pen">
-    A customer negotiates 1,000 a month instead of 200. You don't invent a plan for them and you don't
-    write `if (customer.id === ...)`. You grant the exception, and every check that already exists
-    starts returning the right answer for that one customer.
-
-    See [overrides](/sdks/server/admin/overrides).
-  </Accordion>
-  <Accordion title="A limit that blocks and a limit that bills are the same line of code" icon="gauge">
-    "Stop at 5 seats" and "keep going past 10,000 emails and charge for the rest" are the same call in
-    your app. Which one happens is decided on the plan, per feature — and can be different on every
-    plan.
-
-    See [usage billing](/concepts/monetization/usage-billing).
-  </Accordion>
-</AccordionGroup>
+    That's the abstraction worth having.
+  </Step>
+</Steps>
 
 ## Where the money moves
 
 Kerne is not a payment processor. Stripe still moves the money, holds the card details, and handles the legal side of billing.
 
-The split is clean: your provider is told what to charge, Kerne decides what that entitles someone to. Which means your own code never names a plan, a price, or a provider.
-
-## In your app
-
-<CodeGroup>
-
-```typescript Server (@kerne/server)
-import { Kerne } from '@kerne/server';
-
-const kerne = new Kerne({
-  appId: process.env.KERNE_APP_ID!,
-  secretKey: process.env.KERNE_SECRET_KEY!, // sk_live_...
-});
-
-// Gate on the capability, never on the plan name
-if (await kerne.allows('export_pdf', { subject: userId })) {
-  return generatePdf();
-}
-```
-
-```tsx React (@kerne/react)
-import { KerneProvider, Access } from '@kerne/react';
-
-function Root() {
-  return (
-    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID!}>
-      <App />
-    </KerneProvider>
-  );
-}
-
-function ExportButton() {
-  return (
-    <Access featureKey="export_pdf" fallback={<UpgradePrompt />}>
-      <button onClick={exportPdf}>Export as PDF</button>
-    </Access>
-  );
-}
-```
-
-</CodeGroup>
-
-## Before you build against it
-
-Kerne makes some choices deliberately, and a few of them decide whether it fits your product at all — chiefly that access is granted to individual users today, not to a company or a team as one unit.
-
-[**Is Kerne a fit?**](/guides/is-kerne-a-fit) covers that honestly, in five minutes, before you design around the model.
+The split is clean: your provider is told what to charge, Kerne decides what that entitles someone to. Your own code never names a plan, a price, or a provider.
 
 ## Start here
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Gate one real feature, end to end, in a few minutes.
+    Your first access decision, and your first offer change, in a few minutes.
+  </Card>
+  <Card title="Is Kerne right for me?" icon="circle-check" href="/guides/is-kerne-a-fit">
+    Where the model fits, and the boundaries worth knowing first.
   </Card>
   <Card title="How Kerne works" icon="map" href="/concepts/overview">
-    What Kerne holds, and how a check resolves.
+    What Kerne holds, and how a decision resolves.
   </Card>
-  <Card title="Node.js SDK" icon="node" href="/sdks/server/overview">
-    `@kerne/server` — your backend, and the only place your secret key lives.
-  </Card>
-  <Card title="React SDK" icon="react" href="/sdks/client/react/overview">
-    `@kerne/react` — session state and access-aware UI.
+  <Card title="Design your pricing" icon="compass" href="/guides/billing/designing-pricing">
+    Bundling, metering, and add-ons.
   </Card>
 </CardGroup>

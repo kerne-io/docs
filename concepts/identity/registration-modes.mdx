@@ -26,9 +26,23 @@ const config = await kerne.auth.config();
 //   oauth_providers, portal_url, user_registration_limit, app_name }
 ```
 
-Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured. `oauth_providers` is the one field here that still describes intent rather than a working flow - there's no OAuth integration yet, see [Users and sessions](/concepts/identity).
+Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured.
 
 For a walkthrough of building an invite-only product end to end, see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).
+
+## Which one to pick
+
+<CardGroup cols={2}>
+  <Card title="Consumer / self-serve" icon="users">
+    `OPEN`. Friction is the enemy — every extra step loses signups.
+  </Card>
+  <Card title="Early access / high-touch" icon="building">
+    `INVITE_ONLY`, or a waitlist first. Fewer, better-qualified signups, and room to onboard people by
+    hand while you're still learning what they need.
+  </Card>
+</CardGroup>
+
+You can move between them later; switching to open doesn't invalidate codes you already handed out. Set it in the dashboard under **Settings → Authentication**.
 
 ## Next
 
@@ -36,7 +50,7 @@ For a walkthrough of building an invite-only product end to end, see [Implement 
   <Card title="Implement invite-only SaaS" icon="user-plus" href="/guides/auth/implement-invite-only-saas">
     Codes, tokens, and the signup flow end to end.
   </Card>
-  <Card title="Choose your auth model" icon="signature" href="/guides/auth/choose-your-auth-model">
-    Deciding between open, invite-only, and closed for your product.
+  <Card title="Set up authentication" icon="key" href="/guides/getting-started/authentication-setup">
+    Login, registration and route protection.
   </Card>
 </CardGroup>

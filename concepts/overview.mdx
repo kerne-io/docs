@@ -18,7 +18,7 @@ Four kinds of rule, and they compose:
     time you change it.
   </Card>
   <Card title="What each customer bought" icon="receipt">
-    Their subscription, the version of your offer it's pinned to, and its current state — active,
+    Their subscription, the version of your offer it's attached to, and its current state — active,
     past due, canceling at the end of the period.
   </Card>
   <Card title="What they've used" icon="gauge">
@@ -40,8 +40,8 @@ Your app names a **capability** — `export_pdf`, `api_calls`, `support_level` �
 ```
 Feature asked about
   → the subject's subscription (or your default plan, if they have none)
-  → the pack that subscription is pinned to — the version of your offer they bought
-  → the entitlement for that feature in that pack
+  → the version of the offer they bought
+  → what that version grants for this feature
   → an override, if one exists for this subject
   → their usage counter, for anything with an allowance
   → the answer
@@ -59,45 +59,21 @@ The point isn't the shape of the call. It's that the answer changes when your pr
 
 ## Who a decision is about
 
-Every decision is about someone. In Kerne that's the **subject** — the SDK's `subject` parameter, and the thing an entitlement, a subscription, and a usage counter all belong to.
+Every decision is about someone — the `subject` your SDK calls name. Today that's always one of your users, which is what makes Kerne a fit for products that gate individual people, and a partial fit for products that bill a company as one unit. [Is Kerne a fit?](/guides/is-kerne-a-fit) covers that in two minutes.
 
-Today a subject is always one user. That fits products where individual people subscribe and are gated individually: a design tool where every seat logs in and pays, a ticketing SaaS charging per agent, an API sold per developer.
+## Next
 
-It's not a native fit yet if the thing you bill is **a group as one unit** — one company, twenty employees, one shared subscription, one pooled allowance. The usual workaround is to make one user (the account owner, the billing contact) the subject the subscription hangs on, and keep membership in your own database. That works, and it's a workaround you own rather than something Kerne represents. See [Is Kerne a fit?](/guides/is-kerne-a-fit).
-
-<Note>
-  Separately, your whole integration is one Kerne **tenant** — the boundary around your account. You'll
-  only ever have one, and it isn't something you configure day to day.
-</Note>
-
-## Where to go next
-
-<AccordionGroup>
-  <Accordion title="You want to see the pieces">
-    [Pricing lives outside your code](/concepts/monetization) walks the catalog: products, plans,
-    prices, and the versioning that keeps existing customers on the deal they bought.
-  </Accordion>
-  <Accordion title="You want to gate something">
-    [Entitlements](/concepts/monetization/entitlements) covers the three kinds of capability
-    (on/off, an allowance, a config value) and what a check hands back.
-  </Accordion>
-  <Accordion title="You want to charge for consumption">
-    [Usage billing](/concepts/monetization/usage-billing) covers rates, spending caps, and
-    counting per project or per machine instead of per account.
-  </Accordion>
-  <Accordion title="You need users too">
-    [Users and sessions](/concepts/identity) covers sign-up, log-in, and who is allowed to register.
-    Already have an identity provider? You can keep it and mirror your users into Kerne — see
-    [Is Kerne a fit?](/guides/is-kerne-a-fit) for what that costs you.
-  </Accordion>
-</AccordionGroup>
-
-## What isn't built yet
-
-Being explicit about this is worth more than a longer feature list. None of these exist today:
-
-- **Organizations and teams** as the thing you bill — see [Who a decision is about](#who-a-decision-is-about).
-- **Role-based access control** — no custom roles, no per-resource permissions. Admin operations use your secret key, not a user's session.
-- **OAuth and social login** — email + password and magic link only.
-
-The full discussion, including what people do instead, is in [Is Kerne a fit?](/guides/is-kerne-a-fit).
+<CardGroup cols={2}>
+  <Card title="Offers & versions" icon="layer-group" href="/concepts/monetization/products-and-plans">
+    What you sell, and why changing it doesn't change existing customers.
+  </Card>
+  <Card title="Entitlements" icon="key" href="/concepts/monetization/entitlements">
+    The three kinds of capability an offer can grant.
+  </Card>
+  <Card title="Meters & usage" icon="gauge" href="/concepts/monetization/usage-billing">
+    Flat vs metered, what a meter measures, and spending caps.
+  </Card>
+  <Card title="Overrides" icon="user-pen" href="/concepts/monetization/overrides">
+    Different terms for one customer, outside your catalog.
+  </Card>
+</CardGroup>

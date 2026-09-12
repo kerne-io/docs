@@ -1,5 +1,6 @@
 ---
-title: 'Usage billing end-to-end'
+title: 'Add usage-based pricing'
+sidebarTitle: 'Add usage-based pricing'
 description: "From a blank feature to a line on the customer's invoice"
 ---
 
@@ -40,7 +41,7 @@ In the dashboard → your product → **Features**:
 
 Use the **smallest unit you bill** (minutes, not hours). Kerne counts whole numbers; a fractional hour has nowhere to go.
 
-Leave **dimension** empty for a single pool per customer. If you later want “per cutter”, set dimension to `cutter` on the feature — see [per machine, per project, per seat](/concepts/monetization/usage-billing#per-machine-per-project-per-seat).
+Leave **dimension** empty for a single pool per customer — see [per machine, per project, per seat](/concepts/monetization/usage-billing#per-machine-per-project-per-seat) if each machine should have its own.
 
 ## 2. Put it on a plan
 
@@ -60,7 +61,7 @@ Open the **Pricing editor** for that product.
 
 Kerne creates the meter and the price at Stripe from that line. You do not copy price IDs back.
 
-Save / publish the pack version so new subscribers get this configuration. Existing subscribers stay on the pack they already had (grandfathering).
+Publish a new version of the offer so new subscribers get this configuration. Existing subscribers stay on the version they already had — see [Offers and versions](/concepts/monetization/products-and-plans).
 
 ## 3. Count usage from your backend
 
@@ -124,62 +125,21 @@ In the Kerne dashboard, **Metered usage** shows:
 
 Those numbers come from the same path the billing worker uses — not a parallel estimate.
 
-## 6. Common mistakes (and how to avoid them)
-
-| Mistake                                           | What happens                            | Fix                                                                                                             |
-| ------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Counting in hours instead of minutes              | Fractional hours can't be stored safely | Always meter the smallest unit; price as “0.35 per 60 minutes”                                                  |
-| Calling `consume` only from the browser           | Users can bypass the gate               | Commit usage on the server                                                                                      |
-| Expecting the money cap to block access           | Access continues after the cap          | Add a **unit ceiling** if you truly need a hard stop                                                            |
-| Combining “carry over unused” with “bill overage” | Would charge last period again          | Billed quotas must reset each period — Kerne refuses the pair                                                   |
-| Changing a rate in place                          | Provider prices are immutable on amount | Replace the rate (dashboard does this); old subscribers keep the price they signed up on until they change plan |
-
-Full reference: [Usage billing](/concepts/monetization/usage-billing) and [Designing your pricing](/guides/billing/designing-pricing).
-
-## 7. Optional: per-cutter pools
-
-If each machine should have its own allowance and/or cap:
-
-1. On the feature, set **dimension** to `cutter`.
-2. On the plan, choose **per cutter** for the allowance and/or the money cap.
-3. Pass the dimension on every consume:
-
-```typescript
-await kerne.consume('cutter_minutes', {
-  subject: customerId,
-  dimension: 'cutter_42',
-  delta: 60,
-});
-```
-
-Same feature, two different commercial promises — without new code paths beyond the dimension argument.
-
 ## Checklist
 
 - [ ] Feature `cutter_minutes` (quota, unit = minute, renews on billing cycle)
-- [ ] Plan includes `0`, overage = bill, rate = 0.35 EUR / 60 minutes, cap = 120 EUR
-- [ ] Pack published
+- [ ] Plan includes `0`, bills past it, rate = 0.35 EUR / 60 minutes, cap = 120 EUR
+- [ ] New offer version published
 - [ ] Backend uses `consume` with the Kerne user id as `subject`
-- [ ] UI only reads usage / access (no client-side consume)
-- [ ] Metered usage screen shows the subscriber after real traffic
+- [ ] UI only reads usage (no client-side consume)
 
 ## Next
 
 <CardGroup cols={2}>
-  <Card title="Usage billing (deep dive)" icon="book" href="/concepts/monetization/usage-billing">
-    Rates, tiers, caps, dimensions, and edge cases.
-  </Card>
-  <Card title="Designing pricing" icon="compass" href="/guides/billing/designing-pricing">
-    Bundling vs metering, hard limits vs pay-as-you-go.
+  <Card title="Pricing models and meters" icon="gauge" href="/concepts/monetization/usage-billing">
+    Rates, tiers, caps, dimensions, and the edge cases.
   </Card>
   <Card title="consume()" icon="code" href="/sdks/server/entitlements/consume">
     Full options and return shape.
-  </Card>
-  <Card
-    title="Enforcing limits without breaking UX"
-    icon="shield"
-    href="/guides/billing/enforcing-limits-without-breaking-ux"
-  >
-    How to show upgrade / limit states without dead-ends.
   </Card>
 </CardGroup>

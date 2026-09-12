@@ -1,0 +1,77 @@
+---
+title: 'Handle customer exceptions'
+description: 'Different limits for one customer, without touching your catalog'
+---
+
+A customer negotiates a limit nobody else gets. Another needs a temporary bump while you fix something. A third deserves a credit after an outage.
+
+None of these should become a plan. Use an [override](/concepts/monetization/overrides) and your existing checks start answering correctly for that one customer.
+
+## A negotiated limit
+
+The common case: an annual contract with terms your public pricing doesn't offer.
+
+```typescript
+await kerne.admin.grant('api_calls', {
+  subject: userId,
+  value: '50000',
+  reason: 'Annual contract - negotiated limit',
+  expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
+});
+```
+
+This replaces their limit and renews every period like the plan's own would. Set `expiresAt` to the contract end date and it stops applying on its own — worth doing, so an expired deal doesn't quietly outlive the contract.
+
+## A temporary bump on one counter
+
+On a feature counted per machine, per project or per seat, you can move a single counter and leave the rest on the plan's limit:
+
+```typescript
+await kerne.admin.grant('machine_minutes', {
+  subject: userId,
+  dimension: 'machine_42',
+  value: '180',
+  reason: 'Loaner machine while theirs is repaired',
+});
+```
+
+Overrides stack most-specific-first, so "every machine to 3h, except this one at 5h" is two grants rather than one per machine.
+
+## A one-time credit
+
+This is the one people get wrong. A refund is **not** a limit change — raising their limit would hand them the same gift every period, forever.
+
+```typescript
+await kerne.admin.adjustUsage('api_calls', { subject: userId, delta: -5000 });
+```
+
+That moves the counter once. Pass an `idempotencyKey` if the call might be retried.
+
+## Cleaning up
+
+```typescript
+const grants = await kerne.admin.listGrants(userId);
+await kerne.admin.revokeGrant(overrideId);
+```
+
+Expired overrides stay in the list rather than vanishing, so you keep a record of what was promised to whom.
+
+<Warning>
+  Everything under `kerne.admin` requires your secret key. Never call these from a request an end user
+  initiated — see [Admin access](/concepts/identity/admin-access).
+</Warning>
+
+## What an override won't do
+
+It moves the limit, not the behavior. Whether passing that limit blocks, is tolerated, or gets charged is always read from the plan. If you need a different *behavior* for one customer, that's a plan difference, not an override.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Overrides" icon="user-pen" href="/concepts/monetization/overrides">
+    The concept, and how overrides resolve.
+  </Card>
+  <Card title="Overrides reference" icon="code" href="/sdks/server/admin/overrides">
+    Every option on `grant` / `listGrants` / `revokeGrant`.
+  </Card>
+</CardGroup>

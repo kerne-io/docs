@@ -1,27 +1,32 @@
 ---
-title: "Designing your pricing"
+title: 'Design your pricing'
 description: "From simple subscriptions to usage-based models"
 ---
 
-A pricing model maps directly to your code: change what a plan bundles, or what a feature costs past its limit, from the dashboard, and nothing you shipped has to change.
+Before you configure anything, you're deciding two things about your own business. They get decided in the same conversation, which is why they're easy to conflate — but they're independent, and keeping them apart will save you a redesign later.
 
 ## Two separate decisions
 
-Pricing design is really two independent questions, and it's worth keeping them apart because they get configured in different places and don't have to move together:
+**What goes in each tier?** This is what makes "Free" different from "Pro", and it's decided once per tier.
 
-1.  **Bundling** — which features does each plan include? This is what makes "Free" different from "Pro". It's a per-*plan* question.
-2.  **Metering** — for any one feature that has a countable allowance, what happens once someone uses more than what's included? This is a per-*feature* question, and the answer can be different for every feature, on every plan. A plan can mix a feature that hard-stops with one that bills overage with one that's free forever.
+**What happens when someone wants more than their tier includes?** Do they hit a wall and have to upgrade, or do they keep going and pay for the excess?
 
-**Entitlements (features)** are what a subject *gets*. **Plans** bundle entitlements together. **Prices** are how much a plan costs. Your code should always check the entitlement, never the plan name:
+The second one is decided per *thing you're limiting*, not per tier — and the answer can be different for every one of them. A single tier can hold something that hard-stops at five, something that keeps serving and charges for the excess, and something that's simply free forever.
+
+<Note>
+  The vocabulary, once: a **feature** is one thing you might limit or grant. What a tier gives someone
+  for that feature is an **entitlement**. A **plan** is the tier itself, and a **price** is what it
+  costs. Your code checks the entitlement, never the plan name:
+</Note>
 
 <Tip>
 - **Bad**: `if (user.plan === 'pro')`
 - **Good**: `if (await kerne.allows('export_pdf', { subject: userId }))`
 </Tip>
 
-## Decision 1: Bundling — what's on each plan
+## Decision 1: What goes in each tier
 
-The standard "Good-Better-Best" shape: every plan is a different bundle of entitlements, and most of them are simple booleans or a shared numeric limit.
+The standard "Good-Better-Best" shape: each tier gives more than the one below it, and most of what separates them is either on/off or a number.
 
 1.  Create features: `can_access_dashboard`, `can_invite_members`.
 2.  Create plans:
@@ -30,9 +35,9 @@ The standard "Good-Better-Best" shape: every plan is a different bundle of entit
 
 That's it for boolean features. A numeric feature (seats, projects, usage) also needs a metering decision — that's Decision 2, and it's set per feature, per plan, independently of what else is on that plan.
 
-## Decision 2: Metering — what happens past the included amount
+## Decision 2: What happens when someone wants more
 
-For any feature with a numeric allowance, pick one of three behaviors once it's used up. Nothing here is "more advanced" than the others — they're three different answers to the same question, and which one fits depends on what you're selling, not on how sophisticated your pricing looks.
+For anything you limit by a number, pick what happens once it runs out. Nothing here is "more advanced" than the others — they're three different answers to the same question, and which one fits depends on what you're selling, not on how sophisticated your pricing looks.
 
 ### Option A: Stop there — a hard limit, never billed
 
@@ -61,7 +66,7 @@ From there it's automatic: usage past the included amount reaches the customer's
 
 Rates aren't limited to one number. The quantity you sell by, a schedule of tiers, and whether a tier reprices everything or only its own slice are all part of the same rate — see [Usage billing](/concepts/monetization/usage-billing#the-rate).
 
-### Option C: Scope the allowance to something inside the account
+### Option C: The limit isn't one pool
 
 Orthogonal to A and B, not a third alternative to them: the customer is one payer, but the thing you meter isn't one pool — per machine, per project, per seat, per one of *their* clients. Declare what the feature is counted by, then apply Option A or B on top, and choose whether the allowance and the ceiling are shared across the account or per slice.
 
@@ -93,7 +98,7 @@ It is one of these instead:
   </Card>
 </CardGroup>
 
-The first covers most add-ons and needs nothing new — it is [Option B](#option-b-keep-going-and-charge-for-it-pay-as-you-go-past-the-included-amount) with an allowance of `0` and the ceiling left empty. Combine it with [Option C](#option-c-scope-the-allowance-to-something-inside-the-account) when the add-on is bought per project or per seat rather than once per account.
+The first covers most add-ons and needs nothing new — it is [Option B](#option-b-keep-going-and-charge-for-it-pay-as-you-go-past-the-included-amount) with an allowance of `0` and the ceiling left empty. Combine it with [Option C](#option-c-the-limit-isnt-one-pool) when the add-on is bought per project or per seat rather than once per account.
 
 <Note>
   Because add-ons ride the subscription rather than sitting beside it, a plan change carries them along: switching plans re-pins entitlements to the new plan, so an add-on that exists on one plan and not the other stops with the switch. Model an add-on you intend to survive a plan change as a feature present on every plan, with a different allowance.

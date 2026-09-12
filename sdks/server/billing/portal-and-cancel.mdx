@@ -46,7 +46,7 @@ await kerne.billing.subscriptions.changePlanPrice(subscriptionId, nextPlanPriceI
 
 The swap is **immediate**, upgrade or downgrade alike, and the provider prorates by default.
 
-The subscription's entitlements move with it: `changePlanPrice()` re-pins the pack, so what the subject is allowed to do reflects the new plan on the next check. Deferring a downgrade to the end of the period is not supported yet - see [Products & plans](/concepts/monetization/products-and-plans) for how a pack is pinned in the first place.
+The subscription's entitlements move with it: `changePlanPrice()` re-attaches the offer version, so what the subject is allowed to do reflects the new plan on the next check. Deferring a downgrade to the end of the period is not supported yet - see [Products & plans](/concepts/monetization/products-and-plans) for how a pack is pinned in the first place.
 
 <Warning>
   The second argument is a **`plan_price_id`** - a specific billing variant (monthly vs. yearly), not a plan id.

@@ -14,7 +14,7 @@ import { PricingTable } from '@kerne/react/ui';
 </PricingTable>;
 ```
 
-That's a complete pricing page: the toggle only appears if you actually sell more than one price label (see [naming a plan's prices](/concepts/monetization/products-and-plans#naming-a-plans-prices)), and switching it animates the price rather than swapping it instantly.
+That's a complete pricing page: the toggle only appears if you actually sell more than one price label, and switching it animates the price rather than swapping it instantly.
 
 Clicking a plan checks out a new subscriber directly. For someone already subscribed, it opens a confirmation panel first, then swaps the plan in place (`changePlanPrice()`) instead of starting a second checkout — Stripe and Polar have no notion of "replace my existing subscription", so a fresh checkout session there would create a second, independent one rather than replacing the first. `onSelectPlan` overrides this whole flow, confirmation included, when you want your own.
 

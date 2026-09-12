@@ -1,23 +1,55 @@
 {
-  "name": "Kerne",
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
+  "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
+  "name": "Kerne",
+  "description": "The authorization layer for monetized software.",
   "favicon": "/favicon.svg",
-  "colors": {
-    "primary": "#164AA3",
-    "light": "#0783C9",
-    "dark": "#05803D"
+  "logo": {
+    "light": "/logo/logo-dark.png",
+    "dark": "/logo/logo.png",
+    "href": "https://docs.kerne.io"
   },
-  "anchors": [
-    {
-      "name": "Community",
-      "icon": "discord",
-      "url": "https://discord.gg/kerne"
+  "appearance": {
+    "default": "system"
+  },
+  "colors": {
+    "primary": "#131313",
+    "light": "#F7F7F8",
+    "dark": "#131313"
+  },
+  "background": {
+    "color": {
+      "light": "#FFFFFF",
+      "dark": "#111113"
     }
-  ],
+  },
+  "fonts": {
+    "heading": {
+      "family": "Geist",
+      "weight": 600
+    },
+    "body": {
+      "family": "Geist"
+    }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": "system"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Community",
+        "icon": "discord",
+        "href": "https://discord.gg/kerne"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://app.kerne.io"
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -25,7 +57,7 @@
         "icon": "book-open",
         "groups": [
           {
-            "group": "Start here",
+            "group": "Get started",
             "pages": [
               "index",
               "quickstart",
@@ -33,46 +65,33 @@
             ]
           },
           {
-            "group": "How Kerne works",
+            "group": "Core concepts",
             "pages": [
               "concepts/overview",
-              "concepts/monetization/index",
               "concepts/monetization/products-and-plans",
               "concepts/monetization/entitlements",
               "concepts/monetization/usage-billing",
-              {
-                "group": "Users & sessions",
-                "pages": [
-                  "concepts/identity/index",
-                  "concepts/identity/registration-modes",
-                  "concepts/identity/admin-access"
-                ]
-              },
-              "concepts/error-codes"
+              "concepts/monetization/overrides"
             ]
           },
           {
             "group": "Guides",
             "pages": [
-              "guides/saas-lifecycle",
-              {
-                "group": "Pricing & access",
-                "pages": [
-                  "guides/billing/designing-pricing",
-                  "guides/getting-started/subscription-setup",
-                  "guides/getting-started/checking-entitlements",
-                  "guides/billing/enforcing-limits-without-breaking-ux",
-                  "guides/billing/usage-end-to-end"
-                ]
-              },
-              {
-                "group": "Users & sign-up",
-                "pages": [
-                  "guides/getting-started/authentication-setup",
-                  "guides/auth/choose-your-auth-model",
-                  "guides/auth/implement-invite-only-saas"
-                ]
-              }
+              "guides/billing/designing-pricing",
+              "guides/billing/enforcing-limits-without-breaking-ux",
+              "guides/billing/usage-end-to-end",
+              "guides/billing/change-your-pricing",
+              "guides/billing/customer-exceptions",
+              "guides/getting-started/subscription-setup"
+            ]
+          },
+          {
+            "group": "Users & authentication",
+            "pages": [
+              "concepts/identity/index",
+              "concepts/identity/registration-modes",
+              "guides/getting-started/authentication-setup",
+              "guides/auth/implement-invite-only-saas"
             ]
           },
           {
@@ -145,7 +164,7 @@
             ]
           },
           {
-            "group": "Client SDK",
+            "group": "React SDK",
             "pages": [
               "sdks/client/overview",
               {
@@ -193,6 +212,13 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "concepts/error-codes",
+              "concepts/identity/admin-access"
+            ]
           }
         ]
       },
@@ -202,5 +228,26 @@
         "openapi": "openapi.json"
       }
     ]
+  },
+  "footer": {
+    "socials": {
+      "discord": "https://discord.gg/kerne",
+      "website": "https://kerne.io"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "claude",
+      "chatgpt"
+    ]
+  },
+  "seo": {
+    "metatags": {
+      "og:site_name": "Kerne",
+      "og:type": "website",
+      "twitter:card": "summary_large_image"
+    }
   }
 }

@@ -1,0 +1,47 @@
+/* Geist Mono: same face the dashboard ships, so keys, IDs and snippets read identically. */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400..600&display=swap');
+
+:root {
+  --font-paper-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Kerne radii top out at 12px; Mintlify's 16/24px reads soft against it. */
+  --rounded-2xl: 0.75rem;
+  --rounded-3xl: 1rem;
+  --rounded-search: 0.75rem;
+}
+
+/* 36rem default wraps code samples mid-expression. */
+#content-area {
+  max-width: 48rem;
+}
+
+/* `break-all` splits titles mid-word; break at boundaries only. */
+#page-title {
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* One scale, tightened from prose defaults and matched to the sidebar's density. */
+.mdx-content {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.mdx-content h2 {
+  font-size: 1.3125rem;
+  letter-spacing: -0.015em;
+  margin-top: 2.5rem;
+}
+
+.mdx-content h3 {
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+  margin-top: 2rem;
+}
+
+.mdx-content :not(pre) > code,
+.mdx-content pre {
+  font-size: 0.8125rem;
+}

@@ -60,10 +60,43 @@ try {
 
 ## Reading the result of `check()`
 
-`used` is never negative, even when the subject is carrying a credit (a rollover or an [admin adjustment](/sdks/server/admin/usage-corrections)) - a credit is folded into `limit` instead.
+`check()` returns an `EntitlementCheck`. Every field, and whether to gate on it:
 
-`remaining` is plain subtraction and **does** go negative once a subject runs past what its plan includes. That's not an error state: on a feature whose overage is tolerated or billed, `allowed` stays `true` there. Check `overage_behavior` before turning a negative `remaining` into "limit reached" — see [Usage billing](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
+| Field | Meaning | Use for access control? |
+| --- | --- | --- |
+| `allowed` | May the subject do this **right now** | **Yes - this is the gate** |
+| `configured` | Did the catalog or an override say anything about this feature for this subject | No - diagnostics only |
+| `feature_type` | `BOOLEAN` / `QUOTA` / `STATIC`, or `UNKNOWN` for a key that doesn't exist | Branch on it for display |
+| `enabled` | Boolean features: the resolved on/off value | Same as `allowed` for a boolean; still gate on `allowed` |
+| `limit` / `used` / `remaining` | Quota features: the included allowance, consumed so far, and what's left (`null` = unlimited) | Display and your own logic; still gate on `allowed` |
+| `access_limit` | Where access actually stops: equal to `limit` under `BLOCK`, otherwise the overage ceiling, or `null` when there is none | Advanced |
+| `overage_behavior` | `BLOCK` / `ALLOW` / `BILL` - what happens past `limit` | Display / UX |
+| `cap_reached` | Spending cap hit; billing has stopped, consumption has not | **No - not an access signal by itself** |
+| `has_override` | An admin override applies to this subject and feature | Informational |
+| `subscription_status` | The subject's subscription status, or `NONE` | Display |
+| `value` | Static features: the config value, returned as-is | Read it; `allowed` mirrors `configured` for static |
 
-On `ALLOW`/`BILL`, `allowed` still flips back to `false` once usage passes `access_limit` - a separate, optional hard ceiling in units (not the same thing as a spending cap), `null` when the feature has none.
+<Warning>
+`remaining` is plain subtraction and **does** go negative once a subject runs past what its plan includes. On a feature whose overage is `ALLOW` or `BILL`, `allowed` stays `true` there - the subject hasn't hit a wall, they've started paying. Read `overage_behavior` before turning a negative `remaining` into "limit reached". `used` itself is never negative: a credit (rollover, or an [admin adjustment](/sdks/server/admin/usage-corrections)) is folded into `limit` instead.
+</Warning>
 
-See [Entitlements](/concepts/monetization/entitlements) for the full type breakdown (boolean/quota/static) and what each field means per type.
+### `configured` vs `allowed`
+
+`allowed` is the go/no-go. `configured` only tells you whether the catalog (or an override) *said anything* about this feature for this subject.
+
+On the public check path the two always deny together - `configured: false` implies `allowed: false` - in every one of these cases:
+
+- the feature key does not exist (`feature_type: 'UNKNOWN'`)
+- the subject has no subscription **and** no override **and** no active default plan
+- an offer version resolved, but this feature isn't in it and there is no override
+
+Do **not** treat `configured: false` as "open by default". Read it only when you must tell "not sold yet" apart from "sold and denied" - a diagnostic, or a documented fallback while the catalog is still being filled in.
+
+| Situation | `configured` | `allowed` |
+| --- | --- | --- |
+| Included, and within the allowance | `true` | `true` |
+| Excluded (off, or allowance exhausted under `BLOCK`) | `true` | `false` |
+| Feature missing from the offer / no offer / unknown key | `false` | `false` |
+| Active override applies | `true` | by override value |
+
+See [Entitlements](/concepts/monetization/entitlements) for the three kinds of capability.

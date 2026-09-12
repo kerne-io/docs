@@ -1,85 +1,47 @@
 ---
-title: 'Is Kerne a fit?'
-description: "Where the model matches your product — and where it doesn't yet"
+title: 'Is Kerne right for me?'
+description: 'When the model matches your product'
 ---
 
-Kerne makes a few choices deliberately, and two or three of them decide whether it suits your product at all. Better to find out here than three weeks into an integration.
-
-The short version: **Kerne fits when the thing you sell to, and the thing you gate, are the same individual person.** Almost everything else is negotiable.
+Kerne fits when **the thing you sell to and the thing you gate are the same individual person**. Almost everything else is negotiable.
 
 ## Where it fits well
 
-Most of these will be true:
-
-- You sell **to individual users** — or you're comfortable designating one user as the billing subject for an account.
+- You sell to individual users — or you're comfortable making one user the billing contact for an account.
 - You'd rather write `allows('export_pdf')` than `if (user.plan === 'pro')`, and have pricing decisions stop living in your codebase.
-- Your pricing **will change**, and you want existing customers to keep what they bought unless you say otherwise.
-- You bill through **Stripe** (or already use Polar), and you want Kerne to own access while the provider owns the money.
-- You want **usage-based pricing** — real rates, tiers, spending caps, optional per-project or per-seat counters — without building the metering yourself.
-- **Email + password and magic link** are enough authentication for now, or you already own identity elsewhere.
+- Your pricing **will change**, and existing customers should keep what they bought unless you say otherwise.
+- You bill through Stripe, and you want Kerne to own access while the provider owns the money.
+- You want metered pricing — real rates, tiers, spending caps, optional per-project or per-seat counters — without building the metering yourself.
+- Email + password and magic link are enough authentication for now, or you already own identity elsewhere.
 
-In that shape the model stays small: one subject, one subscription, a versioned set of entitlements, and one decision per gated action.
+Typical strong fits: per-seat SaaS, usage-based API or AI products, good-better-best tiers with on/off and allowance features.
 
-## Where it isn't a native fit yet
+## Current boundaries
 
-These are boundaries, not a to-do list. They matter more than any feature comparison.
+These are deliberate, and they're the things worth knowing before you design around the model:
 
-### Organizations and teams as the billing unit
-
-A **subject is always one user**. There's no `subject_type: "ORGANIZATION"`, and no pooled allowance owned by a company as a first-class object.
-
-If what you sell is "one company, twenty seats, one subscription, one shared allowance", you'll either designate one user (owner, billing contact) as the subject and keep membership in your own database, or wait for native organization subjects. The first is a workaround you own; the second doesn't exist today.
-
-### Social and OAuth login
-
-**Email + password** and **magic link** only. No Google, no GitHub, no OAuth provider integration — the `oauth_providers` field on auth config exists but is always empty.
-
-If social login is a launch requirement, keep identity in your own stack and use Kerne for access instead.
-
-### Fine-grained roles and permissions
-
-There's no per-user RBAC, no custom roles, no admin flag on a session. Administering your tenant requires your **secret key**, not a logged-in user's JWT — see [Admin access](/concepts/identity/admin-access).
-
-"This teammate can manage billing but not delete the project" lives in your application for now.
-
-### External subjects without a Kerne user
-
-You can't attach a subscription or a counter to an arbitrary external id (Clerk, Auth0, Firebase). The subject in `allows()` / `consume()` is always a Kerne user id.
-
-The workaround is to create a Kerne user mirroring your external identity and use that id as the subject. It works; it isn't a pure external-subject model.
-
-## Common product shapes
-
-| What you sell | Fit today | Notes |
-| --- | --- | --- |
-| Per-seat SaaS where each person logs in and pays (or is invited under one payer you model yourself) | Strong | Subject = user is natural |
-| Usage-based API, AI, or infrastructure (tokens, minutes, messages) | Strong | Meters, rates, caps and dimensions are first-class |
-| Good-better-best plans with on/off and allowance features | Strong | Versioned packs are built for exactly this |
-| B2B with one company subscription and pooled allowances | Partial | Needs a designated billing user and your own membership model |
-| A product that already uses Clerk or Auth0 and only wants entitlements | Partial | Possible via mirrored users; not a pure external subject |
-| A consumer app that needs "Sign in with Google" on day one | Weak until OAuth ships | Identity is the blocker, not monetization |
+| Boundary | What it means for you |
+| --- | --- |
+| **A subject is one user** | Billing a company as one unit, with a pooled allowance, isn't modelled. Make one user the billing contact and keep membership in your own database. |
+| **No organizations or teams** | Same root cause as above. |
+| **No roles or per-resource permissions** | "This teammate can manage billing but not delete projects" stays in your application. Administering your tenant uses your secret key — see [Admin access](/concepts/identity/admin-access). |
+| **Email + password and magic link only** | No social or OAuth sign-in. If that's a launch requirement, keep identity in your own stack and use Kerne for access. |
+| **Subjects are Kerne user ids** | You can't attach a subscription to an arbitrary external id; mirror your users into Kerne instead. |
+| **Catalog lives in the dashboard** | Products, plans and prices are configured there, not created from the server SDK. |
 
 ## The practical test
 
-If your core loop is **"this person, under this commercial situation, may do X right now"**, Kerne is the right layer.
+If your core loop is *"this person, under this commercial situation, may do X right now"*, Kerne is the right layer.
 
-If it's **"this company, with these roles, under this shared pool, signed in with Google"**, you'll be fighting the model or waiting on the roadmap.
-
-The rest of the docs assume the first shape, and call out the second wherever it would otherwise surprise you.
+If it's *"this company, with these roles, under this shared pool"*, you'll be fighting the model.
 
 ## Next
 
 <CardGroup cols={2}>
-  <Card title="How Kerne works" icon="map" href="/concepts/overview">
-    What Kerne holds, and how a decision gets made.
-  </Card>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Gate a feature end to end in a few minutes.
   </Card>
-  <Card title="Designing pricing" icon="compass" href="/guides/billing/designing-pricing">
-    Bundling, metering, and which shape fits what you sell.
-  </Card>
-  <Card title="Usage billing" icon="gauge" href="/concepts/monetization/usage-billing">
-    Rates, caps, dimensions, and what reaches the invoice.
+  <Card title="How Kerne works" icon="map" href="/concepts/overview">
+    What Kerne holds, and how a decision gets made.
   </Card>
 </CardGroup>

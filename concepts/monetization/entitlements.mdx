@@ -23,22 +23,17 @@ Every capability is one of three kinds.
 
   </Tab>
   <Tab title="Quota">
-    A numeric limit with usage tracking - `limit`, `used`, `remaining`. The feature says what it counts (`minute`, `token`), how often the count renews (`DAILY`, `WEEKLY`, `MONTHLY`, `BILLING_CYCLE`) and what happens to what's unused:
-    - `RESET` - zeroes every period (classic "10,000 calls/month").
-    - `ACCUMULATE` - unused quota rolls over as credit into the next period; overuse rolls over as debt.
-    - `LIFETIME` - never renews, a lifetime total (a one-time allowance).
+    An allowance over a period — `limit`, `used`, `remaining`. You say what it counts (`minute`,
+    `token`) and how often it renews (daily, weekly, monthly, or on the billing cycle).
 
     ```typescript
     const result = await kerne.consume('api_calls', { subject: userId, delta: 1 });
     // { allowed, limit, used, remaining, overage_behavior }
     ```
 
-    `limit: null` means unlimited. When a limit is hit, `overage_behavior` decides what happens:
-    - `BLOCK` refuses further use.
-    - `ALLOW` lets it through, uncapped, and does nothing about billing it - you'd invoice the overage yourself.
-    - `BILL` lets it through and charges for it, up to an optional money ceiling you set. You write the rate on the plan and Kerne creates the meter and its price at Stripe - this is the "$20/mo base, then $0.01 per email past 10,000" model. See [Usage billing](/concepts/monetization/usage-billing) for how the rate, the money ceiling and the hard stop differ.
-
-    Only `RESET` can be billed: a carried-over balance would charge the same units again next period.
+    `limit: null` means unlimited. What happens once the allowance runs out is a separate choice:
+    stop there, let it through untracked, or keep serving and charge for the excess. Counting and
+    charging are covered in [Pricing models and meters](/concepts/monetization/usage-billing).
 
   </Tab>
   <Tab title="Static">
@@ -51,120 +46,20 @@ Every capability is one of three kinds.
   </Tab>
 </Tabs>
 
-## `allows()` vs `enforce()` vs `check()`
-
-All three resolve the same entitlement - they differ only in what they hand back:
-
-|             | Returns                                          | Use it for                                    |
-| ----------- | ------------------------------------------------ | --------------------------------------------- |
-| `allows()`  | `boolean`                                        | UI conditionals                               |
-| `enforce()` | nothing, throws if denied                        | guards/middleware                             |
-| `check()`   | the full object (`limit`/`used`/`remaining`/...) | anywhere you need the detail, not just yes/no |
-
-`allows()` is exactly `check().allowed` - the same request, with everything but the boolean discarded. It never throws for a denial. `enforce()` runs the same check and throws `EntitlementDeniedError` when `allowed` is `false` - a `KerneError` subclass whose `.check` carries the full result (`limit`, `remaining`, `access_limit`, `configured`, ...), so a guard can branch on why (see [Errors](#errors)).
-
-For quota features specifically, use `consume()` instead of `check()` when the action you're gating _is_ the usage - it checks the limit and commits the increment in one atomic step, so two concurrent requests can't both slip through a `BLOCK` limit. `check()`/`allows()` never increment anything.
-
-## The `check()` result, field by field
-
-`check()` returns an `EntitlementCheck`. Every field, and whether to gate on it:
-
-| Field | Meaning | Use for access control? |
-| --- | --- | --- |
-| `allowed` | May the subject do this **right now** | **Yes - this is the gate** |
-| `configured` | Did the catalog or an override say anything about this feature for this subject | No - diagnostics only |
-| `feature_type` | `BOOLEAN` / `QUOTA` / `STATIC`, or `UNKNOWN` for a key that doesn't exist | Branch on it for display |
-| `enabled` | Boolean features: the resolved on/off value | Same as `allowed` for a boolean; still gate on `allowed` |
-| `limit` / `used` / `remaining` | Quota features: the included allowance, consumed so far, and what's left (`null` = unlimited) | Display and your own logic; still gate on `allowed` |
-| `access_limit` | Where access actually stops: equal to `limit` under `BLOCK`, otherwise the overage ceiling, or `null` when there is none | Advanced |
-| `overage_behavior` | `BLOCK` / `ALLOW` / `BILL` - what happens past `limit` | Display / UX |
-| `cap_reached` | Spending cap hit; billing has stopped, consumption has not | **No - not an access signal by itself** |
-| `has_override` | An admin override applies to this subject and feature | Informational |
-| `subscription_status` | The subject's subscription status, or `NONE` | Display |
-| `value` | Static features: the config value, returned as-is | Read it; `allowed` mirrors `configured` for static |
-
-<Warning>
-`remaining` is plain subtraction and **does** go negative once a subject runs past what its plan includes. On a feature whose overage is `ALLOW` or `BILL`, `allowed` stays `true` there - the subject hasn't hit a wall, they've started paying (or you're tolerating it). Read `overage_behavior` before turning a negative `remaining` into "limit reached". `used` itself is never negative: a credit (rollover, or an [admin adjustment](/sdks/server/admin/usage-corrections)) is folded into `limit` instead.
-</Warning>
-
-## `configured` vs `allowed`
-
-`allowed` is the go/no-go. `configured` only tells you whether the catalog (or an override) *said anything* about this feature for this subject.
-
-### `configured: false` on the public check path always means `allowed: false`
-
-`EntitlementService.checkEntitlement` (the path `@kerne/server` and `@kerne/react` hit) returns `configured: false` and `allowed: false` together in every one of these cases:
-
-- the feature key does not exist (`feature_type: 'UNKNOWN'`)
-- the subject has no subscription **and** no override **and** no active default plan/pack
-- a pack resolved, but this feature isn't in it and there is no override
-
-An unconfigured feature is not a sold capability. There is no `configured: false` + `allowed: true` on this path - that combination only exists for Kerne's own internal platform features, which are not part of this contract.
-
-### What to gate on
-
-```typescript
-// Correct for almost every product check
-if (await kerne.allows('export_pdf', { subject: userId })) {
-  // ...
-}
-
-// Equivalent
-const check = await kerne.check('export_pdf', { subject: userId });
-if (check.allowed) {
-  // ...
-}
-```
-
-Do **not** treat `configured: false` as "open by default". Read `configured` only when you must tell "not sold yet" apart from "sold and denied" - for example, falling back to a documented product default while the catalog is still being filled in, or emitting a diagnostic:
-
-```typescript
-const check = await kerne.check('export_pdf', { subject: userId });
-
-if (!check.configured) {
-  // Catalog never spoke about this feature for this subject.
-  // Your own documented fallback, a metric, or an admin alert - not a grant,
-  // unless granting here is an explicit product decision.
-}
-
-if (check.allowed) {
-  // Subject may proceed
-}
-```
-
-### Quick matrix
-
-| Situation | `configured` | `allowed` |
-| --- | --- | --- |
-| Plan includes the feature, within quota / enabled | `true` | `true` |
-| Plan excludes the feature (boolean off, or quota exhausted under `BLOCK`) | `true` | `false` |
-| Feature missing from pack / no pack / unknown key | `false` | `false` |
-| Active override applies | `true` | `true` / `false` by override value |
-
-## Two ways an admin can deviate from the plan
+## Two ways to deviate from the plan for one customer
 
 These solve different problems - don't reach for one when you mean the other:
 
 - **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift. It covers the whole subject, or [one counter](/sdks/server/admin/overrides) of a feature limited per dimension.
 - **`kerne.admin.adjustUsage()`** offsets the usage counter by a signed delta, once. This is "credit this customer 500 units back," and has no effect on their limit going forward.
 
-## Errors
-
-`allows()`/`check()`/`consume()` never throw for a denial - a denied request comes back as `{ allowed: false, ... }`, a normal (200) response. `enforce()` is the one that throws: an `EntitlementDeniedError` (a `KerneError` subclass, `code: 'ENTITLEMENT_DENIED'`) whose `.check` is the same full result the other three return, so you can tell an upgrade case (`configured: true`, quota exhausted) from a misconfiguration (`configured: false`). See [`enforce()` throws `EntitlementDeniedError`](/sdks/server/entitlements/allows-enforce-check#enforce-throws-entitlementdeniederror) and [Enforcing limits without breaking UX](/guides/billing/enforcing-limits-without-breaking-ux).
-
 ## Next
 
 <CardGroup cols={2}>
-  <Card title="Checking entitlements" icon="check" href="/guides/getting-started/checking-entitlements">
-    The standard server + client pattern for gating a feature.
+  <Card title="Offers and versions" icon="layer-group" href="/concepts/monetization/products-and-plans">
+    Why changing a plan doesn't change existing customers.
   </Card>
-  <Card title="Enforcing limits without breaking UX" icon="gauge" href="/guides/billing/enforcing-limits-without-breaking-ux">
-    Soft vs. hard limits, and where to check each one.
-  </Card>
-  <Card title="Products, plans & packs" icon="layer-group" href="/concepts/monetization/products-and-plans">
-    How a Pack pins entitlements at subscription time (grandfathering).
-  </Card>
-  <Card title="Admin overrides" icon="user-shield" href="/sdks/server/admin/overrides">
-    `grant()`/`adjustUsage()` reference.
+  <Card title="Checking an entitlement" icon="check" href="/sdks/server/entitlements/allows-enforce-check">
+    `allows()` / `check()` / `enforce()`, and every field a check returns.
   </Card>
 </CardGroup>

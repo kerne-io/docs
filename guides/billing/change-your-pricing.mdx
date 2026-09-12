@@ -1,0 +1,59 @@
+---
+title: 'Change your pricing'
+description: 'Introduce a new offer without changing existing customers'
+---
+
+You've decided to raise a price, shrink an allowance, or move a feature to a higher tier. The change itself is a few clicks. The question worth being deliberate about is what happens to everyone who already bought the old terms.
+
+## The default: nothing happens to them
+
+Publish the change and it reaches **new subscribers only**. Every existing customer stays on the version they received, indefinitely.
+
+You don't opt into that. It's what happens if you do nothing special, because the alternative — silently repricing people who already paid — is the kind of thing you can't undo once they notice.
+
+## Making the change
+
+<Steps>
+  <Step title="Edit the plan">
+    Change what it includes: flip a feature off, raise a limit, add something new.
+  </Step>
+  <Step title="Publish it as a new version">
+    From that moment, anyone subscribing gets the new terms.
+  </Step>
+  <Step title="Verify against a real customer">
+    Check an existing subscriber and a fresh one for the same feature. They should disagree — that's
+    the versioning doing its job.
+  </Step>
+</Steps>
+
+## Moving someone forward, on purpose
+
+Two things move a customer onto current terms, and both are deliberate:
+
+- **They change plan.** Switching plans re-attaches the subscription to the target plan's current version — including anything that changed since they first subscribed.
+- **You migrate them.** From the dashboard, when you've decided the old terms should end.
+
+Nothing else does it. A new price, a raised limit, a feature you removed — none of it reaches someone already subscribed.
+
+## If the feature is metered
+
+A price is immutable on its amount at the provider, so changing a rate is always "create a new one and point the entitlement at it". Kerne does that when you replace a rate.
+
+Customers already subscribed keep the rate they signed up on. They move onto the current one when their plan changes — same rule as everything else. See [Meters & usage](/concepts/monetization/usage-billing#the-rate).
+
+## One thing that catches people
+
+An add-on rides the subscription rather than sitting beside it, so a plan change carries it along. If an add-on exists on one plan and not the other, switching plans ends it.
+
+Model an add-on you intend to survive a plan change as a feature present on every plan, with a different allowance.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Offers & versions" icon="layer-group" href="/concepts/monetization/products-and-plans">
+    Why versions exist, and what they pin.
+  </Card>
+  <Card title="Handle customer exceptions" icon="user-pen" href="/guides/billing/customer-exceptions">
+    When one customer needs terms your catalog doesn't sell.
+  </Card>
+</CardGroup>

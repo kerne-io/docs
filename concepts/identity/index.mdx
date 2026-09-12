@@ -1,39 +1,28 @@
 ---
 title: 'Users and sessions'
 sidebarTitle: 'Overview'
-description: 'Signing people up, logging them in, and who those people are to Kerne'
+description: 'Who an access decision applies to'
 ---
 
-Before Kerne can decide what someone is allowed to do, it needs to know who they are. That part is deliberately small: Kerne holds users and sessions so that a subscription, a usage counter and an entitlement all have someone to belong to.
+Every access decision is about someone. Kerne holds users and sessions so that a subscription, a usage counter and an entitlement all have someone to belong to.
 
-If you already run your own identity — Clerk, Auth0, your own table — you can mirror those users into Kerne and use it only for access decisions. That works; see [Is Kerne a fit?](/guides/is-kerne-a-fit#external-subjects-without-a-kerne-user) for what it costs you.
+That's the whole reason this part exists. If you already run your own identity, you can mirror your users into Kerne and use it only for access decisions — the `subject` in every call is a Kerne user id, so each of your users needs a matching one.
 
 ## Signing in
 
-Kerne supports:
+- **Email and password** — `kerne.auth.signup()` / `kerne.auth.login()`.
+- **Magic link** — `kerne.auth.startPasswordless(email)` emails a one-time link; `kerne.auth.loginWithMagicLink(token)` verifies it and logs the user in, signing them up on first click if registration allows it. Off by default per tenant.
 
-- **Email and password** — the standard flow, via `kerne.auth.signup()` / `kerne.auth.login()`.
-- **Magic link** — `kerne.auth.startPasswordless(email)` emails a one-time link; `kerne.auth.loginWithMagicLink(token)` verifies it and logs the user in, signing them up on first click if registration allows it. Off by default per tenant — see `enable_magic_link` in [Registration modes](/concepts/identity/registration-modes).
-
-Not supported: social / OAuth login. There's no provider integration, despite `AuthConfig.oauth_providers` existing as a field in the config response — it's always empty today.
-
-Every successful signup or login returns a JWT access token plus a refresh token (`kerne.auth.token()`, or the higher-level `signup()` / `login()`). [Registration modes](/concepts/identity/registration-modes) covers how a tenant controls *who* is allowed to sign up in the first place.
+Every successful signup or login returns a JWT access token plus a refresh token. [Registration modes](/concepts/identity/registration-modes) covers who is allowed to sign up in the first place.
 
 ## Two different questions
 
-It's worth keeping these apart, because both get called "authorization" and they are not the same thing:
+Both get called "authorization", and they are not the same thing:
 
-| Question | Answered by | Where it lives |
-| --- | --- | --- |
-| Who is this? | Authentication — a session | This page |
-| What are they allowed to do, given what they bought? | [Entitlements](/concepts/monetization/entitlements) | Your catalog and their subscription |
-| May this caller manage my tenant? | The credential it authenticates with | [Admin access](/concepts/identity/admin-access) |
-
-The middle row is what Kerne is for. The last one is a much narrower thing: Kerne has **no per-user permission system** — no custom roles, no per-resource permissions, no admin flag on a user. Managing users, correcting usage or granting overrides requires your secret key, never a user's session.
-
-## Who an entitlement belongs to
-
-An entitlement is always granted to one user, never to a group. If what you sell is a company or a team as one unit, read [Who a decision is about](/concepts/overview#who-a-decision-is-about) before you design around it.
+| Question | Answered by |
+| --- | --- |
+| What is this customer allowed to do? | [Entitlements](/concepts/monetization/entitlements) — this is what Kerne is for |
+| May this caller administer my tenant? | The credential it authenticates with — see [Admin access](/concepts/identity/admin-access) |
 
 ## Next
 
@@ -41,7 +30,7 @@ An entitlement is always granted to one user, never to a group. If what you sell
   <Card title="Registration modes" icon="door-open" href="/concepts/identity/registration-modes">
     Open, invite-only, or closed — and where a waitlist fits in.
   </Card>
-  <Card title="Admin access" icon="shield" href="/concepts/identity/admin-access">
-    What requires your secret key, and why it can't come from a user session.
+  <Card title="Set up authentication" icon="key" href="/guides/getting-started/authentication-setup">
+    Login, registration and route protection, end to end.
   </Card>
 </CardGroup>

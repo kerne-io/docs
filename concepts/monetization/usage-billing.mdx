@@ -1,77 +1,39 @@
 ---
-title: 'Usage billing'
-description: 'Charge for what people actually use, without ever charging more than you promised'
+title: 'Pricing models and meters'
+sidebarTitle: 'Meters & usage'
+description: 'Flat, metered, and what a meter actually measures'
 ---
 
-Most pricing is a flat monthly fee. Usage billing is the other half: your customer pays for what they consume, and you decide where that stops.
+There are two ways to charge for something, and most products use both.
 
-Nothing new is introduced here. It's the same [entitlement](/concepts/monetization/entitlements) a plan already grants, with an answer to one extra question — *what happens once the included amount runs out?* Your application still just asks whether someone may proceed.
+**Flat** — a fixed amount per period. The customer pays 20 € a month and gets what the tier includes. Nothing is counted.
 
-Kerne splits that answer into **three separate decisions**. They look similar and they are not, so it's worth being precise once:
+**Metered** — the amount depends on what they used. 0.35 € per hour of machine time, 2 € per million tokens, 0.04 € per SMS. Something has to be counted, and that something is a **meter**.
 
-<CardGroup cols={3}>
-  <Card title="What's included" icon="gift">
-    Free every period. `720` minutes, `10,000` calls, `1,000,000` tokens.
-  </Card>
-  <Card title="What it costs after" icon="receipt">
-    A rate you write once, and an optional **ceiling in money**.
-  </Card>
-  <Card title="Where it stops dead" icon="hand">
-    A ceiling in **units**, which actually blocks. Optional, and rarely what you want.
-  </Card>
-</CardGroup>
+A tier can mix them freely: a flat base fee, three features that are simply on or off, one allowance that stops dead when it runs out, and one that keeps serving and charges for the excess.
 
-The one that surprises people: **the money ceiling doesn't block anything.** Past it, your customer keeps working and you stop charging. That's deliberate — see [Why the cap doesn't block](#why-the-cap-doesnt-block).
+## What a meter measures
 
-## Four steps
+A meter counts one thing, for one customer, over a period.
 
-A makerspace rents out its laser cutters. Their offer: **0.35 € per hour of cutter time, never more than 120 € a month per customer.**
+- **The unit** — `minute`, `token`, `message`, `gigabyte`. Count in the **smallest unit you bill**: minutes, not hours. Counts are whole numbers, which is what makes concurrent consumption safe, so a fractional hour has nowhere to go. Same discipline as storing money in cents.
+- **The period** — daily, weekly, monthly, or the customer's billing cycle. This is when the count goes back to zero.
+- **What it's counted by** — by default, one pool per customer. It can also split per machine, per project or per seat; see [below](#per-machine-per-project-per-seat).
 
-<Steps>
-  <Step title="Say what you count">
-    A **quota** feature: unit `minute`, renewing **every billing cycle**.
+You declare the unit and the period on the feature. Each tier then decides how much is included and what happens past it.
 
-    Meter in the smallest unit you bill — minutes, not hours. Kerne counts in whole numbers, which is what makes concurrent consumption safe, so a fractional hour has nowhere to go.
+Your backend does the counting with one call:
 
-    A billed quota has to restart at zero each period. If unused allowance carried over, last period's consumption would be billable again this period — so "carries over" is unavailable on a feature some plan bills, rather than allowed to do that quietly.
-  </Step>
-  <Step title="Set the rate">
-    Open that feature's cell on the plan, and choose to keep serving past the allowance and charge for it. Then write the rate the way you sell it — an amount and a quantity: **0.35 EUR per 60 minutes**.
+```typescript
+await kerne.consume('cutter_minutes', { subject: customerId, delta: 60 });
+```
 
-    Kerne creates the meter and the price at Stripe from that one line. There is no id to copy back, and nothing to configure on the other side.
-  </Step>
-  <Step title="Say where it stops">
-    Nothing is included here, so the allowance is `0` minutes. The spending ceiling is `120` EUR per billing cycle.
-
-    Leave that ceiling empty for an add-on meant to scale freely.
-  </Step>
-  <Step title="Count it from your backend">
-    ```typescript
-    await kerne.consume('cutter_minutes', {
-      subject: customerId,
-      delta: 60, // one hour
-    });
-    ```
-  </Step>
-</Steps>
-
-Kerne counts, and a background worker hands the billable minutes to Stripe. Your customer's invoice grows to 120 € and stops.
+That checks the allowance and commits the increment in one atomic step, so concurrent requests can't both slip past a limit. See [`consume()`](/sdks/server/entitlements/consume).
 
 <Note>
-  Usage billing runs on Stripe today. On Polar you get an explicit refusal instead of an entitlement that looks configured and never charges — meter the plans that need it on Stripe.
+  Metered pricing runs on Stripe today. On Polar you get an explicit refusal rather than an
+  entitlement that looks configured and silently never charges.
 </Note>
-
-## The same four steps, five businesses
-
-| What's sold | Counted in | The rate | Where it stops |
-| --- | --- | --- | --- |
-| Laser-cutter time | `minute` | 0.35 EUR per 60 minutes, a started hour counts in full | never past 120 EUR a month |
-| Model calls | `token` | 2.00 EUR per 1,000,000 tokens, billed to the exact token | 1,000,000 included, then billed |
-| Transactional SMS | `message` | 0.04 EUR per message | 500 included, cut off at 20,000 |
-| Object storage | `gigabyte` | 0.10 EUR per GB, 0.06 EUR past 100 GB | 100 GB included |
-| AI credits sold per seat | `credit`, per `user` | 0.01 EUR per credit | 1,000 free per user, never past 20 EUR per user |
-
-Only the last row needs something the others don't: it counts per `user` rather than per customer, which is [dimensions](#per-machine-per-project-per-seat).
 
 ## The rate
 
@@ -88,8 +50,6 @@ Past that, two questions. Their answers are independent, and between them they c
 | **for every 1,000 started** | 10.00 EUR — the second thousand counts whole |
 | **for the exact usage** | 7.50 EUR — the exact fraction |
 
-The editor answers it back as you type: a sample quantity, what it costs, and — when a started quantity counts whole — the fact that one unit less costs exactly the same.
-
 ### Does the rate change as usage grows?
 
 Add a tier — "past 10,000 units, 4.00 EUR per 1,000" — then say what a tier applies to. A customer who used 20,000 pays:
@@ -102,14 +62,17 @@ Add a tier — "past 10,000 units, 4.00 EUR per 1,000" — then say what a tier 
 Nothing here assumes the rate falls as usage grows. Volume discounts and congestion pricing are both real offers; a tier just says what applies past a point, in either direction.
 
 <Note>
-  The two questions combine. "0.35 EUR per 60 minutes, every started hour whole, dropping to 0.28 EUR past 150 hours" is one rate — Kerne does the quantity arithmetic before the provider ever sees a number, which is what lets a sold-by quantity and a tier schedule coexist. Stripe cannot express that pairing on its own.
+  The two questions combine. "0.35 EUR per 60 minutes, every started hour whole, dropping to 0.28 EUR
+  past 150 hours" is one rate — Kerne does the quantity arithmetic before the provider sees a number,
+  which is what lets a sold-by quantity and a tier schedule coexist. Stripe cannot express that
+  pairing on its own.
 </Note>
 
 ## Per machine, per project, per seat
 
-The example above pools every cutter into one counter. Often that's exactly right — the customer is billed for total consumption, and which cutter produced it is their business.
+By default a meter pools everything into one counter per customer. Often that's right — they're billed for total consumption, and which machine produced it is their business.
 
-Sometimes it isn't. **Dimensions** let one quota split into several counters under the same customer:
+Sometimes it isn't. **Dimensions** split one meter into several counters under the same customer:
 
 ```typescript
 await kerne.consume('cutter_minutes', {
@@ -119,38 +82,29 @@ await kerne.consume('cutter_minutes', {
 });
 ```
 
-Declare what a feature is counted by (`minute` per `cutter`) on the **feature**, then each plan chooses what that means:
+Declare what the feature is counted by (`minute` per `cutter`), then each tier chooses what that means — and the allowance and the spending cap choose independently:
 
-| Allowance | What your customer gets |
-| --- | --- |
-| **Shared across every cutter** | One pool. 200 hours total, whoever burns them. |
-| **Each cutter gets its own** | 200 hours *per cutter*, counted separately. Cutter A running out doesn't touch cutter B. |
+| Setting | Shared | Per slice |
+| --- | --- | --- |
+| **Allowance** | One pool: 200 hours total, whoever burns them | 200 hours *per cutter*; A running out doesn't touch B |
+| **Spending cap** | "Your bill never exceeds 120 € a period" | "Each cutter costs you at most 120 €" — ten cutters can bill ten times it |
 
-And the cap has its own, independent choice — because these two promise opposite things:
+Per-slice caps are the ones people forget exist, and usually the better default: it's how you sell 1,000 credits per user with a 20 € ceiling per user, or 100 GB per project at 50 € per project.
 
-| Cap | What you're promising |
-| --- | --- |
-| **Total for the customer** | "Your bill never exceeds 120 € a period." Reassuring for them, and it caps what you earn however much they grow. |
-| **Per cutter** | "Each cutter costs you at most 120 €." Ten cutters can bill ten times it — and the cost of adding one more is known in advance, on both sides. |
-
-The second one is the one people forget exists, and it's usually the better default: it's how you sell 1,000 AI credits per user with a 20 € ceiling per user, 100 GB per project at 50 € per project, or a white-label deal where the agency knows what one more of their own clients costs them.
-
-<Note>
-  Allowance and cap bind independently: "shared pool, one cap" and "own allowance per cutter, own cap per cutter" are both valid, and so are the two mixes.
-</Note>
-
-Attribution works either way: even on a shared pool, every usage event records which cutter it came from, so "which one cost me the most" stays answerable.
+Attribution works either way — even on a shared pool, every event records which slice it came from.
 
 ## Why the cap doesn't block
 
-This is the part worth understanding, because it's the opposite of what most systems do.
+A spending cap is a ceiling in **money**, and it does not stop anything.
 
 <CardGroup cols={2}>
   <Card title="Money and access are separate" icon="scale-balanced">
-    Hitting a spending cap means *you* stop charging. Your customer notices nothing. Their cutters keep running, their API keeps answering.
+    Hitting a spending cap means *you* stop charging. The customer notices nothing — their machines
+    keep running, their API keeps answering.
   </Card>
   <Card title="Blocking is its own setting" icon="hand">
-    If you genuinely want consumption to stop, that's the usage limit — a ceiling in units, sitting one rung below on the same rule, and empty by default.
+    If you genuinely want consumption to stop, that's a ceiling in **units**, sitting one rung below
+    on the same rule, and empty by default.
   </Card>
 </CardGroup>
 
@@ -158,72 +112,53 @@ The reason is simple: a spending cap is a promise you made about *your invoice*.
 
 ## What you see
 
-The **Usage billing** screen shows every subscriber on a billed entitlement: consumed, billable, already charged, and how much room is left under the cap.
-
-It also shows two things nothing else would tell you:
+The **Usage billing** screen shows every subscriber on a metered entitlement: consumed, billable, already charged, and room left under the cap. Two states are worth watching for:
 
 - **Capped** — still consuming, no longer charged. Working as designed, but you want to know.
-- **Not billing** — the provider refused this entitlement's usage (its price was archived, its meter was turned off). Access still works, revenue is silently zero. This is the failure this screen exists for.
-
-<Note>
-  The numbers on that screen come from the same function the billing worker uses. What you read is what gets invoiced, not a parallel estimate that can drift.
-</Note>
+- **Not billing** — the provider is refusing this entitlement's usage (its price was archived, its meter turned off). Access still works, revenue is silently zero.
 
 ## Things that will bite you
 
 <AccordionGroup>
-  <Accordion title="Meter in the smallest unit, always">
-    Minutes, not hours. Megabytes, not gigabytes, unless you never sell a fraction of one. `delta` is a whole number — that's what makes concurrent consumption safe — so a fractional hour has nowhere to go. Same discipline as storing money in cents.
-
-    The rate then puts the offer back: you count minutes and sell "0.35 EUR per 60 minutes".
-  </Accordion>
-  <Accordion title="Repricing everything can make a bigger bill smaller">
-    If you priced tiers at whatever rate the total reaches, crossing one can *lower* the total: at 5 € then 4 € per 1,000, ten thousand units cost 50 € and ten thousand and one cost 44 €.
-
-    That's the pricing working as designed, and your spending cap still holds — it stops a customer just short of a tier their cap can't afford to enter, rather than letting them jump into it. The rate editor says so when you pick a tier that really is cheaper than the one before it.
-  </Accordion>
   <Accordion title="A cap counts whole quantities, it does not divide">
-    A 120 € cap at 0.35 € per started hour doesn't buy 342.8 hours. It buys **342 whole hours**: the 343rd would count whole and invoice 120.05 €. Kerne computes it the way the invoice will.
+    A 120 € cap at 0.35 € per started hour doesn't buy 342.8 hours. It buys **342 whole hours**: the
+    343rd would count whole and invoice 120.05 €. Kerne computes it the way the invoice will.
   </Accordion>
   <Accordion title="The cap resets on the feature's period, not on the invoice">
-    A 120 € spending cap means 120 € **per renewal period** — the one you set on the feature, not the one you bill on. Usage is always invoiced monthly, so the two only line up when the feature renews on the **billing cycle**.
+    A 120 € cap means 120 € **per renewal period** — the one set on the feature, not the one you bill
+    on. Usage is invoiced monthly, so the two only line up when the feature renews on the **billing
+    cycle**. A weekly feature can carry roughly 4 × 120 € onto one invoice; a daily one, 30 ×.
 
-    | Feature renews | One monthly invoice can carry |
-    | --- | --- |
-    | Billing cycle | 120 € — they match |
-    | Calendar month | up to 240 €, since invoices run from the customer's own renewal date and can straddle two calendar months |
-    | Weekly | about 4 × 120 € |
-    | Daily | about 30 × 120 € |
-
-    None of these is wrong — a daily quota that bills is a perfectly good design. But if you meant "their bill never exceeds 120 €", set the feature to renew on the **billing cycle**. Kerne names the period in force above the entitlement and puts the multiplier next to the cap when they don't match.
+    None of those is wrong. But if you meant "their bill never exceeds 120 €", renew on the billing
+    cycle.
   </Accordion>
   <Accordion title="Changing a rate means replacing it">
-    A price is immutable on its amount at the provider, so "change the rate" is always "create another one and point this entitlement at it" — which is what the editor does when you replace a rate, and why it says so. The meter itself is reused, not recreated, so the consumption history behind it stays whole.
+    A price is immutable on its amount at the provider, so "change the rate" is always "create another
+    and point this entitlement at it". The meter is reused, not recreated, so consumption history
+    stays whole.
 
-    Customers already subscribed keep the rate they signed up on: their subscription still carries the price it was created with. Changing their plan brings them onto the current one, since a plan change reconciles the whole subscription against the target plan.
-
-    The replaced rate stays at Stripe, where it keeps showing up whenever you pick one. Archive it from that list once nothing points at it — Kerne refuses while an entitlement still bills on it, and names which. "Archive" rather than "delete" because Stripe keeps every price that has ever existed: the action hides it, it does not remove it.
+    Customers already subscribed keep the rate they signed up on. Changing their plan brings them onto
+    the current one.
   </Accordion>
-  <Accordion title="A price Kerne didn't create can't carry a cap">
-    A spending cap is inverted into a unit ceiling — "how many hours fit under 120 €?" — so Kerne has to be able to price your usage without asking the provider. It can do that for any rate written here, schedules included.
-
-    What it won't do is guess. Point an entitlement at a price built at the provider with something Kerne has no equivalent for — a flat fee attached to a tier, say — and it says so rather than inventing a shape. That price still bills perfectly well; it just can't be capped.
+  <Accordion title="An allowance that carries over can't also be billed">
+    If unused allowance rolled into next period, last period's consumption would be billable again.
+    Kerne refuses the pair rather than storing it. Same for an unlimited allowance with a rate
+    attached: nothing would ever be billable.
   </Accordion>
-  <Accordion title="An unlimited allowance and a billed overage contradict each other">
-    Unlimited means everything is included, so nothing is ever billable: the entitlement would carry a rate, a cap, a meter, and charge zero forever. Kerne refuses the pair instead of storing it.
-  </Accordion>
-  <Accordion title="If the metered price gets archived at the provider">
-    Existing subscribers keep billing on it, but nobody new can subscribe to that plan. Kerne flags the entitlement as **Not billing** so you find out from your dashboard rather than from a support ticket.
+  <Accordion title="Repricing everything can make a bigger bill smaller">
+    If tiers are priced at whatever rate the total reaches, crossing one can *lower* the total: at
+    5 € then 4 € per 1,000, ten thousand units cost 50 € and ten thousand and one cost 44 €. That's
+    the pricing working as designed; the editor says so when you pick such a tier.
   </Accordion>
 </AccordionGroup>
 
 ## Next
 
 <CardGroup cols={2}>
-  <Card title="Designing your pricing" icon="compass" href="/guides/billing/designing-pricing">
-    Which model fits what you sell.
+  <Card title="Set one up end to end" icon="rocket" href="/guides/billing/usage-end-to-end">
+    A metered feature from blank to invoice line.
   </Card>
-  <Card title="consume()" icon="code" href="/sdks/server/entitlements/consume">
-    The call that counts, with every option.
+  <Card title="Designing your pricing" icon="compass" href="/guides/billing/designing-pricing">
+    Which shape fits what you sell.
   </Card>
 </CardGroup>
