@@ -3,20 +3,20 @@ title: 'Overrides'
 description: 'grant / listGrants / revokeGrant'
 ---
 
-An entitlement override replaces a subject's **limit** for a feature - "this customer has a 1,000/mo deal" - and renews every period exactly like the plan's own limit would, until it expires (or forever, if you don't set an expiry). It has no effect on period boundaries, resets, or rollover - only the limit itself.
+An entitlement override replaces a customer's **limit** for a feature - "this customer has a 1,000/mo deal" - and renews every period exactly like the plan's own limit would, until it expires (or forever, if you don't set an expiry). It has no effect on period boundaries, resets, or rollover - only the limit itself.
 
 ```typescript
-// Grant - creates one, or updates it if this subject+feature already has one
+// Grant - creates one, or updates it if this customer+feature already has one
 await kerne.admin.grant('api_calls', {
-  subject: userId,
+  customer: userId,
   value: '50000', // same encoding as a normal entitlement value
   reason: 'Annual contract - negotiated limit',
   expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
 });
 
-// One counter instead of the whole subject, on a feature limited per dimension
+// One counter instead of the whole customer, on a feature limited per dimension
 await kerne.admin.grant('machine_minutes', {
-  subject: userId,
+  customer: userId,
   dimension: 'machine_42', // only this machine; the others keep the plan's limit
   value: '180',
   reason: 'Loaner machine while theirs is repaired',
@@ -24,17 +24,17 @@ await kerne.admin.grant('machine_minutes', {
 
 // List
 const grants = await kerne.admin.listGrants(); // every override in the tenant
-const forUser = await kerne.admin.listGrants(userId); // just this subject
+const forUser = await kerne.admin.listGrants(userId); // just this customer
 
 // Revoke
 await kerne.admin.revokeGrant(overrideId);
 ```
 
-## Subject, or one counter
+## Customer, or one counter
 
-Without `dimension`, the grant covers the subject: on a feature limited per dimension, every counter gets that limit of its own. With `dimension`, only that counter moves.
+Without `dimension`, the grant covers the customer: on a feature limited per dimension, every counter gets that limit of its own. With `dimension`, only that counter moves.
 
-The two stack, most specific first - a counter uses its own grant if it has one, the subject's otherwise, and the plan's if neither exists. So "every machine to 3h, except this one at 5h" is two grants, not a list of every machine.
+The two stack, most specific first - a counter uses its own grant if it has one, the customer's otherwise, and the plan's if neither exists. So "every machine to 3h, except this one at 5h" is two grants, not a list of every machine.
 
 A `dimension` is only read when the plan limits that feature per dimension. Under a shared limit the grant still saves, but never resolves - naming one machine cannot carve a private allowance out of a pool. Passing one on a feature with no dimension key is rejected.
 

@@ -18,7 +18,7 @@ Every capability is one of three kinds.
     An on/off switch. `kerne.check()` returns `{ allowed, enabled }`.
 
     ```typescript
-    const { allowed } = await kerne.check('sso_enabled', { subject: userId });
+    const { allowed } = await kerne.check('sso_enabled', { customer: userId });
     ```
 
   </Tab>
@@ -27,7 +27,7 @@ Every capability is one of three kinds.
     `token`) and how often it renews (daily, weekly, monthly, or on the billing cycle).
 
     ```typescript
-    const result = await kerne.consume('api_calls', { subject: userId, delta: 1 });
+    const result = await kerne.consume('api_calls', { customer: userId, delta: 1 });
     // { allowed, limit, used, remaining, overage_behavior }
     ```
 
@@ -40,7 +40,7 @@ Every capability is one of three kinds.
     A config value, not a limit - returned as-is (e.g. `support_level: "gold"`).
 
     ```typescript
-    const { value } = await kerne.check('support_level', { subject: userId });
+    const { value } = await kerne.check('support_level', { customer: userId });
     ```
 
   </Tab>
@@ -50,7 +50,7 @@ Every capability is one of three kinds.
 
 These solve different problems - don't reach for one when you mean the other:
 
-- **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift. It covers the whole subject, or [one counter](/sdks/server/admin/overrides) of a feature limited per dimension.
+- **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift. It covers the whole customer, or [one counter](/sdks/server/admin/overrides) of a feature limited per dimension.
 - **`kerne.admin.adjustUsage()`** offsets the usage counter by a signed delta, once. This is "credit this customer 500 units back," and has no effect on their limit going forward.
 
 ## Next

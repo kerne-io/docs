@@ -13,7 +13,7 @@ The common case: an annual contract with terms your public pricing doesn't offer
 
 ```typescript
 await kerne.admin.grant('api_calls', {
-  subject: userId,
+  customer: userId,
   value: '50000',
   reason: 'Annual contract - negotiated limit',
   expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
@@ -28,7 +28,7 @@ On a feature counted per machine, per project or per seat, you can move a single
 
 ```typescript
 await kerne.admin.grant('machine_minutes', {
-  subject: userId,
+  customer: userId,
   dimension: 'machine_42',
   value: '180',
   reason: 'Loaner machine while theirs is repaired',
@@ -42,7 +42,7 @@ Overrides stack most-specific-first, so "every machine to 3h, except this one at
 This is the one people get wrong. A refund is **not** a limit change — raising their limit would hand them the same gift every period, forever.
 
 ```typescript
-await kerne.admin.adjustUsage('api_calls', { subject: userId, delta: -5000 });
+await kerne.admin.adjustUsage('api_calls', { customer: userId, delta: -5000 });
 ```
 
 That moves the counter once. Pass an `idempotencyKey` if the call might be retried.

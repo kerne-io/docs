@@ -3,7 +3,7 @@ title: 'Check an entitlement'
 description: 'useAccess and <Access> - all scoped to the logged-in user automatically'
 ---
 
-Unlike the server SDK, there's no subject parameter here - the client always checks the currently authenticated user, resolved from their own session.
+Unlike the server SDK, there's no `customer` parameter here - the client always checks the currently authenticated user's own customer, resolved from their own session.
 
 <Note>
 This is the hook to gate on. [`useEntitlements()`](/sdks/client/react/billing/entitlements-list) returns a cached list with **no per-feature `allowed`** - use it for a "your plan" screen, not for a go/no-go decision.

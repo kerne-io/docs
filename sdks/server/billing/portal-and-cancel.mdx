@@ -1,11 +1,11 @@
 ---
-title: "Portal, cancel & change plan"
-description: "Customer billing portal, subscription cancellation and plan switching"
+title: 'Portal, cancel & change plan'
+description: 'Customer billing portal, subscription cancellation and plan switching'
 ---
 
 ## Billing portal
 
-A hosted page (Stripe/Polar) where the caller manages their own payment method, invoices, and plan - for the caller's own identity, same as [checkout](/sdks/server/billing/checkout).
+A hosted page (Stripe) where the caller manages their own payment method, invoices, and plan - for the caller's own identity, same as [checkout](/sdks/server/billing/checkout).
 
 ```typescript
 const { url } = await kerne.billing.portal();
@@ -19,18 +19,19 @@ The return redirect resolves the same way as checkout's success/cancel - see [Ch
 // Cancel the caller's own active subscription
 await kerne.billing.cancel({ immediately: false }); // false = at period end (default)
 
-// Cancel a specific subscription (admin, any subject)
+// Cancel a specific subscription (admin, any customer)
 await kerne.billing.subscriptions.cancel(subscriptionId, /* immediately */ true);
 ```
 
 `immediately: false` keeps access through the current period's end - the common choice, since an abrupt cutoff mid-period is rarely what you want for a self-service cancel. It only stamps `canceled_at`: `status` doesn't move to `CANCELED` until the provider's own period-end webhook confirms it later. `immediately: true` flips `status` to `CANCELED` right away instead. Check `canceled_at`, not `status`, if your UI needs to show "cancellation scheduled" before that webhook arrives.
 
-Either way the row is never deleted: the billing history stays readable, and the subject can subscribe again without losing what came before.
+Either way the row is never deleted: the billing history stays readable, and the customer can subscribe again without losing what came before.
 
 `kerne.billing.cancel()` throws a `NotFoundError` (`code: 'NO_ACTIVE_SUBSCRIPTION'`, a `KerneError` subclass) if the caller has no subscription at all - built client-side before any request goes out, so `.requestId` is unset, but it's `instanceof KerneError` like the rest. `kerne.billing.subscriptions.cancel(id, ...)` has no such pre-check; a bad `id` fails with the server's own 404 instead.
 
 <Note>
-  The provider is told first, then Kerne. A cancellation really stops the next invoice rather than only closing off access on our side - which is the failure mode this ordering exists to prevent.
+  The provider is told first, then Kerne. A cancellation really stops the next invoice rather than
+  only closing off access on our side - which is the failure mode this ordering exists to prevent.
 </Note>
 
 ## Change plan
@@ -46,8 +47,9 @@ await kerne.billing.subscriptions.changePlanPrice(subscriptionId, nextPlanPriceI
 
 The swap is **immediate**, upgrade or downgrade alike, and the provider prorates by default.
 
-The subscription's entitlements move with it: `changePlanPrice()` re-attaches the offer version, so what the subject is allowed to do reflects the new plan on the next check. Deferring a downgrade to the end of the period is not supported yet - see [Products & plans](/concepts/monetization/products-and-plans) for how a pack is pinned in the first place.
+The subscription's entitlements move with it: `changePlanPrice()` re-attaches the offer version, so what the customer is allowed to do reflects the new plan on the next check. Deferring a downgrade to the end of the period is not supported yet - see [Products & plans](/concepts/monetization/products-and-plans) for how a pack is pinned in the first place.
 
 <Warning>
-  The second argument is a **`plan_price_id`** - a specific billing variant (monthly vs. yearly), not a plan id.
+  The second argument is a **`plan_price_id`** - a specific billing variant (monthly vs. yearly),
+  not a plan id.
 </Warning>

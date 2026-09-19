@@ -11,11 +11,11 @@ import { UserProfile } from '@kerne/react/ui';
 <UserProfile />;
 ```
 
-| Tab | Contains |
-| --- | --- |
-| Profile | Name, and the email address with its verification state |
-| Security | Password, delete account |
-| Billing | Current plan, usage meters, plan switcher |
+| Tab      | Contains                                                |
+| -------- | ------------------------------------------------------- |
+| Profile  | Name, and the email address with its verification state |
+| Security | Password, delete account                                |
+| Billing  | Current plan, usage meters, plan switcher               |
 
 Picking a plan there behaves like [`<PricingTable>`](/sdks/client/react/ui/pricing-table): a confirm step and an in-place switch for whoever's already subscribed, a straight checkout for whoever isn't.
 
@@ -28,9 +28,7 @@ Show only the tabs you need:
 Add your own:
 
 ```tsx
-<UserProfile
-  extraTabs={[{ id: 'team', label: 'Team', content: <TeamSettings /> }]}
-/>
+<UserProfile extraTabs={[{ id: 'team', label: 'Team', content: <TeamSettings /> }]} />
 ```
 
 To drive tabs from your router, pass `activeTab` and `onTabChange`.
@@ -87,4 +85,4 @@ The message follows the reason. Someone who ran out of a monthly quota sees a di
 <CheckoutResult outcome="success" continueUrl="/dashboard" />
 ```
 
-It confirms the subscription really exists before saying so. Coming back from Stripe or Polar only means the payment went through on their side — the subscription lands a moment later, over a webhook. This waits for it instead of announcing a success the rest of your app cannot see yet.
+It confirms the subscription really exists before saying so. Coming back from Stripe only means the payment went through on the provider' side — the subscription lands a moment later, over a webhook. This waits for it instead of announcing a success the rest of your app cannot see yet.

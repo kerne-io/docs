@@ -25,15 +25,10 @@ You declare the unit and the period on the feature. Each tier then decides how m
 Your backend does the counting with one call:
 
 ```typescript
-await kerne.consume('cutter_minutes', { subject: customerId, delta: 60 });
+await kerne.consume('cutter_minutes', { customer: customerId, delta: 60 });
 ```
 
 That checks the allowance and commits the increment in one atomic step, so concurrent requests can't both slip past a limit. See [`consume()`](/sdks/server/entitlements/consume).
-
-<Note>
-  Metered pricing runs on Stripe today. On Polar you get an explicit refusal rather than an
-  entitlement that looks configured and silently never charges.
-</Note>
 
 ## The rate
 
@@ -45,27 +40,27 @@ Past that, two questions. Their answers are independent, and between them they c
 
 1,500 units at 5.00 EUR per 1,000:
 
-| You charge | You invoice |
-| --- | --- |
+| You charge                  | You invoice                                  |
+| --------------------------- | -------------------------------------------- |
 | **for every 1,000 started** | 10.00 EUR — the second thousand counts whole |
-| **for the exact usage** | 7.50 EUR — the exact fraction |
+| **for the exact usage**     | 7.50 EUR — the exact fraction                |
 
 ### Does the rate change as usage grows?
 
 Add a tier — "past 10,000 units, 4.00 EUR per 1,000" — then say what a tier applies to. A customer who used 20,000 pays:
 
-| Each tier is priced | You invoice |
-| --- | --- |
-| **on its own slice** | 90.00 EUR — the first 10,000 stay at their own rate |
-| **at whatever rate the total reaches** | 80.00 EUR — the reached rate reprices the lot |
+| Each tier is priced                    | You invoice                                         |
+| -------------------------------------- | --------------------------------------------------- |
+| **on its own slice**                   | 90.00 EUR — the first 10,000 stay at their own rate |
+| **at whatever rate the total reaches** | 80.00 EUR — the reached rate reprices the lot       |
 
 Nothing here assumes the rate falls as usage grows. Volume discounts and congestion pricing are both real offers; a tier just says what applies past a point, in either direction.
 
 <Note>
-  The two questions combine. "0.35 EUR per 60 minutes, every started hour whole, dropping to 0.28 EUR
-  past 150 hours" is one rate — Kerne does the quantity arithmetic before the provider sees a number,
-  which is what lets a sold-by quantity and a tier schedule coexist. Stripe cannot express that
-  pairing on its own.
+  The two questions combine. "0.35 EUR per 60 minutes, every started hour whole, dropping to 0.28
+  EUR past 150 hours" is one rate — Kerne does the quantity arithmetic before the provider sees a
+  number, which is what lets a sold-by quantity and a tier schedule coexist. Stripe cannot express
+  that pairing on its own.
 </Note>
 
 ## Per machine, per project, per seat
@@ -76,7 +71,7 @@ Sometimes it isn't. **Dimensions** split one meter into several counters under t
 
 ```typescript
 await kerne.consume('cutter_minutes', {
-  subject: customerId,
+  customer: customerId,
   dimension: 'cutter_42', // ← this
   delta: 60,
 });
@@ -84,10 +79,10 @@ await kerne.consume('cutter_minutes', {
 
 Declare what the feature is counted by (`minute` per `cutter`), then each tier chooses what that means — and the allowance and the spending cap choose independently:
 
-| Setting | Shared | Per slice |
-| --- | --- | --- |
-| **Allowance** | One pool: 200 hours total, whoever burns them | 200 hours *per cutter*; A running out doesn't touch B |
-| **Spending cap** | "Your bill never exceeds 120 € a period" | "Each cutter costs you at most 120 €" — ten cutters can bill ten times it |
+| Setting          | Shared                                        | Per slice                                                                 |
+| ---------------- | --------------------------------------------- | ------------------------------------------------------------------------- |
+| **Allowance**    | One pool: 200 hours total, whoever burns them | 200 hours _per cutter_; A running out doesn't touch B                     |
+| **Spending cap** | "Your bill never exceeds 120 € a period"      | "Each cutter costs you at most 120 €" — ten cutters can bill ten times it |
 
 Per-slice caps are the ones people forget exist, and usually the better default: it's how you sell 1,000 credits per user with a 20 € ceiling per user, or 100 GB per project at 50 € per project.
 
@@ -108,7 +103,7 @@ A spending cap is a ceiling in **money**, and it does not stop anything.
   </Card>
 </CardGroup>
 
-The reason is simple: a spending cap is a promise you made about *your invoice*. Turning it into an outage would punish the customer for a promise you made to reassure them.
+The reason is simple: a spending cap is a promise you made about _your invoice_. Turning it into an outage would punish the customer for a promise you made to reassure them.
 
 ## What you see
 
@@ -131,6 +126,7 @@ The **Usage billing** screen shows every subscriber on a metered entitlement: co
 
     None of those is wrong. But if you meant "their bill never exceeds 120 €", renew on the billing
     cycle.
+
   </Accordion>
   <Accordion title="Changing a rate means replacing it">
     A price is immutable on its amount at the provider, so "change the rate" is always "create another
@@ -139,6 +135,7 @@ The **Usage billing** screen shows every subscriber on a metered entitlement: co
 
     Customers already subscribed keep the rate they signed up on. Changing their plan brings them onto
     the current one.
+
   </Accordion>
   <Accordion title="An allowance that carries over can't also be billed">
     If unused allowance rolled into next period, last period's consumption would be billable again.

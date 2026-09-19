@@ -34,9 +34,7 @@
           }
         ],
         "summary": "Sign up a new user",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/token": {
@@ -72,9 +70,7 @@
           }
         ],
         "summary": "Exchange credentials for tokens",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/password/reset": {
@@ -109,9 +105,7 @@
           }
         ],
         "summary": "Request a password reset email",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/password/confirm": {
@@ -146,9 +140,7 @@
           }
         ],
         "summary": "Complete password reset with token",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/password/change": {
@@ -186,9 +178,7 @@
           }
         ],
         "summary": "Change current password",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/passwordless/start": {
@@ -224,9 +214,7 @@
           }
         ],
         "summary": "Start passwordless login or signup",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/email/verify": {
@@ -261,9 +249,7 @@
           }
         ],
         "summary": "Verify email with token",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/email/resend-verification": {
@@ -291,9 +277,7 @@
           }
         ],
         "summary": "Resend verification email",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/request-deletion": {
@@ -321,9 +305,7 @@
           }
         ],
         "summary": "Request account deletion",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/userinfo": {
@@ -351,9 +333,7 @@
           }
         ],
         "summary": "Standard OIDC userinfo profile",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/activate": {
@@ -388,9 +368,7 @@
           }
         ],
         "summary": "Get activation context for a token",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       },
       "post": {
         "description": "Sets a password (credentials mode) or simply confirms the account (magic-link mode), then logs the user in.",
@@ -424,9 +402,7 @@
           }
         ],
         "summary": "Complete account activation",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/handoff": {
@@ -455,9 +431,7 @@
           }
         ],
         "summary": "Mint a one-time cross-origin session handoff code",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/handoff/exchange": {
@@ -493,9 +467,7 @@
           }
         ],
         "summary": "Exchange a handoff code for a session",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/config": {
@@ -520,34 +492,20 @@
           }
         ],
         "summary": "Get authentication configuration",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/verification/send": {
       "post": {
         "operationId": "VerificationController_sendVerification",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendVerificationDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": ""
           }
         },
         "summary": "Send verification email",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/verification/verify-code": {
@@ -570,9 +528,7 @@
           }
         },
         "summary": "Verify email with code",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/verification/verify-link/{token}": {
@@ -594,9 +550,7 @@
           }
         },
         "summary": "Verify email with link token",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/auth/verification/status": {
@@ -609,9 +563,7 @@
           }
         },
         "summary": "Check verification status",
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/v1/invitations/validate/token": {
@@ -645,9 +597,7 @@
           }
         ],
         "summary": "Validate invitation token",
-        "tags": [
-          "Invitations"
-        ]
+        "tags": ["Invitations"]
       }
     },
     "/v1/invitations/validate/code": {
@@ -681,9 +631,7 @@
           }
         ],
         "summary": "Validate invitation code",
-        "tags": [
-          "Invitations"
-        ]
+        "tags": ["Invitations"]
       }
     },
     "/v1/invitations/token": {
@@ -718,9 +666,7 @@
           }
         ],
         "summary": "Create invitation token",
-        "tags": [
-          "Invitations"
-        ]
+        "tags": ["Invitations"]
       }
     },
     "/v1/invitations/code": {
@@ -755,9 +701,7 @@
           }
         ],
         "summary": "Create invitation code",
-        "tags": [
-          "Invitations"
-        ]
+        "tags": ["Invitations"]
       }
     },
     "/v1/invitations": {
@@ -782,9 +726,7 @@
           }
         ],
         "summary": "List invitations",
-        "tags": [
-          "Invitations"
-        ]
+        "tags": ["Invitations"]
       }
     },
     "/v1/invitations/{id}": {
@@ -818,9 +760,7 @@
           }
         ],
         "summary": "Revoke invitation",
-        "tags": [
-          "Invitations"
-        ]
+        "tags": ["Invitations"]
       }
     },
     "/v1/waitlist": {
@@ -855,9 +795,7 @@
           }
         ],
         "summary": "Join the waitlist",
-        "tags": [
-          "Waitlist"
-        ]
+        "tags": ["Waitlist"]
       },
       "get": {
         "operationId": "WaitlistController_listWaitlist",
@@ -870,12 +808,7 @@
             "schema": {
               "example": "PENDING",
               "type": "string",
-              "enum": [
-                "PENDING",
-                "INVITED",
-                "REGISTERED",
-                "REJECTED"
-              ]
+              "enum": ["PENDING", "INVITED", "REGISTERED", "REJECTED"]
             }
           },
           {
@@ -929,9 +862,7 @@
           }
         ],
         "summary": "List waitlist entries",
-        "tags": [
-          "Waitlist"
-        ]
+        "tags": ["Waitlist"]
       },
       "delete": {
         "operationId": "WaitlistController_removeFromWaitlist",
@@ -964,9 +895,7 @@
           }
         ],
         "summary": "Remove from waitlist",
-        "tags": [
-          "Waitlist"
-        ]
+        "tags": ["Waitlist"]
       }
     },
     "/v1/billing/subscription": {
@@ -994,9 +923,7 @@
           }
         ],
         "summary": "Get the caller's own subscription",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/subscriptions": {
@@ -1004,13 +931,10 @@
         "operationId": "BillingController_listSubscriptions",
         "parameters": [
           {
-            "name": "subject_type",
+            "name": "customer",
             "required": false,
             "in": "query",
             "schema": {
-              "enum": [
-                "USER"
-              ],
               "type": "string"
             }
           },
@@ -1019,14 +943,7 @@
             "required": false,
             "in": "query",
             "schema": {
-              "enum": [
-                "ACTIVE",
-                "TRIALING",
-                "PAST_DUE",
-                "CANCELED",
-                "UNPAID",
-                "PAUSED"
-              ],
+              "enum": ["ACTIVE", "TRIALING", "PAST_DUE", "CANCELED", "UNPAID", "PAUSED"],
               "type": "string"
             }
           },
@@ -1062,10 +979,8 @@
             "JWT": []
           }
         ],
-        "summary": "List subscriptions (Admin: all, User: own)",
-        "tags": [
-          "Billing"
-        ]
+        "summary": "List subscriptions (Admin: all/filtered by customer, User: own)",
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/subscriptions/{id}": {
@@ -1102,9 +1017,7 @@
           }
         ],
         "summary": "Get subscription details",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/subscriptions/{id}/cancel": {
@@ -1150,9 +1063,92 @@
           }
         ],
         "summary": "Cancel a subscription",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
+      }
+    },
+    "/v1/billing/subscriptions/{id}/change-plan": {
+      "post": {
+        "operationId": "BillingController_changePlanPrice",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePlanPriceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionWithPlanResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Change the subscription's plan/price, effective immediately",
+        "tags": ["Billing"]
+      }
+    },
+    "/v1/billing/subscriptions/move-pack": {
+      "post": {
+        "operationId": "BillingController_movePack",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MovePackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovePackResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Move subscriptions to another offer (pack) of their own plan",
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/entitlements": {
@@ -1160,7 +1156,7 @@
         "operationId": "BillingController_getEntitlements",
         "parameters": [
           {
-            "name": "subject_id",
+            "name": "customer",
             "required": false,
             "in": "query",
             "schema": {
@@ -1189,9 +1185,7 @@
           }
         ],
         "summary": "Get active entitlements",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/entitlements/overrides": {
@@ -1199,21 +1193,10 @@
         "operationId": "BillingController_listOverrides",
         "parameters": [
           {
-            "name": "subject_id",
+            "name": "customer",
             "required": false,
             "in": "query",
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "subject_type",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "enum": [
-                "USER"
-              ],
               "type": "string"
             }
           }
@@ -1241,10 +1224,8 @@
             "JWT": []
           }
         ],
-        "summary": "List entitlement overrides (all, or for one scope)",
-        "tags": [
-          "Billing"
-        ]
+        "summary": "List entitlement overrides (all, or for one customer)",
+        "tags": ["Billing"]
       },
       "post": {
         "operationId": "BillingController_createOverride",
@@ -1280,9 +1261,7 @@
           }
         ],
         "summary": "Upsert entitlement override",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/entitlements/overrides/{id}": {
@@ -1329,9 +1308,7 @@
           }
         ],
         "summary": "Update an entitlement override",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       },
       "delete": {
         "operationId": "BillingController_deleteOverride",
@@ -1359,9 +1336,7 @@
           }
         ],
         "summary": "Delete an entitlement override",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/entitlements/{feature_key}": {
@@ -1377,7 +1352,7 @@
             }
           },
           {
-            "name": "subject_id",
+            "name": "customer",
             "required": false,
             "in": "query",
             "schema": {
@@ -1422,9 +1397,7 @@
           }
         ],
         "summary": "Check a single entitlement",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/usage": {
@@ -1432,7 +1405,7 @@
         "operationId": "BillingController_getUsage",
         "parameters": [
           {
-            "name": "subject_id",
+            "name": "customer",
             "required": false,
             "in": "query",
             "schema": {
@@ -1472,9 +1445,7 @@
           }
         ],
         "summary": "Get usage metrics",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       },
       "post": {
         "operationId": "BillingController_reportUsage",
@@ -1510,9 +1481,45 @@
           }
         ],
         "summary": "Report a usage event",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
+      }
+    },
+    "/v1/billing/usage/batch": {
+      "post": {
+        "operationId": "BillingController_reportUsageBatch",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUsageBatchDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportUsageBatchResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Report several usage events in one call",
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/usage/set": {
@@ -1550,9 +1557,7 @@
           }
         ],
         "summary": "Set usage to an exact value (admin)",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/usage/reset": {
@@ -1593,9 +1598,7 @@
           }
         ],
         "summary": "Reset usage (admin)",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/usage/adjust": {
@@ -1633,9 +1636,7 @@
           }
         ],
         "summary": "Offset usage (admin)",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/entitlements/{feature_key}/consume": {
@@ -1651,7 +1652,7 @@
             }
           },
           {
-            "name": "subject_id",
+            "name": "customer",
             "required": false,
             "in": "query",
             "schema": {
@@ -1690,9 +1691,7 @@
           }
         ],
         "summary": "Check & consume quota",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/checkout": {
@@ -1730,9 +1729,83 @@
           }
         ],
         "summary": "Create checkout session",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
+      }
+    },
+    "/v1/billing/stripe/setup-intent": {
+      "post": {
+        "operationId": "BillingController_createSetupIntent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSetupIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupIntentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Create a Stripe SetupIntent for an embedded card form (no redirect, no charge)",
+        "tags": ["Billing"]
+      }
+    },
+    "/v1/billing/stripe/subscriptions/headless": {
+      "post": {
+        "operationId": "BillingController_createHeadlessSubscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHeadlessSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionWithPlanResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AppIdentifier": []
+          },
+          {
+            "JWT": []
+          }
+        ],
+        "summary": "Attach an already-verified Stripe payment method and start a subscription, no browser required",
+        "tags": ["Billing"]
       }
     },
     "/v1/billing/portal": {
@@ -1770,9 +1843,7 @@
           }
         ],
         "summary": "Create customer portal session",
-        "tags": [
-          "Billing"
-        ]
+        "tags": ["Billing"]
       }
     },
     "/v1/pricing/plans": {
@@ -1810,9 +1881,7 @@
           }
         ],
         "summary": "List active plans for the default or specified product",
-        "tags": [
-          "Pricing"
-        ]
+        "tags": ["Pricing"]
       }
     }
   },
@@ -1853,10 +1922,6 @@
     }
   ],
   "servers": [
-    {
-      "url": "http://localhost:4000",
-      "description": "Development Server"
-    },
     {
       "url": "https://api.kerne.io",
       "description": "Production Server"
@@ -1918,10 +1983,7 @@
             "maxLength": 8
           }
         },
-        "required": [
-          "email",
-          "password"
-        ]
+        "required": ["email", "password"]
       },
       "AuthResponseDto": {
         "type": "object",
@@ -1958,12 +2020,7 @@
             "example": "2025-01-01T01:00:00.000Z"
           }
         },
-        "required": [
-          "token",
-          "user",
-          "refresh_token",
-          "expires_at"
-        ]
+        "required": ["token", "user", "refresh_token", "expires_at"]
       },
       "TokenDto": {
         "type": "object",
@@ -1971,11 +2028,7 @@
           "grant_type": {
             "type": "string",
             "description": "Grant type for token exchange",
-            "enum": [
-              "password",
-              "refresh_token",
-              "magic_link"
-            ],
+            "enum": ["password", "refresh_token", "magic_link"],
             "example": "password"
           },
           "email": {
@@ -2001,9 +2054,7 @@
             "description": "Requested scopes (space separated)"
           }
         },
-        "required": [
-          "grant_type"
-        ]
+        "required": ["grant_type"]
       },
       "PasswordResetRequestDto": {
         "type": "object",
@@ -2013,9 +2064,7 @@
             "example": "user@example.com"
           }
         },
-        "required": [
-          "email"
-        ]
+        "required": ["email"]
       },
       "SuccessMessageDto": {
         "type": "object",
@@ -2027,10 +2076,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "success",
-          "message"
-        ]
+        "required": ["success", "message"]
       },
       "PasswordResetConfirmDto": {
         "type": "object",
@@ -2046,10 +2092,7 @@
             "maxLength": 128
           }
         },
-        "required": [
-          "token",
-          "password"
-        ]
+        "required": ["token", "password"]
       },
       "ChangePasswordDto": {
         "type": "object",
@@ -2069,10 +2112,7 @@
             "format": "password"
           }
         },
-        "required": [
-          "currentPassword",
-          "newPassword"
-        ]
+        "required": ["currentPassword", "newPassword"]
       },
       "PasswordlessStartDto": {
         "type": "object",
@@ -2090,9 +2130,7 @@
             "description": "Short invitation code"
           }
         },
-        "required": [
-          "email"
-        ]
+        "required": ["email"]
       },
       "EmailVerifyDto": {
         "type": "object",
@@ -2102,9 +2140,7 @@
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
         },
-        "required": [
-          "token"
-        ]
+        "required": ["token"]
       },
       "UserInfoResponseDto": {
         "type": "object",
@@ -2137,11 +2173,7 @@
             "example": true
           }
         },
-        "required": [
-          "sub",
-          "email",
-          "email_verified"
-        ]
+        "required": ["sub", "email", "email_verified"]
       },
       "ActivationContextResponseDto": {
         "type": "object",
@@ -2152,17 +2184,11 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "credentials",
-              "magic-link"
-            ],
+            "enum": ["credentials", "magic-link"],
             "description": "Which sign-in mode the tenant currently has active - decides what UI to render"
           }
         },
-        "required": [
-          "email",
-          "mode"
-        ]
+        "required": ["email", "mode"]
       },
       "CompleteActivationDto": {
         "type": "object",
@@ -2179,9 +2205,7 @@
             "maxLength": 128
           }
         },
-        "required": [
-          "token"
-        ]
+        "required": ["token"]
       },
       "HandoffResponseDto": {
         "type": "object",
@@ -2197,10 +2221,7 @@
             "example": "2025-01-01T00:01:00.000Z"
           }
         },
-        "required": [
-          "code",
-          "expires_at"
-        ]
+        "required": ["code", "expires_at"]
       },
       "HandoffExchangeDto": {
         "type": "object",
@@ -2211,9 +2232,7 @@
             "example": "k7F3n2pQ8wZmR1yT9bLxC0aVjHsUdEoI3mNcG5rXfB6hYvW"
           }
         },
-        "required": [
-          "code"
-        ]
+        "required": ["code"]
       },
       "PasswordPolicyDto": {
         "type": "object",
@@ -2232,23 +2251,14 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "min_length",
-          "require_uppercase",
-          "require_number",
-          "require_symbol"
-        ]
+        "required": ["min_length", "require_uppercase", "require_number", "require_symbol"]
       },
       "AuthConfigDto": {
         "type": "object",
         "properties": {
           "registration_mode": {
             "type": "string",
-            "enum": [
-              "OPEN",
-              "INVITE_ONLY",
-              "CLOSED"
-            ]
+            "enum": ["OPEN", "INVITE_ONLY", "CLOSED"]
           },
           "enable_magic_link": {
             "type": "boolean"
@@ -2278,6 +2288,11 @@
           "portal_redirect_url": {
             "type": "string",
             "nullable": true
+          },
+          "portal_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where to send an unauthenticated user to actually reach the hosted portal (apps/portal). Null when no portal is deployed for this environment."
           },
           "post_auth_redirect_url": {
             "type": "string",
@@ -2332,6 +2347,7 @@
           "brand_primary_color",
           "brand_logo_url",
           "portal_redirect_url",
+          "portal_url",
           "post_auth_redirect_url",
           "user_registration_limit",
           "app_name",
@@ -2341,10 +2357,6 @@
           "overview_metrics",
           "password_policy"
         ]
-      },
-      "SendVerificationDto": {
-        "type": "object",
-        "properties": {}
       },
       "VerifyCodeDto": {
         "type": "object",
@@ -2360,9 +2372,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "valid"
-        ]
+        "required": ["valid"]
       },
       "CodeValidationResponseDto": {
         "type": "object",
@@ -2374,10 +2384,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "valid",
-          "canUse"
-        ]
+        "required": ["valid", "canUse"]
       },
       "CreateInvitationTokenDto": {
         "type": "object",
@@ -2389,9 +2396,7 @@
             "format": "email"
           }
         },
-        "required": [
-          "email"
-        ]
+        "required": ["email"]
       },
       "CreateInvitationTokenResponseDto": {
         "type": "object",
@@ -2407,11 +2412,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "token",
-          "expiresAt",
-          "email"
-        ]
+        "required": ["token", "expiresAt", "email"]
       },
       "CreateInvitationCodeDto": {
         "type": "object",
@@ -2447,11 +2448,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "code",
-          "expiresAt",
-          "maxUses"
-        ]
+        "required": ["code", "expiresAt", "maxUses"]
       },
       "InvitationTokenEntryDto": {
         "type": "object",
@@ -2486,9 +2483,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "token"
-            ]
+            "enum": ["token"]
           },
           "isUsed": {
             "type": "boolean"
@@ -2554,9 +2549,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "code"
-            ]
+            "enum": ["code"]
           },
           "isUsed": {
             "type": "boolean"
@@ -2596,10 +2589,7 @@
             }
           }
         },
-        "required": [
-          "tokens",
-          "codes"
-        ]
+        "required": ["tokens", "codes"]
       },
       "RevokeInvitationResponseDto": {
         "type": "object",
@@ -2608,9 +2598,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "success"
-        ]
+        "required": ["success"]
       },
       "JoinWaitlistDto": {
         "type": "object",
@@ -2636,9 +2624,7 @@
             "additionalProperties": true
           }
         },
-        "required": [
-          "email"
-        ]
+        "required": ["email"]
       },
       "JoinWaitlistResponseDto": {
         "type": "object",
@@ -2647,9 +2633,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "success"
-        ]
+        "required": ["success"]
       },
       "WaitlistEntryDto": {
         "type": "object",
@@ -2674,12 +2658,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "PENDING",
-              "INVITED",
-              "REGISTERED",
-              "REJECTED"
-            ]
+            "enum": ["PENDING", "INVITED", "REGISTERED", "REJECTED"]
           },
           "created_at": {
             "format": "date-time",
@@ -2722,12 +2701,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "total",
-          "limit",
-          "offset",
-          "hasMore"
-        ]
+        "required": ["total", "limit", "offset", "hasMore"]
       },
       "WaitlistListResponseDto": {
         "type": "object",
@@ -2742,10 +2716,7 @@
             "$ref": "#/components/schemas/WaitlistPaginationDto"
           }
         },
-        "required": [
-          "entries",
-          "pagination"
-        ]
+        "required": ["entries", "pagination"]
       },
       "RemoveFromWaitlistDto": {
         "type": "object",
@@ -2757,9 +2728,7 @@
             "format": "email"
           }
         },
-        "required": [
-          "email"
-        ]
+        "required": ["email"]
       },
       "RemoveWaitlistResponseDto": {
         "type": "object",
@@ -2768,9 +2737,27 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "success"
-        ]
+        "required": ["success"]
+      },
+      "CustomerSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["id", "external_id", "email", "name"]
       },
       "SubscriptionPlanSummaryDto": {
         "type": "object",
@@ -2785,11 +2772,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "slug",
-          "name"
-        ]
+        "required": ["id", "slug", "name"]
       },
       "SubscriptionPriceSummaryDto": {
         "type": "object",
@@ -2805,14 +2788,31 @@
           },
           "interval": {
             "type": "string"
+          },
+          "price_label_name": {
+            "type": "string"
+          },
+          "price_label_slug": {
+            "type": "string"
           }
         },
-        "required": [
-          "id",
-          "amount",
-          "currency",
-          "interval"
-        ]
+        "required": ["id", "amount", "currency", "interval", "price_label_name", "price_label_slug"]
+      },
+      "SubscriptionPackSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "ACTIVE", "ARCHIVED"]
+          }
+        },
+        "required": ["id", "version", "status"]
       },
       "SubscriptionEntitlementSummaryDto": {
         "type": "object",
@@ -2843,25 +2843,19 @@
           },
           "overage": {
             "type": "string",
-            "enum": [
-              "BLOCK",
-              "ALLOW",
-              "BILL"
-            ]
+            "enum": ["BLOCK", "ALLOW", "BILL"]
           },
           "limit_binding": {
             "type": "string",
-            "enum": [
-              "SUBJECT",
-              "DIMENSION"
-            ]
+            "enum": ["CUSTOMER", "DIMENSION"]
           },
           "cap_binding": {
             "type": "string",
-            "enum": [
-              "SUBJECT",
-              "DIMENSION"
-            ]
+            "enum": ["CUSTOMER", "DIMENSION"]
+          },
+          "max_dimensions": {
+            "type": "number",
+            "nullable": true
           },
           "overage_ceiling": {
             "type": "string",
@@ -2894,6 +2888,7 @@
           "overage",
           "limit_binding",
           "cap_binding",
+          "max_dimensions",
           "overage_ceiling",
           "overage_cap_amount",
           "billed_amount",
@@ -2910,14 +2905,8 @@
           "tenant_id": {
             "type": "string"
           },
-          "subject_type": {
-            "type": "string",
-            "enum": [
-              "USER"
-            ]
-          },
-          "subject_id": {
-            "type": "string"
+          "customer": {
+            "$ref": "#/components/schemas/CustomerSummaryDto"
           },
           "plan_price_id": {
             "type": "string"
@@ -2936,10 +2925,7 @@
           },
           "provider": {
             "type": "string",
-            "enum": [
-              "STRIPE",
-              "POLAR"
-            ]
+            "enum": ["STRIPE", "POLAR"]
           },
           "provider_subscription_id": {
             "type": "string",
@@ -2951,14 +2937,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "ACTIVE",
-              "TRIALING",
-              "PAST_DUE",
-              "CANCELED",
-              "UNPAID",
-              "PAUSED"
-            ]
+            "enum": ["ACTIVE", "TRIALING", "PAST_DUE", "CANCELED", "UNPAID", "PAUSED"]
           },
           "current_period_start": {
             "format": "date-time",
@@ -3007,6 +2986,14 @@
           "product": {
             "$ref": "#/components/schemas/SubscriptionPlanSummaryDto"
           },
+          "pack": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SubscriptionPackSummaryDto"
+              }
+            ]
+          },
           "entitlements": {
             "type": "array",
             "items": {
@@ -3017,8 +3004,7 @@
         "required": [
           "id",
           "tenant_id",
-          "subject_type",
-          "subject_id",
+          "customer",
           "plan_price_id",
           "pack_id",
           "pending_plan_price_id",
@@ -3038,6 +3024,7 @@
           "plan",
           "plan_price",
           "product",
+          "pack",
           "entitlements"
         ]
       },
@@ -3050,14 +3037,8 @@
           "tenant_id": {
             "type": "string"
           },
-          "subject_type": {
-            "type": "string",
-            "enum": [
-              "USER"
-            ]
-          },
-          "subject_id": {
-            "type": "string"
+          "customer": {
+            "$ref": "#/components/schemas/CustomerSummaryDto"
           },
           "plan_price_id": {
             "type": "string"
@@ -3076,10 +3057,7 @@
           },
           "provider": {
             "type": "string",
-            "enum": [
-              "STRIPE",
-              "POLAR"
-            ]
+            "enum": ["STRIPE", "POLAR"]
           },
           "provider_subscription_id": {
             "type": "string",
@@ -3091,14 +3069,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "ACTIVE",
-              "TRIALING",
-              "PAST_DUE",
-              "CANCELED",
-              "UNPAID",
-              "PAUSED"
-            ]
+            "enum": ["ACTIVE", "TRIALING", "PAST_DUE", "CANCELED", "UNPAID", "PAUSED"]
           },
           "current_period_start": {
             "format": "date-time",
@@ -3142,8 +3113,7 @@
         "required": [
           "id",
           "tenant_id",
-          "subject_type",
-          "subject_id",
+          "customer",
           "plan_price_id",
           "pack_id",
           "pending_plan_price_id",
@@ -3161,6 +3131,62 @@
           "created_at",
           "updated_at"
         ]
+      },
+      "ChangePlanPriceDto": {
+        "type": "object",
+        "properties": {
+          "plan_price_id": {
+            "type": "string"
+          },
+          "proration_behavior": {
+            "type": "string",
+            "enum": ["none", "create_prorations"]
+          }
+        },
+        "required": ["plan_price_id"]
+      },
+      "MovePackDto": {
+        "type": "object",
+        "properties": {
+          "subscription_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "target_pack_id": {
+            "type": "string"
+          }
+        },
+        "required": ["subscription_ids", "target_pack_id"]
+      },
+      "MovePackResultDto": {
+        "type": "object",
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ok", "error"]
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": ["subscription_id", "status"]
+      },
+      "MovePackResponseDto": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovePackResultDto"
+            }
+          }
+        },
+        "required": ["results"]
       },
       "EntitlementSummaryDto": {
         "type": "object",
@@ -3195,16 +3221,12 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "feature_key",
-          "feature_type",
-          "has_override"
-        ]
+        "required": ["feature_key", "feature_type", "has_override"]
       },
       "EntitlementsResponseDto": {
         "type": "object",
         "properties": {
-          "subject_id": {
+          "customer_id": {
             "type": "string"
           },
           "subscription_id": {
@@ -3227,7 +3249,7 @@
           }
         },
         "required": [
-          "subject_id",
+          "customer_id",
           "subscription_id",
           "subscription_status",
           "plan_slug",
@@ -3243,7 +3265,7 @@
           "tenant_id": {
             "type": "string"
           },
-          "subject_id": {
+          "customer_id": {
             "type": "string"
           },
           "feature_id": {
@@ -3253,6 +3275,9 @@
             "type": "string"
           },
           "feature_name": {
+            "type": "string"
+          },
+          "dimension_id": {
             "type": "string"
           },
           "override_value": {
@@ -3287,10 +3312,11 @@
         "required": [
           "id",
           "tenant_id",
-          "subject_id",
+          "customer_id",
           "feature_id",
           "feature_key",
           "feature_name",
+          "dimension_id",
           "override_value",
           "reason",
           "created_by",
@@ -3303,16 +3329,14 @@
       "CreateOverrideDto": {
         "type": "object",
         "properties": {
-          "subject_type": {
+          "customer": {
             "type": "string",
-            "enum": [
-              "USER"
-            ]
-          },
-          "subject_id": {
-            "type": "string"
+            "description": "External id of the customer this override targets."
           },
           "feature_key": {
+            "type": "string"
+          },
+          "dimension_id": {
             "type": "string"
           },
           "override_value": {
@@ -3325,10 +3349,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "subject_id",
-          "feature_key"
-        ]
+        "required": ["customer", "feature_key"]
       },
       "UpdateOverrideDto": {
         "type": "object",
@@ -3378,6 +3399,17 @@
             "type": "number",
             "nullable": true
           },
+          "billed_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string",
+            "nullable": true
+          },
+          "cap_reached": {
+            "type": "boolean"
+          },
           "value": {
             "type": "object"
           },
@@ -3386,14 +3418,12 @@
           },
           "subscription_status": {
             "type": "object"
+          },
+          "configured": {
+            "type": "boolean"
           }
         },
-        "required": [
-          "allowed",
-          "feature_key",
-          "feature_type",
-          "has_override"
-        ]
+        "required": ["allowed", "feature_key", "feature_type", "has_override", "configured"]
       },
       "UsageResponseDto": {
         "type": "object",
@@ -3408,7 +3438,7 @@
             "type": "string",
             "nullable": true
           },
-          "subject_id": {
+          "customer_id": {
             "type": "string"
           },
           "feature_id": {
@@ -3460,24 +3490,16 @@
       "ReportUsageDto": {
         "type": "object",
         "properties": {
-          "subject_type": {
+          "customer": {
             "type": "string",
-            "enum": [
-              "USER"
-            ]
-          },
-          "subject_id": {
-            "type": "string"
+            "description": "External id of the customer this usage belongs to."
           },
           "feature_key": {
             "type": "string"
           },
           "operation": {
             "type": "string",
-            "enum": [
-              "INCREMENT",
-              "SET"
-            ]
+            "enum": ["INCREMENT", "SET"]
           },
           "delta": {
             "type": "number"
@@ -3487,12 +3509,55 @@
           },
           "metadata": {
             "type": "object"
+          },
+          "dimension_id": {
+            "type": "string"
           }
         },
-        "required": [
-          "subject_id",
-          "feature_key"
-        ]
+        "required": ["customer", "feature_key"]
+      },
+      "ReportUsageBatchDto": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportUsageDto"
+            }
+          }
+        },
+        "required": ["events"]
+      },
+      "BatchUsageResultDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ok", "error"]
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageResponseDto"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": ["index", "status"]
+      },
+      "ReportUsageBatchResponseDto": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BatchUsageResultDto"
+            }
+          }
+        },
+        "required": ["results"]
       },
       "SetUsageDto": {
         "type": "object",
@@ -3505,13 +3570,7 @@
       "AdjustUsageDto": {
         "type": "object",
         "properties": {
-          "subject_type": {
-            "type": "string",
-            "enum": [
-              "USER"
-            ]
-          },
-          "subject_id": {
+          "customer": {
             "type": "string"
           },
           "feature_key": {
@@ -3524,11 +3583,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "subject_id",
-          "feature_key",
-          "delta"
-        ]
+        "required": ["customer", "feature_key", "delta"]
       },
       "ConsumeEntitlementDto": {
         "type": "object",
@@ -3544,29 +3599,40 @@
           }
         }
       },
+      "DriverSelectionDto": {
+        "type": "object",
+        "properties": {
+          "feature_key": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "number"
+          }
+        },
+        "required": ["feature_key", "steps"]
+      },
       "CreateCheckoutDto": {
         "type": "object",
         "properties": {
           "plan_price_id": {
             "type": "string"
           },
-          "subject_type": {
-            "type": "string",
-            "enum": [
-              "USER"
-            ]
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DriverSelectionDto"
+            }
           },
-          "subject_id": {
-            "type": "string"
+          "customer": {
+            "type": "string",
+            "description": "Admin only: the external id of the customer to sell to (defaults to the caller)."
           },
           "email": {
             "type": "string",
-            "description": "Required when subject_id has no matching Kerne User row (external subject)."
+            "description": "Required the first time an admin names a customer with no email on file yet."
           }
         },
-        "required": [
-          "plan_price_id"
-        ]
+        "required": ["plan_price_id"]
       },
       "SessionResponseDto": {
         "type": "object",
@@ -3575,23 +3641,130 @@
             "type": "string"
           }
         },
-        "required": [
-          "url"
-        ]
+        "required": ["url"]
+      },
+      "CreateSetupIntentDto": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "description": "Required the first time an admin names a customer with no email on file yet."
+          }
+        }
+      },
+      "SetupIntentResponseDto": {
+        "type": "object",
+        "properties": {
+          "client_secret": {
+            "type": "string"
+          },
+          "customer_id": {
+            "type": "string"
+          }
+        },
+        "required": ["client_secret", "customer_id"]
+      },
+      "CreateHeadlessSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "type": "string"
+          },
+          "plan_price_id": {
+            "type": "string"
+          },
+          "stripe_payment_method_id": {
+            "type": "string"
+          },
+          "stripe_test_card_token": {
+            "type": "string",
+            "description": "A Stripe test card token (e.g. \"tok_visa\") to mint a fresh payment method server-side - the cold-start path for CI/seed scripts with no browser. Stripe test mode only; rejected otherwise. See stripe_payment_method_id for the normal path."
+          },
+          "email": {
+            "type": "string",
+            "description": "Required the first time this customer is named with no email on file yet."
+          }
+        },
+        "required": ["customer", "plan_price_id"]
       },
       "CreatePortalDto": {
         "type": "object",
         "properties": {
-          "subject_type": {
-            "type": "string",
-            "enum": [
-              "USER"
-            ]
-          },
-          "subject_id": {
+          "customer": {
             "type": "string"
           }
         }
+      },
+      "QuantityTransformReadDto": {
+        "type": "object",
+        "properties": {
+          "block_size": {
+            "type": "number"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["blocks", "proportional"]
+          },
+          "round": {
+            "type": "string",
+            "enum": ["up", "down"]
+          },
+          "block_label": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["block_size", "mode", "round", "block_label"]
+      },
+      "PricingTierReadDto": {
+        "type": "object",
+        "properties": {
+          "up_to": {
+            "type": "number",
+            "nullable": true
+          },
+          "unit_amount": {
+            "type": "number"
+          }
+        },
+        "required": ["up_to", "unit_amount"]
+      },
+      "PricingSelectionReadDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["flat", "volume", "graduated"]
+          },
+          "unit_amount": {
+            "type": "number"
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingTierReadDto"
+            }
+          }
+        },
+        "required": ["kind"]
+      },
+      "PricingReadDto": {
+        "type": "object",
+        "properties": {
+          "transform": {
+            "$ref": "#/components/schemas/QuantityTransformReadDto"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/PricingSelectionReadDto"
+          },
+          "currency": {
+            "type": "string"
+          }
+        },
+        "required": ["transform", "selection", "currency"]
       },
       "PublicPriceLabelSummaryDto": {
         "type": "object",
@@ -3610,17 +3783,15 @@
             "nullable": true
           }
         },
-        "required": [
-          "slug",
-          "name",
-          "sort_order",
-          "display_interval"
-        ]
+        "required": ["slug", "name", "sort_order", "display_interval"]
       },
       "PublicPlanPriceSummaryDto": {
         "type": "object",
         "properties": {
           "id": {
+            "type": "string"
+          },
+          "slug": {
             "type": "string"
           },
           "amount": {
@@ -3640,14 +3811,40 @@
             "$ref": "#/components/schemas/PublicPriceLabelSummaryDto"
           }
         },
-        "required": [
-          "id",
-          "amount",
-          "currency",
-          "interval",
-          "trial_days",
-          "label"
-        ]
+        "required": ["id", "slug", "amount", "currency", "interval", "trial_days", "label"]
+      },
+      "PublicMeterSummaryDto": {
+        "type": "object",
+        "properties": {
+          "pricing": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PricingReadDto"
+              }
+            ]
+          }
+        },
+        "required": ["pricing"]
+      },
+      "PublicDriverSummaryDto": {
+        "type": "object",
+        "properties": {
+          "interval": {
+            "type": "string"
+          },
+          "step_units": {
+            "type": "number"
+          },
+          "max_steps": {
+            "type": "number",
+            "nullable": true
+          },
+          "pricing": {
+            "$ref": "#/components/schemas/PricingReadDto"
+          }
+        },
+        "required": ["interval", "step_units", "max_steps", "pricing"]
       },
       "PublicPlanEntitlementSummaryDto": {
         "type": "object",
@@ -3661,6 +3858,10 @@
           "feature_type": {
             "type": "string"
           },
+          "unit_label": {
+            "type": "string",
+            "nullable": true
+          },
           "limit": {
             "type": "number",
             "nullable": true
@@ -3668,14 +3869,61 @@
           "value": {
             "type": "string",
             "nullable": true
+          },
+          "overage": {
+            "type": "string",
+            "enum": ["BLOCK", "ALLOW", "BILL"]
+          },
+          "limit_binding": {
+            "type": "string",
+            "enum": ["CUSTOMER", "DIMENSION"]
+          },
+          "dimension_key": {
+            "type": "string",
+            "nullable": true
+          },
+          "quota_period": {
+            "type": "string",
+            "nullable": true
+          },
+          "reset_policy": {
+            "type": "string",
+            "nullable": true
+          },
+          "overage_cap_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "meter": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicMeterSummaryDto"
+              }
+            ]
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicDriverSummaryDto"
+            }
           }
         },
         "required": [
           "feature_key",
           "feature_name",
           "feature_type",
+          "unit_label",
           "limit",
-          "value"
+          "value",
+          "overage",
+          "limit_binding",
+          "dimension_key",
+          "quota_period",
+          "reset_policy",
+          "overage_cap_amount",
+          "meter",
+          "drivers"
         ]
       },
       "PublicPlanResponseDto": {
@@ -3703,6 +3951,14 @@
           "sort_order": {
             "type": "number"
           },
+          "highlight": {
+            "type": "string",
+            "enum": ["RECOMMENDED", "MOST_SUBSCRIBED"],
+            "nullable": true
+          },
+          "contact_sales": {
+            "type": "boolean"
+          },
           "prices": {
             "type": "array",
             "items": {
@@ -3724,6 +3980,8 @@
           "is_default",
           "trial_days",
           "sort_order",
+          "highlight",
+          "contact_sales",
           "prices",
           "entitlements"
         ]

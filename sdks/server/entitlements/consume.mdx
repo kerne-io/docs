@@ -7,7 +7,7 @@ Use `consume()` instead of `check()` when the action you're gating **is** the us
 
 ```typescript
 const result = await kerne.consume('api_calls', {
-  subject: userId,
+  customer: userId,
   delta: 1,              // defaults to 1
   idempotencyKey: requestId, // optional - see below
   dimension: 'cutter_42',   // optional - see below
@@ -17,8 +17,8 @@ const result = await kerne.consume('api_calls', {
 
 If `allowed` is `false`, nothing was incremented - the request never happened as far as the counter is concerned.
 
-<ParamField path="subject" type="string">
-  Whose quota to check and charge. Optional in the type (same as `check()`), but with a secret key there is no implicit "current user" - pass the subject you mean.
+<ParamField path="customer" type="string">
+  Whose quota to check and charge. Optional in the type (same as `check()`), but with a secret key there is no implicit "current user" - pass the customer you mean.
 </ParamField>
 <ParamField path="delta" type="number">
   Whole number, defaults to `1`. A fractional delta is rejected, not rounded.
@@ -27,7 +27,7 @@ If `allowed` is `false`, nothing was incremented - the request never happened as
   Optional. A retry with the same key replays the original decision instead of counting again - see [Idempotency](#idempotency).
 </ParamField>
 <ParamField path="dimension" type="string">
-  Optional. Which slice of the subject to charge - see [Dimensions](#dimensions). The SDK param is `dimension`; it is sent on the wire as `dimension_id`.
+  Optional. Which slice of the customer to charge - see [Dimensions](#dimensions). The SDK param is `dimension`; it is sent on the wire as `dimension_id`.
 </ParamField>
 
 <Note>
@@ -36,26 +36,26 @@ If `allowed` is `false`, nothing was incremented - the request never happened as
 
 ## Dimensions
 
-`dimension` names which slice of the subject this consumes - a machine, a project, a device. What it does depends on how the plan is configured:
+`dimension` names which slice of the customer this consumes - a machine, a project, a device. What it does depends on how the plan is configured:
 
 | Plan setting | Effect |
 | --- | --- |
-| Allowance **shared** | The subject keeps one counter. The dimension is recorded for attribution only - "which machine cost what" stays answerable. |
+| Allowance **shared** | The customer keeps one counter. The dimension is recorded for attribution only - "which machine cost what" stays answerable. |
 | Allowance **per dimension** | Each slice gets the full allowance, counted separately. Required: a call without one is rejected. |
 
 ```typescript
 // 200 hours per cutter: cutter_42 running out doesn't touch cutter_43
 await kerne.consume('cutter_minutes', {
-  subject: customerId,
+  customer: customerId,
   dimension: 'cutter_42',
   delta: 60,
 });
 
 // The same call, counting per seat instead: 1,000 credits each
-await kerne.consume('ai_credits', { subject: orgId, dimension: userId, delta: 1 });
+await kerne.consume('ai_credits', { customer: orgId, dimension: userId, delta: 1 });
 
 // ...or per project, per device, per one of your customer's own clients
-await kerne.consume('sms_sent', { subject: agencyId, dimension: 'client_88', delta: 1 });
+await kerne.consume('sms_sent', { customer: agencyId, dimension: 'client_88', delta: 1 });
 ```
 
 <Warning>
@@ -65,7 +65,7 @@ await kerne.consume('sms_sent', { subject: agencyId, dimension: 'client_88', del
 The billing cap binds independently of the allowance - it can bound the customer's total bill, or each dimension's own. See [Usage billing](/concepts/monetization/usage-billing#per-machine-per-project-per-seat).
 
 <Note>
-  A subject can hold up to 1,000 distinct dimensions per feature per period. Past that, calls naming a *new* one are refused - a guard against a loop accidentally passing a fresh id on every request. Existing dimensions keep working.
+  A customer can hold up to 1,000 distinct dimensions per feature per period. Past that, calls naming a *new* one are refused - a guard against a loop accidentally passing a fresh id on every request. Existing dimensions keep working.
 </Note>
 
 ## Idempotency
@@ -73,7 +73,7 @@ The billing cap binds independently of the allowance - it can bound the customer
 Pass a stable `idempotencyKey` (e.g. your own request id) and a retried call with the same key replays the original decision instead of double-counting - safe to retry on a timeout without double-charging usage.
 
 ```typescript
-await kerne.consume('api_calls', { subject: userId, idempotencyKey: `req_${requestId}` });
+await kerne.consume('api_calls', { customer: userId, idempotencyKey: `req_${requestId}` });
 ```
 
 ## Only for QUOTA features

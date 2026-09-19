@@ -42,7 +42,7 @@ Customer gets an exception
 Your application asks one question, and never learns why the answer is what it is:
 
 ```typescript
-if (await kerne.allows('export_pdf', { subject: userId })) {
+if (await kerne.allows('export_pdf', { customer: userId })) {
   return generatePdf();
 }
 ```
@@ -79,7 +79,7 @@ if (await kerne.allows('export_pdf', { subject: userId })) {
   </Step>
   <Step title="Your application asks Kerne">
     ```typescript
-    await kerne.allows('export_pdf', { subject: userId });
+    await kerne.allows('export_pdf', { customer: userId });
     ```
   </Step>
   <Step title="Kerne makes the decision">

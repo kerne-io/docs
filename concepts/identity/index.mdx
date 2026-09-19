@@ -4,9 +4,15 @@ sidebarTitle: 'Overview'
 description: 'Who an access decision applies to'
 ---
 
-Every access decision is about someone. Kerne holds users and sessions so that a subscription, a usage counter and an entitlement all have someone to belong to.
+Every access decision is about someone. Kerne actually holds two different records for that someone, and it matters which one you mean.
 
-That's the whole reason this part exists. If you already run your own identity, you can mirror your users into Kerne and use it only for access decisions — the `subject` in every call is a Kerne user id, so each of your users needs a matching one.
+A **`User`** is a login: email, password, session. A **`Customer`** is a billable identity — who a subscription, a usage counter, or an override belongs to. Every entitlement or billing call names a `customer`, never a `user`.
+
+The two are linked automatically for anyone who signs up through Kerne's own auth: `Customer.external_id` is set to `User.id` at signup, invisibly. You never wire this up — pass the user's id as `customer` on any server-side call and it resolves.
+
+If you run your own auth (Clerk, Supabase, your own backend) instead, or you bill a company rather than a person, there may be no matching `User` at all, and that's fine — a customer doesn't require one. Pick any string as its `external_id` (your own user id, an org id) and pass it as `customer`.
+
+Whether Kerne creates that record for you depends on which call names it first: [`checkout()`](/sdks/server/billing/checkout) creates one if you pass `email` alongside it; a granted [override](/sdks/server/admin/overrides) or `kerne.customers.upsert()` creates one unconditionally; [`consume()`](/sdks/server/entitlements/consume) never does — an unknown id there is rejected, not created. A read (`allows()`, `check()`) on an unknown one never creates a row either, it just falls back to your default plan. When in doubt, call `kerne.customers.upsert()` first — see [Customers](/sdks/server/overview#customers).
 
 ## Signing in
 
@@ -32,5 +38,8 @@ Both get called "authorization", and they are not the same thing:
   </Card>
   <Card title="Set up authentication" icon="key" href="/guides/getting-started/authentication-setup">
     Login, registration and route protection, end to end.
+  </Card>
+  <Card title="Register & look up customers" icon="id-badge" href="/sdks/server/overview#customers">
+    `upsert` / `get` / `list` / `update` — for BYO auth or billing a company as one unit.
   </Card>
 </CardGroup>

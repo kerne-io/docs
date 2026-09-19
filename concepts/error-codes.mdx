@@ -1,6 +1,6 @@
 ---
-title: "Error codes"
-description: "Standardized error responses for the Kerne API"
+title: 'Error codes'
+description: 'Standardized error responses for the Kerne API'
 ---
 
 Every error response follows this shape - there's no `{success, data}` envelope on success responses either, they return the resource directly:
@@ -23,85 +23,85 @@ A few subclasses are raised **client-side** before a request goes out - `Entitle
 
 ## Auth and registration (K1xxx)
 
-| Code | Description |
-|------|-------------|
-| `K1001` | Registration is currently disabled for this app. |
-| `K1002` | Maximum user limit reached. |
+| Code    | Description                                         |
+| ------- | --------------------------------------------------- |
+| `K1001` | Registration is currently disabled for this app.    |
+| `K1002` | Maximum user limit reached.                         |
 | `K1003` | Invalid, expired, or already-used invitation token. |
-| `K1004` | Invalid, expired, or already-used invitation code. |
-| `K1005` | Invalid email or password. |
-| `K1006` | Token has expired. |
-| `K1007` | No token provided. |
-| `K1008` | Email already registered. |
-| `K1009` | Invalid email format. |
-| `K1010` | Password doesn't meet the strength requirement. |
-| `K1011` | Email not verified. |
-| `K1012` | Unauthorized access. |
+| `K1004` | Invalid, expired, or already-used invitation code.  |
+| `K1005` | Invalid email or password.                          |
+| `K1006` | Token has expired.                                  |
+| `K1007` | No token provided.                                  |
+| `K1008` | Email already registered.                           |
+| `K1009` | Invalid email format.                               |
+| `K1010` | Password doesn't meet the strength requirement.     |
+| `K1011` | Email not verified.                                 |
+| `K1012` | Unauthorized access.                                |
 
 ## Validation (K2xxx)
 
-| Code | Description |
-|------|-------------|
+| Code    | Description              |
+| ------- | ------------------------ |
 | `K2001` | Invalid request payload. |
-| `K2002` | Missing required field. |
-| `K2003` | Invalid field format. |
-| `K2004` | Invalid enum value. |
-| `K2005` | Duplicate entry. |
+| `K2002` | Missing required field.  |
+| `K2003` | Invalid field format.    |
+| `K2004` | Invalid enum value.      |
+| `K2005` | Duplicate entry.         |
 
 ## Permissions (K3xxx)
 
-| Code | Description |
-|------|-------------|
+| Code    | Description                                   |
+| ------- | --------------------------------------------- |
 | `K3001` | This operation requires a different app type. |
-| `K3002` | Insufficient permissions. |
-| `K3003` | You don't have access to this resource. |
-| `K3004` | This operation isn't allowed. |
+| `K3002` | Insufficient permissions.                     |
+| `K3003` | You don't have access to this resource.       |
+| `K3004` | This operation isn't allowed.                 |
 
 ## Resources (K4xxx)
 
-| Code | Description |
-|------|-------------|
-| `K4001` | Resource not found. |
-| `K4002` | App not found. |
-| `K4003` | User not found. |
-| `K4004` | Invitation not found. |
-| `K4005` | Waitlist entry not found. |
-| `K4006` | Resource conflict. |
-| `K4007`-`K4009` | Resource creation/deletion/update failed. |
+| Code            | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| `K4001`         | Resource not found.                                          |
+| `K4002`         | App not found.                                               |
+| `K4003`         | User not found.                                              |
+| `K4004`         | Invitation not found.                                        |
+| `K4005`         | Waitlist entry not found.                                    |
+| `K4006`         | Resource conflict.                                           |
+| `K4007`-`K4009` | Resource creation/deletion/update failed.                    |
 | `K4011`-`K4016` | Product/plan/feature/subscription/plan price/pack not found. |
-| `K4019` | Payment not found. |
+| `K4019`         | Payment not found.                                           |
 
 ## Billing and limits (K5xxx)
 
-| Code | Description |
-|------|-------------|
-| `K5001` | Resource quota exceeded. |
-| `K5002` | Plan upgrade required. |
-| `K5003` | Billing payment failed. |
+| Code    | Description                                                            |
+| ------- | ---------------------------------------------------------------------- |
+| `K5001` | Resource quota exceeded.                                               |
+| `K5002` | Plan upgrade required.                                                 |
+| `K5003` | Billing payment failed.                                                |
 | `K5004` | No active pack for this plan (a plan with no entitlements configured). |
-| `K5005` | A pack can't be activated with no entitlements configured on it. |
+| `K5005` | A pack can't be activated with no entitlements configured on it.       |
 
 ## Rate limiting (K6xxx)
 
-| Code | Description |
-|------|-------------|
-| `K6001` | Too many requests. |
+| Code    | Description              |
+| ------- | ------------------------ |
+| `K6001` | Too many requests.       |
 | `K6002` | Too many login attempts. |
 
 ## External services (K7xxx)
 
-| Code | Description |
-|------|-------------|
-| `K7001` | Stripe service error. |
-| `K7002` | Email service error. |
-| `K7003` | External service unavailable. |
-| `K7004` | Payment provider error (Polar, or a provider-agnostic failure - use `K7001` for Stripe-specific ones). |
+| Code    | Description                                                                              |
+| ------- | ---------------------------------------------------------------------------------------- |
+| `K7001` | Stripe service error.                                                                    |
+| `K7002` | Email service error.                                                                     |
+| `K7003` | External service unavailable.                                                            |
+| `K7004` | Payment provider error (a provider-agnostic failure - `K7001` for Stripe-specific ones). |
 
 ## Internal (K9xxx)
 
-| Code | Description |
-|------|-------------|
+| Code    | Description            |
+| ------- | ---------------------- |
 | `K9001` | Internal server error. |
-| `K9002` | Database error. |
+| `K9002` | Database error.        |
 | `K9003` | Invalid configuration. |
-| `K9999` | Unknown error. |
+| `K9999` | Unknown error.         |

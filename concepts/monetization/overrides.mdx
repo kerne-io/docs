@@ -24,14 +24,14 @@ An override is a standing arrangement. An adjustment is a correction. Giving som
 ```typescript
 // A standing deal
 await kerne.admin.grant('api_calls', {
-  subject: userId,
+  customer: userId,
   value: '50000',
   reason: 'Annual contract - negotiated limit',
   expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
 });
 
 // A one-time credit
-await kerne.admin.adjustUsage('api_calls', { subject: userId, delta: -5000 });
+await kerne.admin.adjustUsage('api_calls', { customer: userId, delta: -5000 });
 ```
 
 ## Whole customer, or one counter

@@ -1,15 +1,15 @@
 ---
 title: "entitlements() & usage()"
 sidebarTitle: "List entitlements & usage"
-description: "Hydrate every entitlement or usage record for a subject in one call"
+description: "Hydrate every entitlement or usage record for a customer in one call"
 ---
 
-## All entitlements for a subject
+## All entitlements for a customer
 
 Useful for hydrating a settings/billing page without one request per feature:
 
 ```typescript
-const { entitlements, subscription_status, plan_slug } = await kerne.entitlements({ subject: userId });
+const { entitlements, subscription_status, plan_slug } = await kerne.entitlements({ customer: userId });
 // entitlements: [{ feature_key, feature_type, enabled?, limit?, used?, remaining?, overage_behavior?, value?, has_override }, ...]
 ```
 
@@ -20,9 +20,9 @@ There's no `allowed` field here, unlike [`check()`](/sdks/server/entitlements/al
 ## Usage records
 
 ```typescript
-const records = await kerne.usage({ subject: userId });
+const records = await kerne.usage({ customer: userId });
 // or scope to one feature:
-const records = await kerne.usage({ subject: userId, featureKey: 'api_calls' });
+const records = await kerne.usage({ customer: userId, featureKey: 'api_calls' });
 ```
 
 Each record: `{ id, feature_key, value, period_start, period_end, status, ... }` - one per feature per open billing period.

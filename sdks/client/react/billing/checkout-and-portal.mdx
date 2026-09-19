@@ -1,6 +1,6 @@
 ---
-title: "Checkout & portal"
-description: "Send the user to a hosted checkout or billing portal"
+title: 'Checkout & portal'
+description: 'Send the user to a hosted checkout or billing portal'
 ---
 
 ```tsx
@@ -9,20 +9,21 @@ import { useCheckout } from '@kerne/react';
 function UpgradeButton({ planPriceId }: { planPriceId: string }) {
   const { openCheckout } = useCheckout();
 
-  return (
-    <button onClick={() => openCheckout(planPriceId)}>
-      Upgrade
-    </button>
-  );
+  return <button onClick={() => openCheckout(planPriceId)}>Upgrade</button>;
 }
 ```
 
 <Warning>
-The first argument is a **`plan_price_id`** (a specific billing variant - monthly vs. yearly), not a plan id.
+  The first argument is a **`plan_price_id`** (a specific billing variant - monthly vs. yearly), not
+  a plan id.
 </Warning>
 
 <Note>
-`useCheckout` / `usePortal` and the prebuilt UI are **redirect-only** - they send the browser to a provider-hosted page. There is no prop that turns them into an embedded card form. For an embedded card you build the form with Stripe.js and drive it from the server's [headless methods](/sdks/server/billing/checkout#headless-embedded-card-stripe-only) (`createSetupIntent` -> confirm client-side -> `createSubscriptionHeadless`); those live on `@kerne/server`, not here.
+  `useCheckout` / `usePortal` and the prebuilt UI are **redirect-only** - they send the browser to a
+  provider-hosted page. There is no prop that turns them into an embedded card form. For an embedded
+  card you build the form with Stripe.js and drive it from the server's [headless
+  methods](/sdks/server/billing/checkout#headless-embedded-card-stripe-only) (`createSetupIntent` ->
+  confirm client-side -> `createSubscriptionHeadless`); those live on `@kerne/server`, not here.
 </Note>
 
 `openCheckout()` redirects the browser directly (`window.location.href = url`). If you want the URL instead - to open in a new tab, or handle the redirect yourself - use `createCheckout()`, which returns the URL without navigating:
@@ -117,7 +118,7 @@ Neither hook refreshes `useSubscription()` for you — there is no shared cache 
 
 ## Building a plan picker
 
-A page that lets a visitor pick any plan doesn't know upfront whether they're a new signup or already subscribed — and that distinction matters more than it looks. Starting a fresh checkout for someone already subscribed doesn't replace their subscription: Stripe and Polar have no notion of "this session replaces the one on file", so it creates a second, independent subscription while the first keeps billing. `usePlanSwitch()` makes that decision once, for every screen that needs it — it's what [`<PricingTable>`](/sdks/client/react/ui/pricing-table) and the plan switcher inside `<UserProfile>` use internally:
+A page that lets a visitor pick any plan doesn't know upfront whether they're a new signup or already subscribed — and that distinction matters more than it looks. Starting a fresh checkout for someone already subscribed doesn't replace their subscription: Stripe have no notion of "this session replaces the one on file", so it creates a second, independent subscription while the first keeps billing. `usePlanSwitch()` makes that decision once, for every screen that needs it — it's what [`<PricingTable>`](/sdks/client/react/ui/pricing-table) and the plan switcher inside `<UserProfile>` use internally:
 
 ```tsx
 import { usePlanSwitch, useSubscription } from '@kerne/react';

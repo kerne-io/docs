@@ -46,17 +46,17 @@ export const kerne = new Kerne({
 });
 ```
 
-Create a user. The id that comes back is the `subject` every later call is about:
+Create a user. Its id is what every later call names as the `customer`:
 
 ```typescript
 const { user } = await kerne.auth.signup({
   email: 'alice@example.com',
   password: 'a-strong-password',
 });
-// user.id -> the subject
+// user.id -> the customer
 ```
 
-Already have your own auth? Mirror your users into Kerne and use those ids as subjects.
+Signing up through Kerne already registers the customer behind the scenes — there's no separate step. Already have your own auth (Clerk, Supabase, your own backend)? Skip `auth.signup()` entirely and pass your own user id (or an org id, for a company you bill as one unit) as `customer` directly. `allows()`/`check()` work immediately, falling back to your default plan if that id doesn't exist yet. For a write that needs the record to exist first — `consume()`, `reportUsage()` — call `kerne.customers.upsert({ externalId, email })` once before it, or pass `email` on `checkout()` to create it there.
 
 ## 4. Check access
 
@@ -64,7 +64,7 @@ Already have your own auth? Mirror your users into Kerne and use those ids as su
 export async function exportPdfRoute(req, res) {
   const userId = req.user.id;
 
-  if (!(await kerne.allows('export_pdf', { subject: userId }))) {
+  if (!(await kerne.allows('export_pdf', { customer: userId }))) {
     return res.status(403).json({ error: 'upgrade_required' });
   }
 
@@ -72,9 +72,9 @@ export async function exportPdfRoute(req, res) {
 }
 ```
 
-`allows()` returns a boolean and never throws for a denial. With a secret key there's no implicit "current user", so always pass the subject you mean.
+`allows()` returns a boolean and never throws for a denial. With a secret key there's no implicit "current user", so always pass the customer you mean.
 
-In React, the same decision without passing a subject — it uses the logged-in session:
+In React, the same decision without naming a customer — it resolves the logged-in session's own:
 
 ```tsx
 import { KerneProvider, Access } from '@kerne/react';
@@ -107,7 +107,7 @@ That's the default, not a setting you remembered to enable. See [Offers & versio
 
 | Symptom | Likely cause |
 | --- | --- |
-| `allows()` is always `false` | The feature isn't on the customer's plan; no active default plan and no subscription; wrong `subject` id |
+| `allows()` is always `false` | The feature isn't on the customer's plan; no active default plan and no subscription; wrong `customer` id |
 | `401` on a backend call | Wrong secret key or app id, or the key was sent from the browser |
 | `checkout()` fails | Stripe not connected, or a plan id passed where a price id is required |
 

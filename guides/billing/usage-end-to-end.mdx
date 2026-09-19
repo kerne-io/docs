@@ -77,7 +77,7 @@ const kerne = new Kerne({
 
 // One hour of cutter time for this customer
 const result = await kerne.consume('cutter_minutes', {
-  subject: customerId, // Kerne user id
+  customer: customerId, // your own id for them - a Kerne user id, or any external id you picked
   delta: 60,
 });
 
@@ -130,7 +130,7 @@ Those numbers come from the same path the billing worker uses — not a parallel
 - [ ] Feature `cutter_minutes` (quota, unit = minute, renews on billing cycle)
 - [ ] Plan includes `0`, bills past it, rate = 0.35 EUR / 60 minutes, cap = 120 EUR
 - [ ] New offer version published
-- [ ] Backend uses `consume` with the Kerne user id as `subject`
+- [ ] Backend uses `consume` with the customer's id passed as `customer`
 - [ ] UI only reads usage (no client-side consume)
 
 ## Next

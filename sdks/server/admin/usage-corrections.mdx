@@ -12,21 +12,21 @@ Everything under `kerne.admin` requires an admin caller (secret key, or a JWT ow
 Offsets the counter by a signed delta in **one atomic increment** - safe to call concurrently with `consume()`/`reportUsage()` without racing them, because it never reads the current value first.
 
 ```typescript
-// Refund 5 units back to the subject
-await kerne.admin.adjustUsage('api_calls', { subject: userId, delta: -5 });
+// Refund 5 units back to the customer
+await kerne.admin.adjustUsage('api_calls', { customer: userId, delta: -5 });
 
 // Correct an undercount
-await kerne.admin.adjustUsage('api_calls', { subject: userId, delta: 3, idempotencyKey: fixId });
+await kerne.admin.adjustUsage('api_calls', { customer: userId, delta: 3, idempotencyKey: fixId });
 ```
 
-A negative delta can push the counter below zero internally - that's correct (it's real slack the subject has), and [`check()`](/sdks/server/entitlements/allows-enforce-check) never surfaces it as a negative number, it folds the credit into the displayed limit instead.
+A negative delta can push the counter below zero internally - that's correct (it's real slack the customer has), and [`check()`](/sdks/server/entitlements/allows-enforce-check) never surfaces it as a negative number, it folds the credit into the displayed limit instead.
 
 `idempotencyKey` is optional and exists for safe retries: pass a stable key (e.g. the id of the correction you're applying) and a retried call with the same key won't apply the adjustment twice.
 
 ## `setUsage()` - only when you need an exact value
 
 ```typescript
-await kerne.admin.setUsage('storage_megabytes', { subject: userId, value: 12800 });
+await kerne.admin.setUsage('storage_megabytes', { customer: userId, value: 12800 });
 ```
 
 Requires knowing the target absolute value up front, which means it can race a concurrent `consume()`/`reportUsage()` (read-then-write). Prefer `adjustUsage()` unless you specifically need to pin an exact number.
@@ -36,8 +36,8 @@ Requires knowing the target absolute value up front, which means it can race a c
 ## `resetUsage()`
 
 ```typescript
-await kerne.admin.resetUsage({ subject: userId }); // every QUOTA feature for this subject
-await kerne.admin.resetUsage({ subject: userId, featureKey: 'api_calls' }); // just one
+await kerne.admin.resetUsage({ customer: userId }); // every QUOTA feature for this customer
+await kerne.admin.resetUsage({ customer: userId, featureKey: 'api_calls' }); // just one
 ```
 
 Zeroes both the current period's counter and any rollover credit/debt - a clean slate, not just "back to zero for this period."

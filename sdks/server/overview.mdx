@@ -3,7 +3,7 @@ title: "Overview"
 description: "@kerne/server - your backend's Kerne client"
 ---
 
-`@kerne/server` is the only place that should ever hold your secret key. It's what lets a request act on behalf of *any* subject, not just the caller - that's the whole reason it stays server-side.
+`@kerne/server` is the only place that should ever hold your secret key. It's what lets a request act on behalf of *any* customer, not just the caller - that's the whole reason it stays server-side.
 
 ## Install & configure
 
@@ -30,17 +30,17 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
     The reason this SDK exists. No `.billing.` prefix - these are the calls you'll write the most.
 
     ```typescript
-    kerne.allows(featureKey, { subject })       // boolean, never throws
-    kerne.enforce(featureKey, { subject })      // throws EntitlementDeniedError if denied
-    kerne.check(featureKey, { subject })        // full detail: limit/used/remaining/...
-    kerne.consume(featureKey, { subject, delta })
-    kerne.reportUsage(featureKey, { subject, delta })   // subject is required here
-    kerne.reportUsageBatch(events)              // each event carries its own subject
-    kerne.entitlements({ subject })
-    kerne.usage({ subject, featureKey? })
+    kerne.allows(featureKey, { customer })       // boolean, never throws
+    kerne.enforce(featureKey, { customer })      // throws EntitlementDeniedError if denied
+    kerne.check(featureKey, { customer })        // full detail: limit/used/remaining/...
+    kerne.consume(featureKey, { customer, delta })
+    kerne.reportUsage(featureKey, { customer, delta })   // customer is required here
+    kerne.reportUsageBatch(events)              // each event carries its own customer
+    kerne.entitlements({ customer })
+    kerne.usage({ customer, featureKey? })
     ```
 
-    `subject` is **required** on `reportUsage()` / `reportUsageBatch()`. On `allows()` / `enforce()` / `check()` / `consume()` it is optional in the types, but with a secret key there is no implicit "current user" - pass the subject you mean. See [Entitlements & usage](/sdks/server/entitlements/allows-enforce-check).
+    `customer` is **required** on `reportUsage()` / `reportUsageBatch()`. On `allows()` / `enforce()` / `check()` / `consume()` it is optional in the types, but with a secret key there is no implicit "current user" - pass the customer you mean. See [Entitlements & usage](/sdks/server/entitlements/allows-enforce-check).
   </Step>
   <Step title="Tier 2 - billing the end user touches">
     ```typescript
@@ -51,10 +51,10 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
     kerne.billing.portal(options)                  // redirect flow
     kerne.billing.cancel(options)
     kerne.billing.subscriptions.list/get/cancel/changePlanPrice(...)
-    kerne.billing.isSubscribedTo(subject, planSlug)
+    kerne.billing.isSubscribedTo(customer, planSlug)
     // Stripe-only, embedded card instead of the redirect (see Checkout > Headless):
     kerne.billing.createSetupIntent(options)
-    kerne.billing.createSubscriptionHeadless({ subject, planPriceId, stripePaymentMethodId })
+    kerne.billing.createSubscriptionHeadless({ customer, planPriceId, stripePaymentMethodId })
     ```
 
     See [Billing](/sdks/server/billing/subscription).
@@ -71,17 +71,43 @@ The methods are grouped by *who* is meant to call them - not by resource - becau
   </Step>
   <Step title="Tier 4 - admin corrections, never from an end-user request">
     ```typescript
+    kerne.customers.upsert / get / list / update(...)
     kerne.admin.setUsage / adjustUsage / resetUsage(...)
     kerne.admin.grant / listGrants / revokeGrant(...)
     ```
 
-    Same idea as `supabase.auth.admin.*` - one client, a namespace that signals "this call needs elevated trust." See [Admin](/sdks/server/admin/usage-corrections).
+    Same idea as `supabase.auth.admin.*` - one client, a namespace that signals "this call needs elevated trust." See [Customers](#customers) below, and [Admin](/sdks/server/admin/usage-corrections).
   </Step>
 </Steps>
 
+## Customers
+
+The billable identity every call above names as `customer`. A signed-up Kerne user already has one - `external_id` is set to their `User.id` at signup, so you never call this yourself just to use the SDK.
+
+Reach for `kerne.customers` when you run your own auth (Clerk, Supabase, your own backend) and want to keep `email`/`name` in sync with your system of record ahead of the customer's first billing action, or when you bill an organization rather than a person and want to look it up later by the id you gave it:
+
+```typescript
+// Pre-register a BYO customer - optional. checkout() also creates one on first
+// use if you pass `email` there instead; consume() never creates one, so an
+// unknown id 404s until it exists.
+const customer = await kerne.customers.upsert({
+  externalId: 'org_492',
+  email: 'billing@acme.example',
+  name: 'Acme Inc.',
+});
+
+await kerne.customers.get('org_492');
+await kerne.customers.list({ limit: 50 });
+
+// Renaming to an externalId already used by another customer 409s rather than merging
+await kerne.customers.update('org_492', { name: 'Acme Corporation' });
+```
+
+Admin-only (secret key) - not exposed in `@kerne/react`, since a signed-in end user's own customer is always resolved from their session, never named explicitly.
+
 ## Next.js (App Router)
 
-There is no Next-specific adapter - `@kerne/server` is the same client in a Route Handler or a Server Action. Take the `subject` from your own session/user record and pass it explicitly:
+There is no Next-specific adapter - `@kerne/server` is the same client in a Route Handler or a Server Action. Take the `customer` id from your own session/user record and pass it explicitly:
 
 ```typescript
 // app/api/export/route.ts
@@ -98,7 +124,7 @@ export async function POST() {
   const userId = await getUserIdFromSession();
   if (!userId) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
 
-  if (!(await kerne.allows('export_pdf', { subject: userId }))) {
+  if (!(await kerne.allows('export_pdf', { customer: userId }))) {
     return NextResponse.json({ error: 'upgrade_required' }, { status: 403 });
   }
 

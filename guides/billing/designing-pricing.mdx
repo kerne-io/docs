@@ -21,7 +21,7 @@ The second one is decided per *thing you're limiting*, not per tier — and the 
 
 <Tip>
 - **Bad**: `if (user.plan === 'pro')`
-- **Good**: `if (await kerne.allows('export_pdf', { subject: userId }))`
+- **Good**: `if (await kerne.allows('export_pdf', { customer: userId }))`
 </Tip>
 
 ## Decision 1: What goes in each tier
@@ -48,11 +48,11 @@ Nobody pays their way past this. The plan simply refuses once the allowance is g
 3. Gate the action with [`consume()`](/sdks/server/entitlements/consume), which checks and increments atomically:
 
 ```typescript
-const { allowed } = await kerne.consume('team_seats', { subject: orgId });
+const { allowed } = await kerne.consume('team_seats', { customer: orgId });
 if (!allowed) return res.status(403).json({ error: 'Seat limit reached' });
 ```
 
-Removing a member gives the seat back: `kerne.admin.adjustUsage('team_seats', { subject: orgId, delta: -1 })`. A counter that never renews is the one place that matters — a per-period quota would have cleared itself anyway.
+Removing a member gives the seat back: `kerne.admin.adjustUsage('team_seats', { customer: orgId, delta: -1 })`. A counter that never renews is the one place that matters — a per-period quota would have cleared itself anyway.
 
 ### Option B: Keep going and charge for it — pay-as-you-go past the included amount
 
@@ -72,7 +72,7 @@ Orthogonal to A and B, not a third alternative to them: the customer is one paye
 
 ```typescript
 await kerne.consume('compute_minutes', {
-  subject: customerId,
+  customer: customerId,
   dimension: 'project_7',
   delta: 60,
 });
@@ -82,7 +82,7 @@ await kerne.consume('compute_minutes', {
 
 ## Add-ons
 
-A subject holds **one live subscription at a time** — one payer, one plan. That is enforced in the database, and it is the first thing to know before designing an add-on, because it rules out the shape most people reach for: an add-on is never a second subscription sitting next to the first.
+A customer holds **one live subscription at a time** — one payer, one plan. That is enforced in the database, and it is the first thing to know before designing an add-on, because it rules out the shape most people reach for: an add-on is never a second subscription sitting next to the first.
 
 It is one of these instead:
 

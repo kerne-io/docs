@@ -39,10 +39,10 @@ Your app names a **capability** — `export_pdf`, `api_calls`, `support_level` �
 
 ```
 Feature asked about
-  → the subject's subscription (or your default plan, if they have none)
+  → the customer's subscription (or your default plan, if they have none)
   → the version of the offer they bought
   → what that version grants for this feature
-  → an override, if one exists for this subject
+  → an override, if one exists for this customer
   → their usage counter, for anything with an allowance
   → the answer
 ```
@@ -59,7 +59,7 @@ The point isn't the shape of the call. It's that the answer changes when your pr
 
 ## Who a decision is about
 
-Every decision is about someone — the `subject` your SDK calls name. Today that's always one of your users, which is what makes Kerne a fit for products that gate individual people, and a partial fit for products that bill a company as one unit. [Is Kerne a fit?](/guides/is-kerne-a-fit) covers that in two minutes.
+Every decision is about someone — the `customer` your SDK calls name. Usually that's one of your users, signed up through Kerne's own auth. It doesn't have to be: pass any id you pick (an org id, your own user id from another auth system) and Kerne treats it the same way, with no separate registration step — see [Users and sessions](/concepts/identity/index). Billing a company as one unit is a full fit this way: the company itself is the customer, no user required. What isn't built is several people sharing access to that one company's account from your frontend — see [Is Kerne a fit?](/guides/is-kerne-a-fit).
 
 ## Next
 

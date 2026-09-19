@@ -1,7 +1,7 @@
 ---
 title: 'Connect your billing provider'
 sidebarTitle: 'Connect billing provider'
-description: "Connect Stripe and implement subscription billing"
+description: 'Connect Stripe and implement subscription billing'
 ---
 
 This guide walks through connecting a payment provider, configuring a plan, and implementing checkout - creating the actual product/plan/price catalog is a dashboard task, not something your app's code does at runtime.
@@ -16,9 +16,7 @@ This guide walks through connecting a payment provider, configuring a plan, and 
 
 In the Kerne dashboard: **Settings → Billing → Connect Stripe**, then complete the OAuth flow. Use test mode during development.
 
-<Note>
-Already connected to Polar? That connection keeps working exactly as before - checkout, webhooks, and the portal are unaffected. Just don't delete the webhook endpoint Kerne created in your Polar organization: Polar gives Kerne no notification when that happens, so billing sync silently stops until you click resync (the refresh icon next to your Polar connection in the dashboard), which detects the missing endpoint and recreates it.
-</Note>
+<Note>Other providers may come sooner or later, and Stripe is the only one supported for now.</Note>
 
 ## 2. Create a product and plan
 
@@ -71,7 +69,8 @@ function PricingPage({ plans }) {
 ```
 
 <Warning>
-Checkout takes a **price** id (`plan.prices[i].id`), not the plan's own id - a plan can have several prices (monthly, yearly).
+  Checkout takes a **price** id (`plan.prices[i].id`), not the plan's own id - a plan can have
+  several prices (monthly, yearly).
 </Warning>
 
 ## 4. Implement checkout
@@ -82,11 +81,7 @@ import { useCheckout } from '@kerne/react';
 function UpgradeButton({ planPriceId }: { planPriceId: string }) {
   const { openCheckout } = useCheckout();
 
-  return (
-    <button onClick={() => openCheckout(planPriceId)}>
-      Upgrade
-    </button>
-  );
+  return <button onClick={() => openCheckout(planPriceId)}>Upgrade</button>;
 }
 ```
 

@@ -14,7 +14,7 @@ Gating is two checks, not one: an authoritative one on your backend, and a cosme
 async function exportReport(req, res) {
   const userId = req.user.id;
 
-  if (!(await kerne.allows('advanced_analytics', { subject: userId }))) {
+  if (!(await kerne.allows('advanced_analytics', { customer: userId }))) {
     return res.status(403).json({ error: 'Upgrade required to export reports.' });
   }
 
