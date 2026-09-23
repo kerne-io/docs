@@ -1,0 +1,24 @@
+---
+title: 'Current limits'
+description: "What Kerne doesn't cover today"
+---
+
+What isn't built yet, so you don't find out halfway through an integration.
+
+<AccordionGroup>
+  <Accordion title="Several people sharing one account">
+    A company can be a customer on its own — no user required. What's missing is **membership**:
+    several of your users acting on that same company's account from a login session. Today, access
+    is one-to-one between a session and the customer it names; only your own backend, calling with
+    your secret key, can act on a customer on someone else's behalf.
+  </Accordion>
+  <Accordion title="Roles and resource-level permissions">
+    No per-user roles, no "this teammate can bill but not delete." Administering your tenant
+    requires your secret key, not a logged-in user's session — see [Admin
+    access](/concepts/identity/admin-access).
+  </Accordion>
+  <Accordion title="Social login">
+    Email + password and magic link only. If social login is required at launch, keep identity in
+    your own stack and use Kerne for access instead.
+  </Accordion>
+</AccordionGroup>

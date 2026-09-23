@@ -64,13 +64,12 @@
             "pages": [
               "index",
               "quickstart",
-              "guides/is-kerne-a-fit"
+              "concepts/overview"
             ]
           },
           {
             "group": "Core concepts",
             "pages": [
-              "concepts/overview",
               "concepts/monetization/products-and-plans",
               "concepts/monetization/entitlements",
               "concepts/monetization/usage-billing",
@@ -78,25 +77,51 @@
             ]
           },
           {
-            "group": "Guides",
+            "group": "Users & sign-in",
             "pages": [
-              "guides/billing/designing-pricing",
-              "guides/billing/enforcing-limits-without-breaking-ux",
-              "guides/billing/usage-end-to-end",
-              "guides/billing/change-your-pricing",
-              "guides/billing/customer-exceptions",
-              "guides/getting-started/subscription-setup"
+              "concepts/identity/index",
+              "concepts/identity/registration-modes"
             ]
           },
           {
-            "group": "Users & authentication",
+            "group": "Reference",
             "pages": [
-              "concepts/identity/index",
-              "concepts/identity/registration-modes",
-              "guides/getting-started/authentication-setup",
-              "guides/auth/implement-invite-only-saas"
+              "concepts/error-codes",
+              "concepts/identity/admin-access",
+              "concepts/limits"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "icon": "compass",
+        "groups": [
+          {
+            "group": "Quick starts",
+            "pages": [
+              "guides/first-access-decision",
+              "guides/getting-started/subscription-setup",
+              "guides/getting-started/authentication-setup"
             ]
           },
+          {
+            "group": "Common tasks",
+            "pages": [
+              "guides/billing/designing-pricing",
+              "guides/billing/change-your-pricing",
+              "guides/billing/enforcing-limits-without-breaking-ux",
+              "guides/billing/usage-end-to-end",
+              "guides/billing/customer-exceptions",
+              "guides/auth/implement-invite-only-saas"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDKs",
+        "icon": "cube",
+        "groups": [
           {
             "group": "Server SDK",
             "pages": [
@@ -167,7 +192,7 @@
             ]
           },
           {
-            "group": "React SDK",
+            "group": "Frontend SDKs",
             "pages": [
               "sdks/client/overview",
               {
@@ -215,13 +240,6 @@
                 ]
               }
             ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "concepts/error-codes",
-              "concepts/identity/admin-access"
-            ]
           }
         ]
       },
@@ -252,5 +270,11 @@
       "og:type": "website",
       "twitter:card": "summary_large_image"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/guides/is-kerne-a-fit",
+      "destination": "/concepts/limits"
+    }
+  ]
 }

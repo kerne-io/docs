@@ -103,6 +103,8 @@ await kerne.customers.list({ limit: 50 });
 await kerne.customers.update('org_492', { name: 'Acme Corporation' });
 ```
 
+`get`, `list` and `update` return the customer's `metadata` exactly as you last wrote it, plus `provider_accounts` - the provider customer this one maps to on each connected payment account (`[{ provider, provider_customer_id }]`). That list stays empty until their first checkout, which is what creates the provider customer.
+
 Admin-only (secret key) - not exposed in `@kerne/react`, since a signed-in end user's own customer is always resolved from their session, never named explicitly.
 
 ## Next.js (App Router)
