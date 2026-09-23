@@ -276,5 +276,14 @@
       "source": "/guides/is-kerne-a-fit",
       "destination": "/concepts/limits"
     }
-  ]
+  ],
+  "thumbnails": {
+    "background": "/images/bg.png",
+    "fonts": {
+      "family": "Geist"
+    }
+  },
+  "interaction": {
+    "drilldown": true
+  }
 }
