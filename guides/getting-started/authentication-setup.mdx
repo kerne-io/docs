@@ -1,141 +1,95 @@
 ---
-title: "Setting up authentication"
-sidebarTitle: "Authentication setup"
-description: "A step-by-step guide to implementing user authentication"
+title: 'Set up authentication'
+sidebarTitle: 'Authentication setup'
+description: 'Let people sign up and sign in, on your hosted portal or with your own forms'
 ---
 
-This guide walks you through implementing complete authentication with login, registration, and session management.
+Every project comes with a hosted portal: sign-in, sign-up and password reset pages with your logo and colors. Send people there, or build the forms in your app.
 
-## Prerequisites
+## 1. Decide who can sign up
 
-- A Kerne account with an app created
-- Your `appId` and `secretKey` from the Kerne dashboard
-- A backend (Node.js, Next.js, etc.) and React frontend
+New projects are invite only. To let anyone create an account, go to **Settings → Authentication** and set **Who can sign up** to **Open**. See [Registration modes](/concepts/identity/registration-modes).
 
-## 1. Install the SDKs
+## 2. Add the provider
 
-<Tabs>
-  <Tab title="npm">
-    ```bash
-    # Backend
-    npm install @kerne/server
-    
-    # Frontend
-    npm install @kerne/react
-    ```
-  </Tab>
-  <Tab title="pnpm">
-    ```bash
-    pnpm add @kerne/server @kerne/react
-    ```
-  </Tab>
-</Tabs>
-
-## 2. Configure the server SDK
-
-Create a server-side Kerne client:
-
-```typescript
-// lib/kerne.ts
-import { Kerne } from '@kerne/server';
-
-export const kerne = new Kerne({
-  appId: process.env.KERNE_APP_ID!,
-  secretKey: process.env.KERNE_SECRET_KEY!,
-});
+```bash
+npm install @kerne/react
 ```
-
-<Warning>
-Never expose your `secretKey` on the client. It should only be used in server-side code.
-</Warning>
-
-## 3. Set up the React provider
-
-Wrap your app with `KerneProvider`:
 
 ```tsx
 // app/providers.tsx
 import { KerneProvider } from '@kerne/react';
 
 export function Providers({ children }) {
-  return (
-    <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID}>
-      {children}
-    </KerneProvider>
-  );
+  return <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID!}>{children}</KerneProvider>;
 }
 ```
 
-## 4. Create a login form
+The app id is safe in the browser. Your secret key is not: it stays on your server.
 
-Use the `useAuth` hook:
+## 3. Send people to sign in
 
 ```tsx
-import { useAuth } from '@kerne/react';
+import { useAuthConfig, resolvePortalAuthUrl } from '@kerne/react';
 
-function LoginForm() {
-  const { login, isAuthenticated } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+function SignInLink() {
+  const { config } = useAuthConfig();
+  const url = resolvePortalAuthUrl(config?.portal_url, 'sign-in');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await login({ email, password });
-      // Redirect to dashboard
-    } catch (error) {
-      // Handle error
-    }
-  };
-
-  // ...
+  if (!url) return null;
+  return <a href={url}>Sign in</a>;
 }
 ```
 
-## 5. Create a registration form
+Pass `'sign-up'` for the sign-up page. After signing in, people come back to **Send users back to**, or to your **Production URL** if that's empty, both in **Settings → General**. `KerneProvider` picks up their session on its own: see [Session handoff](/sdks/client/react/authentication#session-handoff) to handle a failed one.
+
+Password reset, email verification and magic link emails always open the hosted portal, even if you build your own forms.
+
+## 4. Use the session
 
 ```tsx
-import { useAuth } from '@kerne/react';
+import { useAuth, Authenticated } from '@kerne/react';
 
-function RegisterForm() {
-  const { register } = useAuth();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await register({ email, password, name });
-      // User is now authenticated
-    } catch (error) {
-      // Handle error (K1008 = email taken)
-    }
-  };
-
-  // ...
+function Account() {
+  const { user, logout } = useAuth();
+  return <button onClick={logout}>Sign out {user?.email}</button>;
 }
+
+<Authenticated fallback={<SignInLink />}>
+  <Account />
+</Authenticated>;
 ```
 
-## 6. Protect routes
+`<Authenticated>` shows its `fallback` while the session loads too. If that flash matters, check `isLoading` from `useAuth()` yourself.
 
-The simplest way is the `<Authenticated>` guard - no redirect wiring needed just to hide a page:
+## Or build your own forms
 
 ```tsx
-import { Authenticated } from '@kerne/react';
+const { login, register } = useAuth();
 
-function ProtectedPage() {
-  return (
-    <Authenticated fallback={<LoginPrompt />}>
-      <Dashboard />
-    </Authenticated>
-  );
-}
+await login({ email, password });
+await register({ email, password, name: 'Alice Doe' });
 ```
 
-It renders `fallback` for as long as there's no confirmed session - that includes the moment the session is still loading, not only an actual logged-out visitor. If that brief flash matters for a given page, branch on `isLoading` yourself with `useAuth()` before deciding what to show.
+`register()` fails with `K1001` when sign-up isn't open to this person, and `K1008` when the email is taken. Every code is in [Authentication](/sdks/client/react/authentication#log-in-and-register).
 
-If you specifically need a URL redirect (not just hiding content), do the same off `isAuthenticated`/`isLoading` from `useAuth()` with whatever router your framework provides.
+For ready-made screens instead, `<AuthFlow>` from `@kerne/react/ui` covers sign-in, sign-up and password reset in one component: see [Prebuilt screens](/sdks/client/react/ui/overview).
 
-## Next steps
+## Next
 
-- [Set up subscriptions](/guides/getting-started/subscription-setup) to monetize your app
-- [Gating features](/guides/billing/enforcing-limits-without-breaking-ux) — where to check access
-- [Registration modes](/concepts/identity/registration-modes) — who is allowed to sign up
+<CardGroup cols={2}>
+  <Card
+    title="Connect your billing provider"
+    icon="credit-card"
+    href="/guides/getting-started/subscription-setup"
+  >
+    Sell your plans with Stripe.
+  </Card>
+  <Card
+    title="Implement invite-only SaaS"
+    icon="user-plus"
+    href="/guides/auth/implement-invite-only-saas"
+  >
+    Invitations, codes and the sign-up flow.
+  </Card>
+</CardGroup>

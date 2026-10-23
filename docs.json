@@ -61,11 +61,7 @@
         "groups": [
           {
             "group": "Get started",
-            "pages": [
-              "index",
-              "quickstart",
-              "concepts/overview"
-            ]
+            "pages": ["index", "quickstart", "concepts/overview"]
           },
           {
             "group": "Core concepts",
@@ -78,18 +74,11 @@
           },
           {
             "group": "Users & sign-in",
-            "pages": [
-              "concepts/identity/index",
-              "concepts/identity/registration-modes"
-            ]
+            "pages": ["concepts/identity/index", "concepts/identity/registration-modes"]
           },
           {
             "group": "Reference",
-            "pages": [
-              "concepts/error-codes",
-              "concepts/identity/admin-access",
-              "concepts/limits"
-            ]
+            "pages": ["concepts/identity/admin-access", "concepts/limits"]
           }
         ]
       },
@@ -119,134 +108,50 @@
         ]
       },
       {
-        "tab": "SDKs",
-        "icon": "cube",
+        "tab": "API reference",
+        "icon": "square-terminal",
         "groups": [
           {
             "group": "Server SDK",
             "pages": [
               "sdks/server/overview",
-              {
-                "group": "Authentication",
-                "pages": [
-                  "sdks/server/auth/signup",
-                  "sdks/server/auth/login",
-                  "sdks/server/auth/refresh-token",
-                  "sdks/server/auth/verify-email",
-                  "sdks/server/auth/password-reset",
-                  "sdks/server/auth/config",
-                  "sdks/server/auth/handoff"
-                ]
-              },
-              {
-                "group": "Users",
-                "pages": [
-                  "sdks/server/users/me",
-                  "sdks/server/users/get",
-                  "sdks/server/users/update"
-                ]
-              },
-              {
-                "group": "Entitlements & usage",
-                "pages": [
-                  "sdks/server/entitlements/allows-enforce-check",
-                  "sdks/server/entitlements/consume",
-                  "sdks/server/entitlements/report-usage",
-                  "sdks/server/entitlements/list"
-                ]
-              },
-              {
-                "group": "Billing",
-                "pages": [
-                  "sdks/server/billing/subscription",
-                  "sdks/server/billing/plans",
-                  "sdks/server/billing/checkout",
-                  "sdks/server/billing/portal-and-cancel"
-                ]
-              },
-              {
-                "group": "Admin",
-                "pages": [
-                  "sdks/server/admin/usage-corrections",
-                  "sdks/server/admin/overrides"
-                ]
-              },
-              {
-                "group": "Waitlist",
-                "pages": [
-                  "sdks/server/waitlist/join",
-                  "sdks/server/waitlist/list",
-                  "sdks/server/waitlist/remove"
-                ]
-              },
-              {
-                "group": "Invitations",
-                "pages": [
-                  "sdks/server/invitations/create",
-                  "sdks/server/invitations/list",
-                  "sdks/server/invitations/validate",
-                  "sdks/server/invitations/revoke"
-                ]
-              },
-              "sdks/server/request"
+              "sdks/server/entitlements",
+              "sdks/server/usage",
+              "sdks/server/billing",
+              "sdks/server/authentication",
+              "sdks/server/users",
+              "sdks/server/admin",
+              "sdks/server/waitlist-invitations"
             ]
           },
           {
-            "group": "Frontend SDKs",
+            "group": "React SDK",
             "pages": [
-              "sdks/client/overview",
+              "sdks/client/react/overview",
+              "sdks/client/react/authentication",
+              "sdks/client/react/entitlements",
+              "sdks/client/react/billing",
+              "sdks/client/react/waitlist-invitations",
               {
-                "group": "React",
+                "group": "Prebuilt UI",
                 "pages": [
-                  "sdks/client/react/overview",
-                  {
-                    "group": "Authentication",
-                    "pages": [
-                      "sdks/client/react/auth/login",
-                      "sdks/client/react/auth/register",
-                      "sdks/client/react/auth/session",
-                      "sdks/client/react/auth/email-verification",
-                      "sdks/client/react/auth/password-reset",
-                      "sdks/client/react/auth/handoff"
-                    ]
-                  },
-                  {
-                    "group": "Billing",
-                    "pages": [
-                      "sdks/client/react/billing/plans",
-                      "sdks/client/react/billing/check-entitlement",
-                      "sdks/client/react/billing/entitlements-list",
-                      "sdks/client/react/billing/usage",
-                      "sdks/client/react/billing/checkout-and-portal"
-                    ]
-                  },
-                  {
-                    "group": "Waitlist & invitations",
-                    "pages": [
-                      "sdks/client/react/waitlist",
-                      "sdks/client/react/invitations"
-                    ]
-                  },
-                  {
-                    "group": "Prebuilt UI",
-                    "pages": [
-                      "sdks/client/react/ui/overview",
-                      "sdks/client/react/ui/account",
-                      "sdks/client/react/ui/pricing-table",
-                      "sdks/client/react/ui/theming"
-                    ]
-                  },
-                  "sdks/client/react/components"
+                  "sdks/client/react/ui/overview",
+                  "sdks/client/react/ui/account",
+                  "sdks/client/react/ui/pricing-table",
+                  "sdks/client/react/ui/theming"
                 ]
               }
             ]
+          },
+          {
+            "group": "REST API",
+            "pages": ["api-reference/introduction", "concepts/error-codes"]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "openapi.json"
           }
         ]
-      },
-      {
-        "tab": "API reference",
-        "icon": "square-terminal",
-        "openapi": "openapi.json"
       }
     ]
   },
@@ -257,12 +162,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "claude",
-      "chatgpt"
-    ]
+    "options": ["copy", "view", "claude", "chatgpt"]
   },
   "seo": {
     "metatags": {
@@ -275,6 +175,186 @@
     {
       "source": "/guides/is-kerne-a-fit",
       "destination": "/concepts/limits"
+    },
+    {
+      "source": "/sdks/server/auth/signup",
+      "destination": "/sdks/server/authentication#sign-up"
+    },
+    {
+      "source": "/sdks/server/auth/login",
+      "destination": "/sdks/server/authentication#log-in"
+    },
+    {
+      "source": "/sdks/server/auth/refresh-token",
+      "destination": "/sdks/server/authentication#tokens"
+    },
+    {
+      "source": "/sdks/server/auth/verify-email",
+      "destination": "/sdks/server/authentication#email-verification"
+    },
+    {
+      "source": "/sdks/server/auth/password-reset",
+      "destination": "/sdks/server/authentication#passwords"
+    },
+    {
+      "source": "/sdks/server/auth/config",
+      "destination": "/sdks/server/authentication#auth-config"
+    },
+    {
+      "source": "/sdks/server/auth/handoff",
+      "destination": "/sdks/server/authentication#session-handoff"
+    },
+    {
+      "source": "/sdks/server/users/me",
+      "destination": "/sdks/server/users#current-user"
+    },
+    {
+      "source": "/sdks/server/users/get",
+      "destination": "/sdks/server/users#get-a-user"
+    },
+    {
+      "source": "/sdks/server/users/update",
+      "destination": "/sdks/server/users#update-a-user"
+    },
+    {
+      "source": "/sdks/server/entitlements/allows-enforce-check",
+      "destination": "/sdks/server/entitlements#check-access"
+    },
+    {
+      "source": "/sdks/server/entitlements/consume",
+      "destination": "/sdks/server/entitlements#consume-a-quota"
+    },
+    {
+      "source": "/sdks/server/entitlements/report-usage",
+      "destination": "/sdks/server/usage#report-usage"
+    },
+    {
+      "source": "/sdks/server/entitlements/list",
+      "destination": "/sdks/server/entitlements#list-entitlements"
+    },
+    {
+      "source": "/sdks/server/billing/subscription",
+      "destination": "/sdks/server/billing#read-subscriptions"
+    },
+    {
+      "source": "/sdks/server/billing/plans",
+      "destination": "/sdks/server/billing#list-plans"
+    },
+    {
+      "source": "/sdks/server/billing/checkout",
+      "destination": "/sdks/server/billing#start-a-checkout"
+    },
+    {
+      "source": "/sdks/server/billing/portal-and-cancel",
+      "destination": "/sdks/server/billing#cancel"
+    },
+    {
+      "source": "/sdks/server/admin/usage-corrections",
+      "destination": "/sdks/server/admin#usage-corrections"
+    },
+    {
+      "source": "/sdks/server/admin/overrides",
+      "destination": "/sdks/server/admin#overrides"
+    },
+    {
+      "source": "/sdks/server/waitlist/join",
+      "destination": "/sdks/server/waitlist-invitations#waitlist"
+    },
+    {
+      "source": "/sdks/server/waitlist/list",
+      "destination": "/sdks/server/waitlist-invitations#waitlist"
+    },
+    {
+      "source": "/sdks/server/waitlist/remove",
+      "destination": "/sdks/server/waitlist-invitations#waitlist"
+    },
+    {
+      "source": "/sdks/server/invitations/create",
+      "destination": "/sdks/server/waitlist-invitations#invite-by-email"
+    },
+    {
+      "source": "/sdks/server/invitations/list",
+      "destination": "/sdks/server/waitlist-invitations#list-and-revoke"
+    },
+    {
+      "source": "/sdks/server/invitations/validate",
+      "destination": "/sdks/server/waitlist-invitations#validate-an-invitation"
+    },
+    {
+      "source": "/sdks/server/invitations/revoke",
+      "destination": "/sdks/server/waitlist-invitations#list-and-revoke"
+    },
+    {
+      "source": "/sdks/server/request",
+      "destination": "/sdks/server/overview#direct-requests"
+    },
+    {
+      "source": "/sdks/client/overview",
+      "destination": "/sdks/client/react/overview"
+    },
+    {
+      "source": "/sdks/client/react/auth/login",
+      "destination": "/sdks/client/react/authentication#log-in-and-register"
+    },
+    {
+      "source": "/sdks/client/react/auth/register",
+      "destination": "/sdks/client/react/authentication#log-in-and-register"
+    },
+    {
+      "source": "/sdks/client/react/auth/session",
+      "destination": "/sdks/client/react/authentication#session"
+    },
+    {
+      "source": "/sdks/client/react/auth/email-verification",
+      "destination": "/sdks/client/react/authentication#email-verification"
+    },
+    {
+      "source": "/sdks/client/react/auth/password-reset",
+      "destination": "/sdks/client/react/authentication#passwords"
+    },
+    {
+      "source": "/sdks/client/react/auth/handoff",
+      "destination": "/sdks/client/react/authentication#session-handoff"
+    },
+    {
+      "source": "/sdks/client/react/billing/plans",
+      "destination": "/sdks/client/react/billing#plans"
+    },
+    {
+      "source": "/sdks/client/react/billing/check-entitlement",
+      "destination": "/sdks/client/react/entitlements#check-access"
+    },
+    {
+      "source": "/sdks/client/react/billing/entitlements-list",
+      "destination": "/sdks/client/react/entitlements#list-entitlements"
+    },
+    {
+      "source": "/sdks/client/react/billing/usage",
+      "destination": "/sdks/client/react/entitlements#read-usage"
+    },
+    {
+      "source": "/sdks/client/react/billing/checkout-and-portal",
+      "destination": "/sdks/client/react/billing#checkout"
+    },
+    {
+      "source": "/sdks/client/react/waitlist",
+      "destination": "/sdks/client/react/waitlist-invitations#waitlist"
+    },
+    {
+      "source": "/sdks/client/react/invitations",
+      "destination": "/sdks/client/react/waitlist-invitations#invitations"
+    },
+    {
+      "source": "/sdks/client/react/components",
+      "destination": "/sdks/client/react/overview#guard-components"
+    },
+    {
+      "source": "/errors",
+      "destination": "/concepts/error-codes"
+    },
+    {
+      "source": "/errors/:slug*",
+      "destination": "/concepts/error-codes"
     }
   ],
   "thumbnails": {

@@ -16,7 +16,9 @@ import { PricingTable } from '@kerne/react/ui';
 
 That's a complete pricing page: the toggle only appears if you actually sell more than one price label, and switching it animates the price rather than swapping it instantly.
 
-Clicking a plan checks out a new subscriber directly. For someone already subscribed, it opens a confirmation panel first, then swaps the plan in place (`changePlanPrice()`) instead of starting a second checkout — Stripe have no notion of "replace my existing subscription", so a fresh checkout session there would create a second, independent one rather than replacing the first. `onSelectPlan` overrides this whole flow, confirmation included, when you want your own.
+Clicking a plan sends a new customer to checkout. For someone already subscribed, it asks for confirmation, then changes the plan in place: a second checkout would create a second subscription instead of replacing the first. `onSelectPlan` replaces this whole flow, confirmation included, when you want your own.
+
+When a plan sells prepaid allowances, its card shows a slider and the buyer's choice goes to checkout (Stripe only). The slider is hidden for existing subscribers, since a prepaid amount can't change mid-subscription.
 
 ## Building your own layout
 
@@ -37,13 +39,13 @@ Clicking a plan checks out a new subscriber directly. For someone already subscr
 
 ## Reference
 
-| Prop           | On                                            | What it does                                                                                                                |
-| -------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `product`      | `<PricingTable>`                              | Which product's plans to show. Omit for your default product.                                                               |
-| `defaultLabel` | `<PricingTable>`                              | Price label selected on first render (e.g. `"annual"`). Falls back to the first one if it doesn't exist.                    |
-| `onSelectPlan` | `<PricingTable>`                              | Override the built-in checkout-or-switch flow - e.g. to show your own confirmation step first. Called with `(plan, price)`. |
-| `slug`         | `<PricingTable.Plan>`                         | Which plan to render.                                                                                                       |
-| `maxFeatures`  | `<PricingTable.Plan>`, `<PricingTable.Plans>` | Cap the entitlement list before a "+N more" line.                                                                           |
+| Prop           | On                                            | What it does                                                                                                                                            |
+| -------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `product`      | `<PricingTable>`                              | Which product's plans to show. Omit for your default product.                                                                                           |
+| `defaultLabel` | `<PricingTable>`                              | Price label selected on first render (e.g. `"annual"`). Falls back to the first one if it doesn't exist.                                                |
+| `onSelectPlan` | `<PricingTable>`                              | Replaces the built-in checkout-or-switch flow. Called with `(plan, price, drivers)`: pass `drivers` to checkout, or the buyer's prepaid choice is lost. |
+| `slug`         | `<PricingTable.Plan>`                         | Which plan to render.                                                                                                                                   |
+| `maxFeatures`  | `<PricingTable.Plan>`, `<PricingTable.Plans>` | Cap the entitlement list before a "+N more" line.                                                                                                       |
 
 ## Going fully custom
 

@@ -1,0 +1,164 @@
+---
+title: 'Billing'
+description: 'Plans, checkout, subscriptions, plan changes and cancellation'
+---
+
+In the examples, `kerne` is your secret-key client and `asUser` is `kerne.withToken(userAccessToken)`, a client that acts as one signed-in user.
+
+## List plans
+
+Your public pricing, for a pricing page. No secret key needed.
+
+```typescript
+const plans = await kerne.billing.plans(); // your default product
+const suitePlans = await kerne.billing.plans('enterprise-suite'); // a product slug or id
+```
+
+```json
+[
+  {
+    "id": "plan_...",
+    "slug": "pro",
+    "name": "Pro",
+    "is_default": false,
+    "trial_days": 14,
+    "prices": [
+      {
+        "id": "price_...",
+        "slug": "pro-monthly",
+        "amount": 2900,
+        "currency": "eur",
+        "interval": "1M",
+        "label": { "slug": "monthly", "name": "Monthly", "sort_order": 0, "display_interval": null }
+      }
+    ],
+    "entitlements": [{ "feature_key": "api_calls", "feature_type": "QUOTA", "limit": 10000 }]
+  }
+]
+```
+
+`amount` is in the currency's smallest unit (`2900` is 29.00). `interval` is a count and a unit, `D`, `M` or `Y`: `1M` is monthly, `1Y` yearly. A price's `label` groups equivalent prices across plans, such as every plan's annual price.
+
+## Find a price id
+
+```typescript
+const priceId = await kerne.billing.priceIdFor('pro'); // a plan slug
+const annualId = await kerne.billing.priceIdFor('pro', 'annual'); // plus a price label slug
+```
+
+Reads your default product. Throws a `NotFoundError` if the plan or the label doesn't exist, and a `ValidationError` if the plan has several prices and you didn't pass a label.
+
+## Start a checkout
+
+```typescript
+const { url } = await kerne.billing.checkout('pro-monthly', { customer: userId });
+// redirect the customer to url
+```
+
+Pass a **price** id or slug, not a plan id: a plan can have several prices, and a plan id fails with `PLAN_PRICE_NOT_FOUND`.
+
+<ParamField path="customer" type="string">
+  Who the subscription is for. Required with a secret key; omit it on a `withToken()` client.
+</ParamField>
+<ParamField path="email" type="string">
+  Required when the customer has no email on file. Also creates the customer if it doesn't exist.
+</ParamField>
+<ParamField path="drivers" type="{ feature_key, steps }[]">
+  Prepaid allowances the buyer chose. Stripe only. `steps` is capped at the plan's maximum.
+</ParamField>
+
+The subscription is created when the payment provider confirms payment, shortly after the customer comes back, not when this call returns.
+
+After checkout, the customer lands on your hosted portal, which sends them back to your app: to **Send users back to** if you set it, otherwise to your **Production URL**. Both are in **Settings → General**.
+
+## Embedded card checkout
+
+Stripe only. For a card form you build with Stripe.js instead of the hosted checkout page:
+
+```typescript
+// 1. A SetupIntent for your own card form: no redirect, no charge
+const { clientSecret } = await kerne.billing.createSetupIntent({ customer: userId });
+
+// 2. In the browser, confirm clientSecret with Stripe.js to get a payment method id
+
+// 3. Start the subscription with that payment method
+const subscription = await kerne.billing.createSubscriptionHeadless({
+  customer: userId,
+  planPriceId: 'pro-monthly',
+  stripePaymentMethodId: 'pm_...',
+});
+```
+
+`createSubscriptionHeadless()` requires your secret key, and Kerne checks with Stripe that the payment method belongs to this customer. Pass `email` when the customer has no email on file.
+
+<Note>
+  In CI or a seed script, pass `testCardToken: 'tok_visa'` instead of `stripePaymentMethodId`: it
+  creates a new payment method on each call. Stripe test mode only.
+</Note>
+
+## Read subscriptions
+
+```typescript
+const mine = await asUser.billing.subscription(); // a withToken() client; null if none
+const active = await kerne.billing.subscriptions.list({ customer: userId, status: 'ACTIVE' });
+const one = await kerne.billing.subscriptions.get(subscriptionId);
+const isPro = await kerne.billing.isSubscribedTo(userId, 'pro'); // ACTIVE or TRIALING
+```
+
+`list()` also filters by `productSlug`. On a `withToken()` client it only returns that user's subscriptions.
+
+```json
+{
+  "id": "sub_...",
+  "status": "ACTIVE",
+  "customer": {
+    "id": "cus_...",
+    "external_id": "user_123",
+    "email": "alice@example.com",
+    "name": "Alice"
+  },
+  "plan": { "id": "...", "slug": "pro", "name": "Pro" },
+  "plan_price": { "id": "...", "amount": 2900, "currency": "eur", "interval": "1M" },
+  "product": { "id": "...", "slug": "acme", "name": "Acme" },
+  "current_period_start": "2026-01-01T00:00:00.000Z",
+  "current_period_end": "2026-02-01T00:00:00.000Z",
+  "canceled_at": null,
+  "entitlements": [{ "feature_key": "api_calls", "feature_type": "QUOTA", "limit": 10000 }]
+}
+```
+
+`status` is `ACTIVE`, `TRIALING`, `PAST_DUE`, `CANCELED`, `UNPAID` or `PAUSED`. `PAST_DUE` keeps access unless your [payment failure policy](/concepts/monetization/products-and-plans#what-happens-when-a-payment-fails-or-they-cancel) ends it; `UNPAID` ends it.
+
+## Change plan
+
+```typescript
+await kerne.billing.subscriptions.changePlanPrice(subscriptionId, 'business-monthly');
+
+// Charge the new price from the next invoice, without proration
+await kerne.billing.subscriptions.changePlanPrice(subscriptionId, 'business-monthly', {
+  prorationBehavior: 'none',
+});
+```
+
+Takes a price id or slug. The change applies immediately, upgrade or downgrade, and the provider prorates by default. The subscription moves to the new plan's current offer version. Scheduling a downgrade for the end of the period isn't supported yet.
+
+## Cancel
+
+```typescript
+await asUser.billing.cancel(); // a withToken() client: the user's own subscription
+await kerne.billing.subscriptions.cancel(subscriptionId); // any subscription
+await kerne.billing.subscriptions.cancel(subscriptionId, true); // end it now
+```
+
+By default access continues until the paid period ends: `canceled_at` is set now, and `status` becomes `CANCELED` at the end of the period. Cancelling immediately sets both now. Either way the payment provider is told first, so no further invoice goes out, and the subscription is kept for history.
+
+`billing.cancel()` throws a `NotFoundError` (`NO_ACTIVE_SUBSCRIPTION`) when the user has no subscription.
+
+## Billing portal
+
+```typescript
+const { url } = await asUser.billing.portal(); // a withToken() client
+const { url: customerUrl } = await kerne.billing.portal({ customer: userId }); // with your secret key
+```
+
+The payment provider's page, where the customer updates their payment method, downloads invoices and manages their plan. They come back through your hosted portal, like after checkout.

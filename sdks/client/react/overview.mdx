@@ -1,22 +1,21 @@
 ---
-title: "Overview"
-description: "Getting started with @kerne/react"
+title: 'React SDK'
+sidebarTitle: 'Overview'
+description: '@kerne/react, for your frontend'
 ---
 
-`@kerne/react` manages session state (login, token refresh) and gives you hooks/components to gate UI on entitlements - it never holds a secret key, and never touches the catalog.
+`@kerne/react` manages the signed-in user's session and adapts your UI to what they can access. It never holds a secret key: every call acts as the signed-in user, on their own data. It works in any React app.
 
-## Installation
+## Install
 
 ```bash
 npm install @kerne/react
 ```
 
-## Initialization
-
 ```tsx
 import { KerneProvider } from '@kerne/react';
 
-function Root() {
+export function Root() {
   return (
     <KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID!}>
       <App />
@@ -25,34 +24,74 @@ function Root() {
 }
 ```
 
-`KerneProvider` only ever takes `appId` - never a secret key. Session refresh is automatic (`autoRefresh`, default `true`) - see [Session](/sdks/client/react/auth/session).
+<ParamField path="appId" type="string" required>
+  Your project's app id.
+</ParamField>
+<ParamField path="autoRefresh" type="boolean" default="true">
+  Refresh the session before it expires.
+</ParamField>
+<ParamField path="refreshBuffer" type="number" default="60">
+  How many seconds before expiry to refresh.
+</ParamField>
+<ParamField path="onAuthChange" type="(user) => void">
+  Called when the user signs in or out.
+</ParamField>
+<ParamField path="onHandoffError" type="(error) => void">
+  A sign-in coming from your hosted portal couldn't be completed. See [Session
+  handoff](/sdks/client/react/authentication#session-handoff).
+</ParamField>
+<ParamField path="appearance" type="KerneAppearance">
+  Styling for every prebuilt component. See [Styling & language](/sdks/client/react/ui/theming).
+</ParamField>
+<ParamField path="localization" type="object">
+  Text overrides for the prebuilt components.
+</ParamField>
+<ParamField path="baseUrl" type="string" default="https://api.kerne.io" />
 
-## Core hooks
+## Hooks and components
 
-- **`useAuth()`** - the logged-in user, and every auth action (login/register/logout/password/verification). Also `redirectWithSession(url)`, for handing the session back to your app from Kerne's hosted auth origin - see [Handoff](/sdks/client/react/auth/handoff). See [Login](/sdks/client/react/auth/login).
-- **`useAuthConfig()`** - the tenant's public auth config (`enable_credentials`, `enable_magic_link`, `registration_mode`, branding). The prebuilt forms read it to decide what to render; a custom auth UI must read the same thing. See [Auth config](/sdks/server/auth/config#building-a-custom-auth-ui).
-- **`useAccess(featureKey)`** - `{ allowed, details, isLoading, error }` for one feature, already scoped to the logged-in user (no need to pass one). `allowed` is the go/no-go; `details` carries the detail (`limit`/`used`/`remaining`/`overage_behavior`) when you want to show *how much* is left. One request either way. See [Check an entitlement](/sdks/client/react/billing/check-entitlement).
-- **`useEntitlements()`** - the whole entitlement list for a "your plan" screen. It has **no per-feature `allowed` field** (the list is cached) - never gate on it; use `useAccess` for that. See [List entitlements](/sdks/client/react/billing/entitlements-list).
-- **`useCheckout()`** / **`usePortal()`** - start a checkout session, or open the billing portal. Redirect flows only. See [Checkout & portal](/sdks/client/react/billing/checkout-and-portal).
-- **`useSubscription()`** / **`useUser()`** - reactive reads of the caller's own subscription/profile.
-- **`useClient()`** - the underlying `KerneClient` instance, for anything not covered by the hooks above.
+| Hooks and components                                                                                                                      | Page                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `useAuth`, `useUser`, `useAuthConfig`, `<Authenticated>`, `<Unauthenticated>`, `<AuthLoading>`                                            | [Authentication](/sdks/client/react/authentication)               |
+| `useAccess`, `<Access>`, `useEntitlements`, `useUsage`, `useReportUsage`                                                                  | [Entitlements & usage](/sdks/client/react/entitlements)           |
+| `usePlans`, `useCheckout`, `usePortal`, `useSubscription`, `useChangePlan`, `useCancelSubscription`, `usePlanSwitch`, `<HasSubscription>` | [Billing](/sdks/client/react/billing)                             |
+| `useWaitlist`, `useInvitation`                                                                                                            | [Waitlist & invitations](/sdks/client/react/waitlist-invitations) |
+| `useClient`                                                                                                                               | The underlying client, for calls made on demand                   |
 
-## Gating a feature
+Ready-made sign-in, account and pricing screens are in `@kerne/react/ui`: see [Prebuilt screens](/sdks/client/react/ui/overview).
 
-The guard components (`<Access>`, `<Authenticated>`, `<Protected>`, ...) wrap the same hooks so you don't hand-roll loading/error state yourself - see [Guard components](/sdks/client/react/components):
+## Guard components
+
+`<Protected>` requires a session, a feature, or both:
 
 ```tsx
-import { Access } from '@kerne/react';
+import { Protected } from '@kerne/react';
 
-function ExportButton() {
-  return (
-    <Access featureKey="export_pdf" fallback={<p>Upgrade your plan to use this.</p>}>
-      <button>Export Data</button>
-    </Access>
-  );
-}
+<Protected auth featureKey="export_pdf" authFallback={<SignIn />} billingFallback={<Upgrade />}>
+  <ExportPanel />
+</Protected>;
 ```
 
-## What this SDK does not do
+The single-purpose guards are with their hooks: [`<Authenticated>`](/sdks/client/react/authentication#session), [`<Access>`](/sdks/client/react/entitlements#access-guard) and [`<HasSubscription>`](/sdks/client/react/billing#subscription).
 
-There's no `consume()` here on purpose - a quota check enforced only in the browser is trivially bypassed. Commit usage from your backend (`@kerne/server`'s [`consume()`](/sdks/server/entitlements/consume)), and use this SDK only to reflect the result in your UI.
+## Error boundary
+
+```tsx
+import { KerneErrorBoundary } from '@kerne/react';
+
+<KerneErrorBoundary
+  fallback={(error, reset) => (
+    <p>
+      {error.message} <button onClick={reset}>Try again</button>
+    </p>
+  )}
+>
+  <App />
+</KerneErrorBoundary>;
+```
+
+`error.code` is set when the error came from the Kerne API.
+
+## Browser checks are for display
+
+The browser runs on the user's machine, so anything it checks or records can be skipped. Use this SDK to adapt your UI, and check access or record usage from your backend with [`@kerne/server`](/sdks/server/overview) for anything you enforce or bill.

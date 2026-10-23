@@ -34,6 +34,8 @@ Or per instance, with `appearance`:
 />
 ```
 
+To style every screen at once, set `appearance` on `KerneProvider`; a component's own `appearance` still wins, field by field.
+
 `primaryColor` is usually the only one you need. From it the screens also derive the label on the primary button, its hover, and the accent used for focus rings and links — so a light brand color gets a dark label instead of an unreadable white one, and a branded button no longer turns grey under the cursor. Override any of those with `primaryTextColor` and `accentColor` when you want something else.
 
 `appearance` accepts `primaryColor`, `primaryTextColor`, `accentColor`, `textColor`, `borderColor`, `panelColor`, `background`, `surfaceColor`, `surface`, `fontFamily`, `radius`, `controlHeight`, and `theme`.

@@ -1,0 +1,99 @@
+---
+title: 'Entitlements & usage'
+description: 'Adapt your UI to what the signed-in user can access'
+---
+
+These act on the signed-in user's own customer, so there's no `customer` parameter.
+
+## Check access
+
+```tsx
+import { useAccess } from '@kerne/react';
+
+function ExportButton() {
+  const { allowed, isLoading } = useAccess('export_pdf');
+
+  if (isLoading) return <Spinner />;
+  return allowed ? <button onClick={exportPdf}>Export</button> : <Upgrade />;
+}
+```
+
+`useAccess(featureKey, requested?)` returns `{ allowed, details, isLoading, error }`. `details` is the full [check result](/sdks/server/entitlements#read-the-result), from the same request:
+
+```tsx
+const { details } = useAccess('api_calls');
+// details.limit, details.used, details.remaining, details.overage_behavior
+```
+
+Pass `requested` to ask whether that many more units are available: `useAccess('api_calls', 5)`.
+
+<Note>
+  When a quota's overage is billed or allowed, `remaining` goes negative while `allowed` stays
+  `true`. Check `details.overage_behavior` before showing "limit reached".
+</Note>
+
+## Access guard
+
+```tsx
+import { Access } from '@kerne/react';
+
+<Access featureKey="export_pdf" fallback={<Upgrade />}>
+  <ExportButton />
+</Access>
+
+<Access featureKey="ai_credits" requested={5} fallback={<Upgrade />}>
+  <BatchButton count={5} />
+</Access>
+```
+
+There's no guard on a plan name: gate on the feature, so renaming or restructuring a plan doesn't break it.
+
+## List entitlements
+
+```tsx
+import { useEntitlements } from '@kerne/react';
+
+const { entitlements, isLoading } = useEntitlements();
+// entitlements.plan_slug, entitlements.subscription_status, entitlements.entitlements
+```
+
+For a "your plan" screen. Entries have no `allowed` field and can be up to 60 seconds old: gate with `useAccess()`.
+
+## Read usage
+
+```tsx
+import { useUsage } from '@kerne/react';
+
+const { usage, isLoading } = useUsage('api_calls'); // omit the key for every quota
+// [{ feature_key, value, period_start, period_end, ... }]
+```
+
+The raw counter. For `limit` and `remaining`, use `useAccess()`.
+
+## Record usage
+
+```tsx
+import { useReportUsage } from '@kerne/react';
+
+const { consume, report, reportBatch } = useReportUsage();
+
+await consume('exports', { delta: 1 }); // checks the quota, then records
+await report('exports', { delta: 1 }); // records without a check
+await reportBatch([{ featureKey: 'exports', delta: 1 }]); // up to 100 events
+```
+
+These run in the browser, where the user can skip them. For usage you bill or enforce, call [`consume()`](/sdks/server/entitlements#consume-a-quota) from your backend.
+
+## Check on demand
+
+`useAccess()` checks when the component mounts. To check on a click instead, use the client:
+
+```tsx
+import { useClient } from '@kerne/react';
+
+const client = useClient();
+const allowed = await client.allows('export_pdf');
+const check = await client.check('api_calls', 5);
+```
+
+`client.allows()` returns `false` for a denial and throws on a real error, such as a 401 or a 500.

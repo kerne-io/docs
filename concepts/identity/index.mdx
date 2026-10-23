@@ -12,7 +12,7 @@ The two are linked automatically for anyone who signs up through Kerne's own aut
 
 If you run your own auth (Clerk, Supabase, your own backend) instead, or you bill a company rather than a person, there may be no matching `User` at all, and that's fine — a customer doesn't require one. Pick any string as its `external_id` (your own user id, an org id) and pass it as `customer`.
 
-Whether Kerne creates that record for you depends on which call names it first: [`checkout()`](/sdks/server/billing/checkout) creates one if you pass `email` alongside it; a granted [override](/sdks/server/admin/overrides) or `kerne.customers.upsert()` creates one unconditionally; [`consume()`](/sdks/server/entitlements/consume) never does — an unknown id there is rejected, not created. A read (`allows()`, `check()`) on an unknown one never creates a row either, it just falls back to your default plan. When in doubt, call `kerne.customers.upsert()` first — see [Customers](/sdks/server/overview#customers).
+Whether Kerne creates that record for you depends on which call names it first: [`checkout()`](/sdks/server/billing#start-a-checkout) creates one if you pass `email` alongside it; a granted [override](/sdks/server/admin#overrides) or `kerne.customers.upsert()` creates one unconditionally; [`consume()`](/sdks/server/entitlements#consume-a-quota) never does — an unknown id there is rejected, not created. A read (`allows()`, `check()`) on an unknown one never creates a row either, it just falls back to your default plan. When in doubt, call `kerne.customers.upsert()` first — see [Customers](/sdks/server/overview#customers).
 
 ## Signing in
 

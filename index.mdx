@@ -14,9 +14,15 @@ Kerne keeps the rules between what a customer bought and what your application l
 Every commercial decision eventually lands in a source file:
 
 ```typescript
-if (user.plan === 'pro') { /* ... */ }
-if (subscription.status === 'active') { /* ... */ }
-if (usage < 10_000) { /* ... */ }
+if (user.plan === 'pro' || user.plan === 'enterprise') {
+  /* ... */
+}
+if (subscription.status === 'active') {
+  /* ... */
+}
+if (usage < 10_000) {
+  /* ... */
+}
 ```
 
 Each of those is a business rule written somewhere you have to redeploy to change. And there is never just one of them — they spread across services, drift apart, and quietly disagree.
@@ -50,7 +56,11 @@ if (await kerne.allows('export_pdf', { customer: userId })) {
 ## What Kerne handles
 
 <CardGroup cols={2}>
-  <Card title="Change your offers" icon="clock-rotate-left" href="/concepts/monetization/products-and-plans">
+  <Card
+    title="Change your offers"
+    icon="clock-rotate-left"
+    href="/concepts/monetization/products-and-plans"
+  >
     Publish a new version of what you sell without silently changing the terms of customers who
     already bought the old one.
   </Card>
@@ -88,6 +98,7 @@ if (await kerne.allows('export_pdf', { customer: userId })) {
     two years ago.
 
     That's the abstraction worth having.
+
   </Step>
 </Steps>
 

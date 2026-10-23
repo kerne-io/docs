@@ -85,4 +85,4 @@ The message follows the reason. Someone who ran out of a monthly quota sees a di
 <CheckoutResult outcome="success" continueUrl="/dashboard" />
 ```
 
-It confirms the subscription really exists before saying so. Coming back from Stripe only means the payment went through on the provider' side — the subscription lands a moment later, over a webhook. This waits for it instead of announcing a success the rest of your app cannot see yet.
+It confirms the subscription really exists before saying so. Coming back from Stripe only means the payment went through on Stripe's side; the subscription arrives a moment later. This waits for it instead of announcing a success the rest of your app can't see yet.

@@ -1,0 +1,138 @@
+---
+title: 'Authentication'
+description: 'Session, sign-in, magic links, email verification, passwords and handoff'
+---
+
+## Session
+
+```tsx
+import { useAuth } from '@kerne/react';
+
+function Account() {
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
+  if (isLoading) return <Spinner />;
+  if (!isAuthenticated) return <SignIn />;
+  return <button onClick={logout}>Sign out {user?.email}</button>;
+}
+```
+
+| From `useAuth()`                                   | Does                                                                            |
+| -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `user`                                             | The full profile (`id`, `email`, `email_verified`, `first_name`, ...) or `null` |
+| `isAuthenticated`, `isLoading`                     | `isLoading` is `true` while the stored session loads                            |
+| `logout()`                                         | Clears the session in this browser                                              |
+| `refreshUser()`                                    | Reloads `user`                                                                  |
+| `updateProfile({ first_name, last_name })`         | Updates the profile                                                             |
+| `updatePassword({ currentPassword, newPassword })` | Changes the password                                                            |
+| `requestAccountDeletion()`                         | Deactivates the account. Its data is kept.                                      |
+
+The session refreshes itself before it expires. `useUser()` returns the same profile with `fullName`, `initials` and `update()`.
+
+```tsx
+import { Authenticated, Unauthenticated, AuthLoading } from '@kerne/react';
+
+<AuthLoading><Spinner /></AuthLoading>
+<Authenticated fallback={<SignIn />}><Dashboard /></Authenticated>
+<Unauthenticated><SignIn /></Unauthenticated>
+```
+
+`<Authenticated>` shows its `fallback` while the session is loading too. Check `isLoading` yourself if that flash matters.
+
+## Log in and register
+
+```tsx
+const { login, register } = useAuth();
+
+await login({ email, password });
+await register({ email, password, name: 'Alice Doe' }); // split into first and last name
+```
+
+Read the profile from `useAuth().user`, which loads right after. On an invite-only project, pass `invitationToken` or `invitationCode` to `register()`, once you've [validated it](/sdks/client/react/waitlist-invitations#invitations).
+
+| Code    | Meaning                                                             |
+| ------- | ------------------------------------------------------------------- |
+| `K1001` | Sign-up refused: closed, no valid invitation, or user limit reached |
+| `K1005` | Wrong email or password                                             |
+| `K1008` | Email already registered                                            |
+| `K1010` | Password too weak                                                   |
+| `K3002` | Account deactivated                                                 |
+
+## Magic link
+
+```tsx
+const { startPasswordless, loginWithMagicLink } = useAuth();
+
+await startPasswordless(email); // always resolves
+await loginWithMagicLink(tokenFromLink); // on the page the link opens
+```
+
+On an invite-only project, pass `{ invitationToken }` or `{ invitationCode }` as the second argument of `startPasswordless()`.
+
+## Email verification
+
+```tsx
+const { sendVerificationEmail, verifyEmailWithCode, verifyEmailWithLink, getVerificationStatus } =
+  useAuth();
+
+await sendVerificationEmail();
+const { needsTokenRefresh } = await verifyEmailWithCode('483920');
+await verifyEmailWithLink(tokenFromLink); // on the page the link opens
+```
+
+`sendVerificationEmail()` throws if called again within 60 seconds: disable the button while it's pending.
+
+## Passwords
+
+```tsx
+const { requestPasswordReset, confirmPasswordReset, updatePassword } = useAuth();
+
+await requestPasswordReset(email); // signed out; always resolves
+await confirmPasswordReset(tokenFromLink, newPassword); // on the page the reset link opens
+await updatePassword({ currentPassword, newPassword }); // signed in
+```
+
+## Account activation
+
+```tsx
+const { getActivationContext, completeActivation } = useAuth();
+
+const { mode } = await getActivationContext(token); // 'credentials' | 'magic-link'
+await completeActivation(token, mode === 'credentials' ? password : undefined);
+```
+
+`completeActivation()` signs the user in.
+
+## Auth config
+
+```tsx
+import { useAuthConfig } from '@kerne/react';
+
+const { config, isLoading } = useAuthConfig();
+```
+
+Your project's sign-in settings: which methods are on, the registration mode, the password policy, branding. Build a custom sign-in screen from it. Fields: [Auth config](/sdks/server/authentication#auth-config).
+
+## Session handoff
+
+Users who sign in on your hosted portal come back to your app with a one-time code in the URL. `KerneProvider` exchanges it for a session on load and removes it from the URL. There's nothing to wire, but handle a failure, or the user arrives signed out with no explanation:
+
+```tsx
+<KerneProvider
+  appId="your-app-id"
+  onHandoffError={() => toast.error('This sign-in link has expired. Please sign in again.')}
+>
+  {children}
+</KerneProvider>
+```
+
+The exchange fails when the code was already used or is older than 60 seconds, or when **Settings → API keys → Allowed domains** lists domains and yours isn't one of them.
+
+To send a session from a sign-in page on another domain of yours, use `redirectWithSession()`. It adds the code to the URL, never the token:
+
+```tsx
+const { login, redirectWithSession } = useAuth();
+
+await login({ email, password });
+await redirectWithSession('https://app.example.com/dashboard');
+```

@@ -4,11 +4,13 @@ sidebarTitle: 'Meters & usage'
 description: 'Flat, metered, and what a meter actually measures'
 ---
 
-There are two ways to charge for something, and most products use both.
+There are three ways to charge for something, and most products mix them.
 
 **Flat** — a fixed amount per period. The customer pays 20 € a month and gets what the tier includes. Nothing is counted.
 
 **Metered** — the amount depends on what they used. 0.35 € per hour of machine time, 2 € per million tokens, 0.04 € per SMS. Something has to be counted, and that something is a **meter**.
+
+**Prepaid** — the customer picks how much they want at checkout, in packs: 10,000 credits per pack, up to 5. They pay for it every period, and it adds to what the plan includes. It's set on a plan under **Extras at checkout**, Stripe only.
 
 A tier can mix them freely: a flat base fee, three features that are simply on or off, one allowance that stops dead when it runs out, and one that keeps serving and charges for the excess.
 
@@ -28,7 +30,7 @@ Your backend does the counting with one call:
 await kerne.consume('cutter_minutes', { customer: customerId, delta: 60 });
 ```
 
-That checks the allowance and commits the increment in one atomic step, so concurrent requests can't both slip past a limit. See [`consume()`](/sdks/server/entitlements/consume).
+That checks the allowance and commits the increment in one atomic step, so concurrent requests can't both slip past a limit. See [`consume()`](/sdks/server/entitlements#consume-a-quota).
 
 ## The rate
 
@@ -55,6 +57,8 @@ Add a tier — "past 10,000 units, 4.00 EUR per 1,000" — then say what a tier 
 | **at whatever rate the total reaches** | 80.00 EUR — the reached rate reprices the lot       |
 
 Nothing here assumes the rate falls as usage grows. Volume discounts and congestion pricing are both real offers; a tier just says what applies past a point, in either direction.
+
+Prepaid packs use the same pricing model: the packs a customer buys are the quantity.
 
 <Note>
   The two questions combine. "0.35 EUR per 60 minutes, every started hour whole, dropping to 0.28
@@ -107,7 +111,7 @@ The reason is simple: a spending cap is a promise you made about _your invoice_.
 
 ## What you see
 
-The **Usage billing** screen shows every subscriber on a metered entitlement: consumed, billable, already charged, and room left under the cap. Two states are worth watching for:
+**Subscriptions → Usage billing** shows every subscriber billed for usage: consumed, billable, already charged, and room left under the cap. Two states are worth watching for:
 
 - **Capped** — still consuming, no longer charged. Working as designed, but you want to know.
 - **Not billing** — the provider is refusing this entitlement's usage (its price was archived, its meter turned off). Access still works, revenue is silently zero.

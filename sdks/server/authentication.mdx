@@ -1,0 +1,143 @@
+---
+title: 'Authentication'
+description: 'Sign-up, login, magic links, tokens, email verification and passwords'
+---
+
+Sign-up, login, magic links and token refreshes all return the same session:
+
+```typescript
+{ token, refresh_token, expires_at, user: { id, email, role } }
+```
+
+`token` is the access token, valid until `expires_at`. `user` is a minimal summary; get the full profile with [`users.get()`](/sdks/server/users#get-a-user). In the examples, `asUser` is `kerne.withToken(accessToken)`, a client that acts as the signed-in user.
+
+## Sign up
+
+```typescript
+const session = await kerne.auth.signup({
+  email: 'alice@company.com',
+  password: 'a-strong-password',
+  first_name: 'Alice', // optional
+  last_name: 'Doe', // optional
+});
+```
+
+Whether it succeeds depends on your [registration mode](/concepts/identity/registration-modes). On an invite-only project, add `invitationToken` or `invitationCode`.
+
+## Log in
+
+```typescript
+const session = await kerne.auth.login({ email, password });
+```
+
+Handle `K1005` (wrong email or password), `K1011` (email not verified, when your project requires it) and `K3002` (account deactivated).
+
+## Magic link
+
+```typescript
+await kerne.auth.startPasswordless('alice@company.com');
+
+// On the page the emailed link opens, with its token query parameter
+const session = await kerne.auth.loginWithMagicLink(token);
+```
+
+`startPasswordless()` always resolves, whether or not the email has an account. It creates the account when your registration mode allows it; on an invite-only project, pass `{ invitationToken }` or `{ invitationCode }` as a second argument. The link works once, for 15 minutes. Turn magic links on in **Settings → Authentication**.
+
+## Tokens
+
+```typescript
+const session = await kerne.auth.refreshToken({ refresh_token: storedRefreshToken });
+```
+
+Pass the `refresh_token` from the last session, not the access token: an access token is rejected.
+
+`login()`, `refreshToken()` and `loginWithMagicLink()` all call `auth.token()`, which accepts `grant_type: 'password' | 'refresh_token' | 'magic_link'` directly.
+
+## Email verification
+
+The verification email contains a code, a link, or both, depending on your project settings.
+
+```typescript
+await asUser.auth.sendVerificationEmail();
+const { success, needsTokenRefresh } = await asUser.auth.verifyEmailWithCode('483920');
+const { emailVerified, needsVerification, email } = await asUser.auth.getVerificationStatus();
+
+// On the page the emailed link opens: public, no session needed
+await kerne.auth.verifyEmailWithLink(tokenFromLink);
+```
+
+Calling `sendVerificationEmail()` again on the same client within 60 seconds throws a `RateLimitError`. When `needsTokenRefresh` is `true`, refresh the session so the token's `email_verified` claim is up to date. `verifyEmail(token)` is an older single-token variant, kept for compatibility.
+
+## Passwords
+
+```typescript
+// Forgot password: always resolves, whether or not the email has an account
+await kerne.auth.requestPasswordReset('alice@company.com');
+await kerne.auth.confirmPasswordReset(tokenFromEmail, 'a-new-strong-password');
+
+// Change the signed-in user's password
+await asUser.auth.changePassword({ currentPassword, newPassword });
+```
+
+## Account activation
+
+An account created for someone else, or by a magic-link sign-up, is activated from an emailed link:
+
+```typescript
+const { email, mode } = await kerne.auth.getActivationContext(token); // 'credentials' | 'magic-link'
+const session = await kerne.auth.completeActivation(token, password); // omit password in magic-link mode
+```
+
+`getActivationContext()` doesn't use up the token. `completeActivation()` signs the user in.
+
+To deactivate the signed-in user's own account, call `asUser.auth.requestAccountDeletion()`. Their data is kept.
+
+## Auth config
+
+Your project's public sign-in settings, for building your own sign-in screens. No secret key needed.
+
+```typescript
+const config = await kerne.auth.config();
+```
+
+```json
+{
+  "registration_mode": "OPEN",
+  "enable_credentials": true,
+  "enable_magic_link": false,
+  "user_registration_limit": null,
+  "password_policy": {
+    "min_length": 8,
+    "require_uppercase": false,
+    "require_number": false,
+    "require_symbol": false
+  },
+  "app_name": "Acme",
+  "brand_primary_color": null,
+  "brand_logo_url": null,
+  "show_kerne_branding": true,
+  "portal_url": null,
+  "portal_redirect_url": null,
+  "post_auth_redirect_url": null,
+  "oauth_providers": []
+}
+```
+
+Render your screens from it: the password form only if `enable_credentials`, the magic link option only if `enable_magic_link`, and password rules from `password_policy`, which is what the server enforces. `portal_url` is your hosted sign-in portal, and `post_auth_redirect_url` is where it sends users back. `oauth_providers` is always empty: social sign-in isn't available.
+
+The response is cached for up to an hour.
+
+## Session handoff
+
+Your hosted portal runs on its own domain, so a session created there isn't visible to your app. A handoff code carries it across without putting a token in a URL:
+
+```typescript
+// Where the user is signed in
+const { code } = await asUser.auth.handoff();
+// redirect to `${appUrl}?kerne_handoff=${code}`
+
+// In your app: public, the code is the credential
+const session = await kerne.auth.exchangeHandoff(code);
+```
+
+A code works once, for 60 seconds. `@kerne/react` does both steps for you: see [Session handoff](/sdks/client/react/authentication#session-handoff).

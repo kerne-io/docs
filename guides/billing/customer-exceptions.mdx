@@ -5,26 +5,30 @@ description: 'Different limits for one customer, without touching your catalog'
 
 A customer negotiates a limit nobody else gets. Another needs a temporary bump while you fix something. A third deserves a credit after an outage.
 
-None of these should become a plan. Use an [override](/concepts/monetization/overrides) and your existing checks start answering correctly for that one customer.
+None of these should become a plan. Give that customer an exception, and your existing checks answer correctly for them. The API calls it an [override](/concepts/monetization/overrides).
+
+## From the dashboard
+
+Open **Customers**, pick the customer, then the **Exceptions** tab, and click **New exception**. An exception replaces what their plan gives them on one feature. It doesn't add to it.
 
 ## A negotiated limit
 
-The common case: an annual contract with terms your public pricing doesn't offer.
+From your backend, for an annual contract with terms your public pricing doesn't offer:
 
 ```typescript
 await kerne.admin.grant('api_calls', {
   customer: userId,
   value: '50000',
-  reason: 'Annual contract - negotiated limit',
-  expiresAt: '2027-01-01T00:00:00.000Z', // omit for permanent
+  reason: 'Annual contract',
+  expiresAt: '2027-01-01T00:00:00.000Z', // omit for no end date
 });
 ```
 
-This replaces their limit and renews every period like the plan's own would. Set `expiresAt` to the contract end date and it stops applying on its own — worth doing, so an expired deal doesn't quietly outlive the contract.
+This replaces their limit, and renews every period like the plan's own would. Set `expiresAt` to the contract's end date, so the deal doesn't quietly outlive it.
 
-## A temporary bump on one counter
+## A bump on one counter
 
-On a feature counted per machine, per project or per seat, you can move a single counter and leave the rest on the plan's limit:
+On a feature counted per machine, per project or per seat, you can change one counter and leave the rest on the plan's limit:
 
 ```typescript
 await kerne.admin.grant('machine_minutes', {
@@ -35,43 +39,43 @@ await kerne.admin.grant('machine_minutes', {
 });
 ```
 
-Overrides stack most-specific-first, so "every machine to 3h, except this one at 5h" is two grants rather than one per machine.
+The most specific exception wins, so "every machine at 3 hours, this one at 5" is two grants, not one per machine.
 
 ## A one-time credit
 
-This is the one people get wrong. A refund is **not** a limit change — raising their limit would hand them the same gift every period, forever.
+This is the one people get wrong. A refund is **not** a limit change: raising their limit would give them the same gift every period.
 
 ```typescript
 await kerne.admin.adjustUsage('api_calls', { customer: userId, delta: -5000 });
 ```
 
-That moves the counter once. Pass an `idempotencyKey` if the call might be retried.
+That moves their counter once. Pass an `idempotencyKey` if the call might be retried.
 
 ## Cleaning up
 
 ```typescript
 const grants = await kerne.admin.listGrants(userId);
-await kerne.admin.revokeGrant(overrideId);
+await kerne.admin.revokeGrant(grants[0].id);
 ```
 
-Expired overrides stay in the list rather than vanishing, so you keep a record of what was promised to whom.
+Expired exceptions stay in the list, so you keep a record of what was promised to whom.
 
 <Warning>
-  Everything under `kerne.admin` requires your secret key. Never call these from a request an end user
-  initiated — see [Admin access](/concepts/identity/admin-access).
+  `kerne.admin` needs your secret key. Call it from your back office, never from a request an end
+  user controls. Exceptions also need to be on your Kerne plan, or `grant()` fails with `K5002`.
 </Warning>
 
-## What an override won't do
+## What an exception won't do
 
-It moves the limit, not the behavior. Whether passing that limit blocks, is tolerated, or gets charged is always read from the plan. If you need a different *behavior* for one customer, that's a plan difference, not an override.
+It changes the limit, not what happens past it. Whether going over stops, stays free or gets billed is always read from the plan. A different behavior for one customer means a different plan.
 
 ## Next
 
 <CardGroup cols={2}>
   <Card title="Overrides" icon="user-pen" href="/concepts/monetization/overrides">
-    The concept, and how overrides resolve.
+    How exceptions resolve against the plan.
   </Card>
-  <Card title="Overrides reference" icon="code" href="/sdks/server/admin/overrides">
-    Every option on `grant` / `listGrants` / `revokeGrant`.
+  <Card title="Admin reference" icon="code" href="/sdks/server/admin#overrides">
+    Every option on `grant()`, `listGrants()` and `revokeGrant()`.
   </Card>
 </CardGroup>

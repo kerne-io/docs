@@ -51,9 +51,9 @@ Which comes back as one of three things, depending on what you asked for:
 
 | | Hands back | Use it for |
 | --- | --- | --- |
-| [`allows()`](/sdks/server/entitlements/allows-enforce-check) | `true` / `false` | The common case: gate an action |
-| [`check()`](/sdks/server/entitlements/allows-enforce-check) | the whole picture — limit, used, remaining, why | Showing the customer where they stand |
-| [`consume()`](/sdks/server/entitlements/consume) | the same, after counting the usage | When the action *is* the thing being metered |
+| [`allows()`](/sdks/server/entitlements#check-access) | `true` / `false` | The common case: gate an action |
+| [`check()`](/sdks/server/entitlements#check-access) | the whole picture — limit, used, remaining, why | Showing the customer where they stand |
+| [`consume()`](/sdks/server/entitlements#consume-a-quota) | the same, after counting the usage | When the action *is* the thing being metered |
 
 The point isn't the shape of the call. It's that the answer changes when your pricing changes, when a customer upgrades, when a payment fails, or when you grant someone an exception — and none of those events touch your code.
 

@@ -1,145 +1,101 @@
 ---
 title: 'Add usage-based pricing'
 sidebarTitle: 'Add usage-based pricing'
-description: "From a blank feature to a line on the customer's invoice"
+description: "From a new feature to a line on the customer's invoice"
 ---
 
-This walkthrough builds one metered feature from zero: define it, put it on a plan, charge past the included amount, count usage from your backend, and see what reaches the invoice.
+This walkthrough builds one billed feature from scratch. The example is a makerspace that rents laser cutters:
 
-The example product is a **makerspace that rents laser cutters**:
+> 0 minutes included · **0.35 € per started hour** · never more than **120 € per customer per billing cycle**.
 
-> 0 included minutes · **0.35 € per started hour** · never more than **120 € per customer per billing cycle**.
+Swap the numbers for tokens, emails or gigabytes: the steps are the same.
 
-Swap the numbers for tokens, messages, or seats — the shape stays the same.
-
-## What you will have at the end
-
-1. A quota feature `cutter_minutes`
-2. A plan that grants `0` minutes and bills overage
-3. A rate written the way you sell it (`0.35 EUR per 60 minutes`)
-4. A spending cap of `120 EUR`
-5. Backend calls that count usage safely
-6. Visibility on the **Metered usage** screen in the dashboard
-
-## Prerequisites
-
-- A Kerne app with Stripe connected
-- `@kerne/server` on your backend
-- Ability to open the Kerne dashboard (Pricing editor)
+You need Stripe connected (see [Connect your billing provider](/guides/getting-started/subscription-setup)) and a plan other than **Default**: the plan new customers land on can't bill usage.
 
 ## 1. Create the feature
 
-In the dashboard → your product → **Features**:
+In **Catalog**, open your product, click **+ feature** and choose **QUOTA**. Open the new feature and set:
 
-| Field      | Value               |
-| ---------- | ------------------- |
-| Name       | Laser cutter time   |
-| Key        | `cutter_minutes`    |
-| Type       | Quota               |
-| Unit label | `minute`            |
-| Renews     | Every billing cycle |
+| Field        | Value             |
+| ------------ | ----------------- |
+| Feature name | Laser cutter time |
+| Key          | `cutter_minutes`  |
+| Renews       | cycle             |
+| Units        | `minute`          |
 
-Use the **smallest unit you bill** (minutes, not hours). Kerne counts whole numbers; a fractional hour has nowhere to go.
+Count in the smallest unit you bill: minutes, not hours. Counts are whole numbers, so a fraction of an hour has nowhere to go.
 
-Leave **dimension** empty for a single pool per customer — see [per machine, per project, per seat](/concepts/monetization/usage-billing#per-machine-per-project-per-seat) if each machine should have its own.
+Leave the dimension after **Units** empty for one pool per customer. To count each machine separately, name one (`minute` per `cutter`): see [per machine, per project, per seat](/concepts/monetization/usage-billing#per-machine-per-project-per-seat).
 
 ## 2. Put it on a plan
 
-Open the **Pricing editor** for that product.
+Click the feature's cell in your plan's column, then:
 
-1. Select the plan (e.g. Pay-as-you-go).
-2. Find the `cutter_minutes` row.
-3. Set **included** to `0`.
-4. Under **Past the allowance**, choose **Bill it**.
-5. Write the rate as you sell it:
-   - Amount: `0.35`
-   - Currency: `EUR`
-   - Per: `60` minutes
-   - Partial block: **rounded up** (a started hour counts whole)
+1. Set the allowance to `0`.
+2. Under **Past the allowance**, choose **Bill it**.
+3. Set **Units billed together** to `60`, and **Partial usage** to **rounded up**: a started hour counts whole.
+4. Under **Pricing model**, keep **One rate** and enter `0.35`.
+5. Open **Advanced config**. Set **Bill at most** to `120`, and **This cap applies** to **globally**: one cap for the whole customer.
+6. Under **Billing rate at Stripe**, click **Create it**. Kerne creates the price at Stripe from these numbers.
 
-6. Set a **spending cap**: `120` EUR per billing cycle, applied **per customer**.
-
-Kerne creates the meter and the price at Stripe from that line. You do not copy price IDs back.
-
-Publish a new version of the offer so new subscribers get this configuration. Existing subscribers stay on the version they already had — see [Offers and versions](/concepts/monetization/products-and-plans).
+Then **Save**. If the plan already has subscribers, **Start selling to new subscribers** keeps them on their current terms: see [Change your pricing](/guides/billing/change-your-pricing).
 
 ## 3. Count usage from your backend
 
-Only the **server** SDK should commit usage. A browser-only check is trivial to bypass.
-
 ```typescript
-import { Kerne } from '@kerne/server';
-
-const kerne = new Kerne({
-  appId: process.env.KERNE_APP_ID!,
-  secretKey: process.env.KERNE_SECRET_KEY!,
+const { allowed } = await kerne.consume('cutter_minutes', {
+  customer: customerId,
+  delta: 60, // one hour of cutter time
+  idempotencyKey: `session-${sessionId}`,
 });
 
-// One hour of cutter time for this customer
-const result = await kerne.consume('cutter_minutes', {
-  customer: customerId, // your own id for them - a Kerne user id, or any external id you picked
-  delta: 60,
-});
-
-if (!result.allowed) {
-  // Hard limit hit (if you set a unit ceiling), or other denial
-  return res.status(403).json({ error: 'Usage not allowed' });
-}
+if (!allowed) return res.status(403).json({ error: 'usage_not_allowed' });
 ```
 
-- `consume` checks **and** increments atomically.
-- Use `reportUsage` only when you intentionally record without gating.
-- For many events at once, prefer `reportBatch` on the server.
+`consume()` checks and counts in one step. With **Bill it** and no unit ceiling, `allowed` stays `true` past the allowance: the excess is billed. Past the 120 € cap, usage still works and is no longer charged: see [why the cap doesn't block](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
 
-With a **spending cap only** (no unit ceiling), usage past 120 € still **works** — Kerne simply stops charging. That is intentional: a money promise should not become an outage. See [Why the cap doesn't block](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
+The `idempotencyKey` makes a retry safe: the same key never counts twice. To record usage without checking it, use `reportUsage()`, or `reportUsageBatch()` for up to 100 events: see [Usage](/sdks/server/usage).
 
-## 4. Show remaining allowance in the UI (optional)
+Count from your server only. A count sent from a browser can be faked.
 
-On the client, never `consume`. Only reflect state:
+## 4. Show it to the customer
 
 ```tsx
-import { useUsage, useAccess } from '@kerne/react';
+import { useAccess } from '@kerne/react';
 
-function CutterStatus() {
-  const { usage } = useUsage('cutter_minutes');
+function CutterUsage() {
   const { details } = useAccess('cutter_minutes');
+  if (!details) return null;
 
-  // details?.remaining, details?.limit, details?.overage_behavior
-  // usage rows carry consumed / period info for display
+  return <p>{details.used} minutes this cycle</p>;
 }
 ```
 
-Or use `<Access featureKey="cutter_minutes">` to hide a control when a hard limit is hit.
+`details` also has `billed_amount` (in cents) and `cap_reached`. It only reads: never count usage from the browser.
 
-## 5. What the customer is charged
+## 5. What reaches the invoice
 
-A background worker forwards billable units to Stripe. On the next invoice the customer sees the overage line items produced from your rate (and stops accruing charge once the 120 € cap is reached).
+Kerne sends billable usage to Stripe, and it appears on the customer's next invoice as a line priced at your rate. It stops adding up once the 120 € cap is reached.
 
-In the Kerne dashboard, **Metered usage** shows:
+In the dashboard, **Subscriptions → Usage billing** shows each subscriber's usage, what's billable, and what's been billed so far, with the room left under the cap. At the top, two numbers to watch:
 
-- Consumed / included / billable
-- Amount already billed this period
-- Room left under the cap
-- **Not billing** rows if the provider is rejecting usage (price archived, meter disabled, …)
-- **Capped** rows when access continues but billing has stopped
-
-Those numbers come from the same path the billing worker uses — not a parallel estimate.
+- **Capped**: still using the product, no longer billed for it. Working as designed.
+- **Not billing**: Stripe is refusing this usage, for example because the price was archived. Access still works, and revenue is zero.
 
 ## Checklist
 
-- [ ] Feature `cutter_minutes` (quota, unit = minute, renews on billing cycle)
-- [ ] Plan includes `0`, bills past it, rate = 0.35 EUR / 60 minutes, cap = 120 EUR
-- [ ] New offer version published
-- [ ] Backend uses `consume` with the customer's id passed as `customer`
-- [ ] UI only reads usage (no client-side consume)
+- [ ] Feature `cutter_minutes`: quota, in minutes, renews every cycle
+- [ ] Plan: `0` included, **Bill it**, 0.35 per 60 minutes rounded up, 120 € cap
+- [ ] **Create it** clicked, and the edit saved
+- [ ] Backend counts with `consume()`, from the server only
 
 ## Next
 
 <CardGroup cols={2}>
   <Card title="Pricing models and meters" icon="gauge" href="/concepts/monetization/usage-billing">
-    Rates, tiers, caps, dimensions, and the edge cases.
+    Tiers, caps, dimensions, and the edge cases.
   </Card>
-  <Card title="consume()" icon="code" href="/sdks/server/entitlements/consume">
-    Full options and return shape.
+  <Card title="consume()" icon="code" href="/sdks/server/entitlements#consume-a-quota">
+    Every option, and what it returns.
   </Card>
 </CardGroup>

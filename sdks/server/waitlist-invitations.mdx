@@ -1,0 +1,70 @@
+---
+title: 'Waitlist & invitations'
+description: 'Collect interest, then let chosen people sign up'
+---
+
+## Waitlist
+
+```typescript
+await kerne.waitlist.join({
+  email: 'alice@company.com',
+  name: 'Alice Doe', // optional
+  metadata: { referral: 'twitter' }, // optional
+});
+```
+
+Public, no secret key needed. It always returns `{ success: true }`, whether the email is new, already listed or already registered, so it never reveals which emails exist. No email is sent.
+
+With your secret key:
+
+```typescript
+const { entries, pagination } = await kerne.waitlist.list({
+  status: 'PENDING',
+  limit: 20,
+  offset: 0,
+});
+await kerne.waitlist.remove('alice@company.com');
+```
+
+`status` is `PENDING`, `INVITED` or `REGISTERED`. An entry becomes `REGISTERED` when that email signs up. `remove()` also needs the Waitlist feature on your Kerne plan, or it fails with `K5002`.
+
+## Invite by email
+
+```typescript
+const { token, expiresAt } = await kerne.invitations.createToken({ email: 'alice@company.com' });
+```
+
+Kerne emails the invitation, which expires after 7 days. Inviting the same email again replaces an unused invitation.
+
+## Invite with a code
+
+```typescript
+const { code, maxUses } = await kerne.invitations.createCode({
+  maxUses: 25, // default 1, up to 1,000
+  expiresAt: '2027-01-01T00:00:00.000Z', // omit for no expiry
+});
+```
+
+An 8-character code you share yourself. Nothing is emailed.
+
+Both methods need your secret key. The invited person passes the token or the code to [`signup()`](/sdks/server/authentication#sign-up) as `invitationToken` or `invitationCode`.
+
+## Validate an invitation
+
+Public, so you can check an invitation before showing your sign-up form:
+
+```typescript
+const tokenCheck = await kerne.invitations.validateToken(token); // { valid, email }
+const codeCheck = await kerne.invitations.validateCode(code); // { valid, canUse }
+```
+
+A code can be `valid` but not `canUse`: it exists and hasn't expired, but has no uses left. Gate sign-up on `canUse`.
+
+## List and revoke
+
+```typescript
+const { tokens, codes } = await kerne.invitations.list();
+await kerne.invitations.revoke(invitationId); // the id of a token or a code
+```
+
+`list()` returns every invitation, used and expired ones included (`isUsed`, `isExpired`). A code's `isUsed` means it has no uses left. Both need your secret key.

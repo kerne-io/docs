@@ -8,7 +8,7 @@ Whether `kerne.auth.signup()` succeeds depends on two settings, read from `GET /
 1. **User limit.** If `user_registration_limit` is set and the tenant already has that many active users, every signup is rejected - regardless of `registration_mode`.
 2. **`registration_mode`.** One tenant-wide setting, one of three values:
    - `OPEN` - any signup succeeds.
-   - `INVITE_ONLY` - the signup must include a valid `invitationToken` or `invitationCode` (see [Invitations](/sdks/server/invitations/create)) - anything else is rejected.
+   - `INVITE_ONLY` - the signup must include a valid `invitationToken` or `invitationCode` (see [Invitations](/sdks/server/waitlist-invitations#invite-by-email)) - anything else is rejected.
    - `CLOSED` - no self-service signup at all; every user comes from your own backend instead.
 
 ## Waitlist vs. invitations

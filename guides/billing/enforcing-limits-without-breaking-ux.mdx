@@ -1,73 +1,64 @@
 ---
 title: 'Add usage limits'
 sidebarTitle: 'Add usage limits'
-description: 'Where to check, and whether a limit should block or bill'
+description: 'Where to check, and what the customer sees when they hit a limit'
 ---
 
-Gating is two checks, not one: an authoritative one on your backend, and a cosmetic one in your UI so the customer isn't surprised.
+A limit needs two checks: the real one on your backend, and one in your UI so the customer isn't surprised.
 
-## The server check is the real one
-
-`userId` is the Kerne user id — the same id the subscription was created against. Read it from whatever your request already carries.
+## Check on your backend
 
 ```typescript
 async function exportReport(req, res) {
-  const userId = req.user.id;
+  const allowed = await kerne.allows('advanced_analytics', { customer: req.user.id });
+  if (!allowed) return res.status(403).json({ error: 'upgrade_required' });
 
-  if (!(await kerne.allows('advanced_analytics', { customer: userId }))) {
-    return res.status(403).json({ error: 'Upgrade required to export reports.' });
-  }
-
-  return res.json(await generateReport(userId));
+  return res.json(await generateReport(req.user.id));
 }
 ```
 
-A denial isn't just "don't run the code" — decide what the caller sees. For an API route, a `403` with a machine-readable reason your frontend can act on beats a generic failure. For a page render, redirect to your pricing page rather than rendering a broken state.
+Decide what a denial looks like. For an API route, a `403` with a reason your frontend can act on. For a page, a redirect to your pricing page.
 
-If the action *is* the thing being counted, use [`consume()`](/sdks/server/entitlements/consume) instead: it checks and increments atomically, so a burst of concurrent requests can't all slip past the limit.
-
-Acting on behalf of a specific request's user rather than your own backend identity? Scope the client to their token first:
+When the action is the thing you count, use [`consume()`](/sdks/server/entitlements#consume-a-quota) instead. It checks and counts in one step, so a burst of requests can't all slip past the limit:
 
 ```typescript
-const canConsume = await kerne.withToken(userAccessToken).allows('api_calls', { requested: 1 });
+const { allowed } = await kerne.consume('api_calls', { customer: req.user.id });
+if (!allowed) return res.status(429).json({ error: 'quota_exceeded' });
 ```
 
-## The client check is for UX only
+`consume()` needs the customer to exist in Kerne. People who signed up through Kerne do, and a first checkout creates one. Otherwise, call [`kerne.customers.upsert()`](/sdks/server/overview#customers) once.
+
+## Show it in your UI
 
 ```tsx
 import { Access } from '@kerne/react';
 
 <Access featureKey="advanced_analytics" fallback={<UpgradeBanner />}>
   <AnalyticsDashboard />
-</Access>
+</Access>;
 ```
 
-`<Access>` (and the `useAccess` hook under it) handles the loading state and scopes to the logged-in user.
+`<Access>` checks for the signed-in user and handles loading. It hides things, it doesn't protect them: anyone can edit a page, so the backend check is the one that counts.
 
-<Warning>
-  A client-side check is a convenience, never a security boundary — anyone can bypass it by editing
-  the page. Always re-check on the server before doing the thing being gated.
-</Warning>
-
-Don't wait for a "Save" click to tell someone they've hit a limit — disable the control ahead of time:
+Disable a control before someone hits the limit, not after they click:
 
 ```tsx
+import { useAccess } from '@kerne/react';
+
 function AddTeamMember() {
   const { allowed, isLoading } = useAccess('team_seats');
   return <button disabled={isLoading || !allowed}>Add member</button>;
 }
 ```
 
-## Block, or keep serving and charge?
+## Stop, or keep serving?
 
-The same mechanism, one setting apart. The judgment call is which fits what you're limiting.
+What happens past the allowance is set on each plan, under **Past the allowance**: **Stop**, **Keep free** or **Bill it**. Your code stays the same.
 
-**Block** once the allowance is gone — "You've reached your 5 team member limit." Right for things a customer should decide to buy more of on purpose: seats, storage, expensive infrastructure. Nobody should discover they bought more of these as a surprise invoice line.
+**Stop** suits what a customer should decide to buy more of: seats, storage, expensive infrastructure. **Bill it** suits usage-shaped things, like email sends or bandwidth, where blocking angers a customer without protecting anything. See [Design your pricing](/guides/billing/designing-pricing).
 
-**Keep serving and charge** for the excess — "the next ones are billed at $0.005 each." Right for bandwidth, email sends, anything usage-shaped where blocking makes a customer angry without protecting anything. See [Designing your pricing](/guides/billing/designing-pricing).
+A spending cap stops the billing, never the service. To stop usage, set a ceiling in units: see [why the cap doesn't block](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
 
-One thing to know before relying on it: a *money* ceiling stops the charging, never the service. If you want consumption to stop, that's a separate ceiling in units — see [why the cap doesn't block](/concepts/monetization/usage-billing#why-the-cap-doesnt-block).
+## Don't lose the user's work
 
-## Don't lose the user's work over it
-
-Someone who spends 30 minutes on a report and gets blocked on "Save" doesn't file a support ticket about your quota — they leave. "Error: storage limit reached" throws that work away; "Draft saved locally — upgrade to publish" doesn't. Check before the expensive step starts, not only when they submit its result.
+Someone who spends 30 minutes on a report and gets blocked on **Save** doesn't file a ticket: they leave. "Draft saved. Upgrade to publish" keeps their work, "Error: storage limit reached" throws it away. Check before the expensive step starts, not only when they submit.

@@ -1,0 +1,107 @@
+---
+title: 'Billing'
+description: 'Plans, checkout, subscription, plan changes and the billing portal'
+---
+
+## Plans
+
+```tsx
+import { usePlans } from '@kerne/react';
+
+const { plans, isLoading } = usePlans(); // or usePlans('enterprise-suite')
+```
+
+Your public pricing, the same data as the server's [`billing.plans()`](/sdks/server/billing#list-plans). For a complete pricing page, use [`<PricingTable>`](/sdks/client/react/ui/pricing-table).
+
+## Checkout
+
+```tsx
+import { useCheckout } from '@kerne/react';
+
+function UpgradeButton({ priceId }: { priceId: string }) {
+  const { openCheckout } = useCheckout();
+  return <button onClick={() => openCheckout(priceId)}>Upgrade</button>;
+}
+```
+
+Pass a **price** id or slug, not a plan id. `openCheckout()` redirects the browser; `createCheckout()` returns the URL instead. Both take the buyer's prepaid choices as a second argument, `[{ feature_key, steps }]`.
+
+Checkout redirects to the payment provider's page. For an embedded card form, use the server's [embedded card checkout](/sdks/server/billing#embedded-card-checkout).
+
+<Warning>
+  A checkout for someone who's already subscribed creates a second subscription. To let subscribers
+  switch plans, use [`usePlanSwitch()`](#plan-picker).
+</Warning>
+
+## Subscription
+
+```tsx
+import { useSubscription, HasSubscription } from '@kerne/react';
+
+const { subscription, isActive, planSlug, isLoading, refetch } = useSubscription();
+
+<HasSubscription fallback={<Upgrade />}>
+  <PremiumArea />
+</HasSubscription>;
+```
+
+`isActive` is `true` for `ACTIVE` and `TRIALING`. Pass a product slug to `useSubscription()` if your project has several products.
+
+## Change plan and cancel
+
+```tsx
+import { useCancelSubscription, useChangePlan, useSubscription } from '@kerne/react';
+
+const { subscription, refetch } = useSubscription();
+const { changePlan, isChanging } = useChangePlan();
+const { cancelSubscription, isCanceling } = useCancelSubscription();
+
+await changePlan(subscription.id, 'business-monthly');
+await cancelSubscription(subscription.id); // at the end of the period; pass true to end it now
+refetch();
+```
+
+A plan change applies immediately. To skip proration, pass `{ prorationBehavior: 'none' }` as a third argument. Call `refetch()` after either one: `useSubscription()` doesn't update on its own.
+
+## Plan picker
+
+`usePlanSwitch()` starts a checkout for someone without a subscription and changes the plan of someone who has one, so a subscriber never ends up with two. `<PricingTable>` uses it.
+
+```tsx
+import { usePlanSwitch, useSubscription } from '@kerne/react';
+
+function PlanPicker({ plans }) {
+  const { subscription, refetch } = useSubscription();
+  const { pending, switching, selectPlan, confirmSwitch, dismissSwitch } = usePlanSwitch(
+    subscription,
+    refetch,
+  );
+
+  return (
+    <>
+      {plans.map((plan) => (
+        <button key={plan.id} onClick={() => selectPlan(plan, plan.prices[0])}>
+          {plan.name}
+        </button>
+      ))}
+      {pending && (
+        <ConfirmDialog loading={switching} onConfirm={confirmSwitch} onCancel={dismissSwitch}>
+          Switch to {pending.plan.name}?
+        </ConfirmDialog>
+      )}
+    </>
+  );
+}
+```
+
+Without a subscription, `selectPlan()` goes straight to checkout. With one, it sets `pending` and waits for `confirmSwitch()`. It also returns `switchError`, `checkoutError` and `checkoutPriceId`, the price being redirected to.
+
+## Billing portal
+
+```tsx
+import { usePortal } from '@kerne/react';
+
+const { openPortal, createPortal } = usePortal();
+```
+
+The payment provider's page, where the user updates their payment method, downloads invoices and manages their plan. `openPortal()` redirects; `createPortal()` returns the URL.

@@ -19,24 +19,24 @@ Every error response follows this shape - there's no `{success, data}` envelope 
 
 `@kerne/server` throws a typed `KerneError` (or a subclass - `AuthenticationError`, `AuthorizationError`, `NotFoundError`, `ValidationError`, `RateLimitError`, `EntitlementDeniedError`) built from this shape, so you can `instanceof` it instead of parsing `code` yourself.
 
-A few subclasses are raised **client-side** before a request goes out - `EntitlementDeniedError` from [`enforce()`](/sdks/server/entitlements/allows-enforce-check#enforce-throws-entitlementdeniederror), `NotFoundError` from `billing.cancel()` / `priceIdFor()`, `ValidationError` from `priceIdFor()` on an ambiguous price, `RateLimitError` from `auth.sendVerificationEmail()`'s cooldown. They carry the same `code`/`type`/`statusCode` shape but no `requestId`, since no server request produced them.
+A few subclasses are raised **client-side** before a request goes out - `EntitlementDeniedError` from [`enforce()`](/sdks/server/entitlements#handle-a-denial), `NotFoundError` from `billing.cancel()` / `priceIdFor()`, `ValidationError` from `priceIdFor()` on an ambiguous price, `RateLimitError` from `auth.sendVerificationEmail()`'s cooldown. They carry the same `code`/`type`/`statusCode` shape but no `requestId`, since no server request produced them.
 
 ## Auth and registration (K1xxx)
 
-| Code    | Description                                         |
-| ------- | --------------------------------------------------- |
-| `K1001` | Registration is currently disabled for this app.    |
-| `K1002` | Maximum user limit reached.                         |
-| `K1003` | Invalid, expired, or already-used invitation token. |
-| `K1004` | Invalid, expired, or already-used invitation code.  |
-| `K1005` | Invalid email or password.                          |
-| `K1006` | Token has expired.                                  |
-| `K1007` | No token provided.                                  |
-| `K1008` | Email already registered.                           |
-| `K1009` | Invalid email format.                               |
-| `K1010` | Password doesn't meet the strength requirement.     |
-| `K1011` | Email not verified.                                 |
-| `K1012` | Unauthorized access.                                |
+| Code    | Description                                                          |
+| ------- | -------------------------------------------------------------------- |
+| `K1001` | Sign-up refused: closed, no valid invitation, or user limit reached. |
+| `K1002` | Maximum user limit reached.                                          |
+| `K1003` | Invalid, expired, or already-used invitation token.                  |
+| `K1004` | Invalid, expired, or already-used invitation code.                   |
+| `K1005` | Invalid email or password.                                           |
+| `K1006` | Token has expired.                                                   |
+| `K1007` | No token provided.                                                   |
+| `K1008` | Email already registered.                                            |
+| `K1009` | Invalid email format.                                                |
+| `K1010` | Password doesn't meet the strength requirement.                      |
+| `K1011` | Email not verified.                                                  |
+| `K1012` | Unauthorized access.                                                 |
 
 ## Validation (K2xxx)
 

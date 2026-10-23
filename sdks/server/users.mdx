@@ -1,0 +1,39 @@
+---
+title: 'Users'
+description: 'Read and update user profiles'
+---
+
+A user is a login: an email, a password, a session. What a user can access belongs to their [customer](/sdks/server/overview#customers). Users sign up themselves or are added from the dashboard; the SDK has no `users.create()`.
+
+## Current user
+
+```typescript
+const me = await kerne.withToken(userAccessToken).users.me();
+```
+
+## Get a user
+
+```typescript
+const user = await kerne.users.get(userId);
+```
+
+With your secret key you can read any user; with a user's token, only that user.
+
+<ResponseField name="id" type="string" required />
+<ResponseField name="email" type="string" required />
+<ResponseField name="email_verified" type="boolean" required />
+<ResponseField name="first_name" type="string | null" />
+<ResponseField name="last_name" type="string | null" />
+<ResponseField name="avatar" type="string | null" />
+<ResponseField name="is_active" type="boolean" required />
+<ResponseField name="is_blocked" type="boolean" required />
+<ResponseField name="created_at" type="string" required />
+<ResponseField name="last_login_at" type="string | null" />
+
+## Update a user
+
+```typescript
+const user = await kerne.users.update(userId, { first_name: 'Alicia', last_name: 'Doe' });
+```
+
+Only `first_name` and `last_name` can be changed. Same access rule as `get()`.

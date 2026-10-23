@@ -1,43 +1,32 @@
 ---
 title: 'Your first access decision'
-description: 'Create an offer, check access, then change the offer'
+description: 'Create an offer, check it from your code, then change it'
 ---
 
-Five steps. The last one is the point: you'll change what you sell and watch an existing customer keep what they bought.
+Five steps, no payment provider needed. At the end, you'll change what a customer gets without touching your code.
 
-## Prerequisites
+## 1. Create a product
 
-- Node.js 18 or later
-- A Kerne app id and a secret key (`sk_test_...`), from the dashboard
-- Stripe connected only if you want to test a paid subscription — an access decision doesn't need it
+In the dashboard, open **Catalog**, click **New product**, then open it. The editor first asks for a billing label, such as "Monthly": click **Create the first label**. You'll put prices on it later.
 
-## 1. Create an offer
+A new product comes with a plan called **Default**. Every customer is on it until they subscribe to something else.
 
-Offers live in the dashboard, never in your code — this is you configuring your business, not something your app does at runtime.
+## 2. Add a feature
 
-Under **Billing → Catalog**, create a product, then add a plan to it. Mark that plan **default** and keep it active: a customer with no subscription resolves to your default plan, which is what lets a brand-new signup pass a check at all.
+Click **+ feature** and choose **BOOLEAN**. Click **New feature** to open it, and set its **Key** to `export_pdf`.
 
-## 2. Give it an entitlement
+Turn the feature on in the **Default** column. Then click **Save** and choose **Update this offer**.
 
-Add a feature with the key exactly `export_pdf`, of type **Boolean**. On the plan, set it to **enabled**.
+Your code will ask about `export_pdf`. It never asks which plan someone is on.
 
-That's the promise. Your code will ask about `export_pdf` and never about the plan's name.
-
-<Note>
-  If `export_pdf` isn't on the plan a customer is on, the check returns `false`. That's the normal
-  "not sold to this customer" answer, not an error.
-</Note>
-
-## 3. Connect a customer
+## 3. Install the SDK
 
 ```bash
 npm install @kerne/server
 ```
 
-The secret key belongs on your server only. It can act on behalf of any customer, so it must never reach a browser bundle.
-
 ```typescript
-// src/lib/kerne.ts
+// lib/kerne.ts
 import { Kerne } from '@kerne/server';
 
 export const kerne = new Kerne({
@@ -46,70 +35,35 @@ export const kerne = new Kerne({
 });
 ```
 
-Create a user. Its id is what every later call names as the `customer`:
-
-```typescript
-const { user } = await kerne.auth.signup({
-  email: 'alice@example.com',
-  password: 'a-strong-password',
-});
-// user.id -> the customer
-```
-
-Signing up through Kerne already registers the customer behind the scenes — there's no separate step. Already have your own auth (Clerk, Supabase, your own backend)? Skip `auth.signup()` entirely and pass your own user id (or an org id, for a company you bill as one unit) as `customer` directly. `allows()`/`check()` work immediately, falling back to your default plan if that id doesn't exist yet. For a write that needs the record to exist first — `consume()`, `reportUsage()` — call `kerne.customers.upsert({ externalId, email })` once before it, or pass `email` on `checkout()` to create it there.
+Both values are in **Settings → API keys**. The secret key is shown only once: if you didn't copy it, rotate it. It can act for any customer, so keep it on your server.
 
 ## 4. Check access
 
 ```typescript
-export async function exportPdfRoute(req, res) {
-  const userId = req.user.id;
-
-  if (!(await kerne.allows('export_pdf', { customer: userId }))) {
-    return res.status(403).json({ error: 'upgrade_required' });
-  }
+export async function exportPdf(req, res) {
+  const allowed = await kerne.allows('export_pdf', { customer: req.user.id });
+  if (!allowed) return res.status(403).json({ error: 'upgrade_required' });
 
   return res.json(await renderPdf());
 }
 ```
 
-`allows()` returns a boolean and never throws for a denial. With a secret key there's no implicit "current user", so always pass the customer you mean.
-
-In React, the same decision without naming a customer — it resolves the logged-in session's own:
-
-```tsx
-import { KerneProvider, Access } from '@kerne/react';
-
-<KerneProvider appId={process.env.NEXT_PUBLIC_KERNE_APP_ID!}>
-  <Access featureKey="export_pdf" fallback={<a href="/pricing">Upgrade to export</a>}>
-    <button onClick={exportPdf}>Export as PDF</button>
-  </Access>
-</KerneProvider>
-```
-
-A client check is a convenience. The authoritative one stays on your backend.
+`customer` is your own id for whoever you bill: a user, or a company. Kerne doesn't need to know it in advance. An id it has never seen is on **Default**, so this returns `true`.
 
 ## 5. Change the offer
 
-Here's what Kerne is actually for.
+Turn `export_pdf` off in the **Default** column, then **Save → Update this offer**.
 
-Go back to the plan and turn `export_pdf` **off**, then publish it as a new version.
+Call your route again: it answers `403`. You changed what your customers get, and deployed nothing.
 
-Now check both:
+**Update this offer** reaches everyone on the plan, which is what you want on a free plan. On a plan people pay for, you can choose **Start selling to new subscribers** instead: new buyers get the change, and everyone already subscribed keeps what they bought. See [Offers and versions](/concepts/monetization/products-and-plans).
 
-- **Alice, who subscribed before the change** — still `true`. She's attached to the version she received.
-- **A customer who signs up now** — `false`. They get the current version.
+## If it doesn't work
 
-You changed what you sell. You didn't change what you'd already sold, and you didn't deploy anything.
-
-That's the default, not a setting you remembered to enable. See [Offers & versions](/concepts/monetization/products-and-plans).
-
-## Troubleshooting
-
-| Symptom | Likely cause |
-| --- | --- |
-| `allows()` is always `false` | The feature isn't on the customer's plan; no active default plan and no subscription; wrong `customer` id |
-| `401` on a backend call | Wrong secret key or app id, or the key was sent from the browser |
-| `checkout()` fails | Stripe not connected, or a plan id passed where a price id is required |
+| What you see               | Likely cause                                                       |
+| -------------------------- | ------------------------------------------------------------------ |
+| `allows()` returns `false` | The feature is off on the customer's plan, or the edit isn't saved |
+| `401 Unauthorized`         | Wrong secret key, or a key from another project than the app id    |
 
 ## Next
 
@@ -117,13 +71,21 @@ That's the default, not a setting you remembered to enable. See [Offers & versio
   <Card title="How Kerne works" icon="map" href="/concepts/overview">
     What Kerne holds, and how a decision resolves.
   </Card>
+  <Card
+    title="Connect your billing provider"
+    icon="credit-card"
+    href="/guides/getting-started/subscription-setup"
+  >
+    Stripe, prices and checkout.
+  </Card>
   <Card title="Design your pricing" icon="compass" href="/guides/billing/designing-pricing">
-    Bundling, metering, and add-ons.
+    What each plan includes, and what happens past it.
   </Card>
-  <Card title="Connect your billing provider" icon="credit-card" href="/guides/getting-started/subscription-setup">
-    Stripe, checkout, and the billing portal.
-  </Card>
-  <Card title="Add usage limits" icon="gauge" href="/guides/billing/enforcing-limits-without-breaking-ux">
-    Allowances that block, or bill for the excess.
+  <Card
+    title="Add usage limits"
+    icon="gauge"
+    href="/guides/billing/enforcing-limits-without-breaking-ux"
+  >
+    Where to check, and whether a limit blocks or bills.
   </Card>
 </CardGroup>

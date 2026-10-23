@@ -1,0 +1,65 @@
+---
+title: 'Usage'
+description: 'Record usage without gating it, and read usage records'
+---
+
+## Report usage
+
+`reportUsage()` records usage without checking a limit. Use it when access was already decided, for example to sync counts from a job or to meter work after the fact. To gate an action on a quota, use [`consume()`](/sdks/server/entitlements#consume-a-quota).
+
+```typescript
+await kerne.reportUsage('storage_megabytes', {
+  customer: userId,
+  delta: 2560,
+  idempotencyKey: syncJobId,
+});
+```
+
+<ParamField path="customer" type="string" required>
+  The customer. It must already exist: `reportUsage()` never creates one.
+</ParamField>
+<ParamField path="delta" type="number" default="1">
+  A whole number. Fractions are rejected.
+</ParamField>
+<ParamField path="operation" type="'INCREMENT' | 'SET'" default="INCREMENT">
+  `SET` sets the counter to `delta` instead of adding to it.
+</ParamField>
+<ParamField path="idempotencyKey" type="string">
+  A retry with the same key is recorded once.
+</ParamField>
+<ParamField path="dimension" type="string">
+  Which machine, project or seat to record against. Optional here: without it, usage goes to the
+  customer's shared counter. See [Dimensions](/sdks/server/entitlements#dimensions).
+</ParamField>
+<ParamField path="metadata" type="object">
+  Stored with the usage event.
+</ParamField>
+
+## Report in batches
+
+Up to 100 events per call:
+
+```typescript
+const results = await kerne.reportUsageBatch(
+  machines.map((machine) => ({
+    featureKey: 'machine_minutes',
+    customer: machine.ownerId,
+    dimension: machine.id,
+    delta: machine.minutes,
+  })),
+);
+// [{ index, status: 'ok' | 'error', usage?, error? }, ...]
+```
+
+Each event is recorded on its own: a failing event doesn't cancel the others, so check `status` on every result.
+
+## Read usage
+
+```typescript
+const records = await kerne.usage({ customer: userId });
+const apiCalls = await kerne.usage({ customer: userId, featureKey: 'api_calls' });
+```
+
+One record per feature for the current period: `{ feature_key, value, period_start, period_end, status, ... }`. This is the raw counter. For `limit` and `remaining`, with overrides and rollover applied, use [`check()`](/sdks/server/entitlements#check-access).
+
+To refund or reset usage, see [usage corrections](/sdks/server/admin#usage-corrections).

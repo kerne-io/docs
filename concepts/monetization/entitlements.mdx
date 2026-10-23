@@ -7,7 +7,7 @@ Your plans promise things. "Pro includes SSO." "Starter gets 10,000 API calls a 
 
 An **entitlement** is one of those promises, made concrete: a named capability with a value, for one specific customer. It's what your application asks about, and it's the reason `allows('sso_enabled')` can keep working after SSO moves from Pro to Enterprise.
 
-Where the value comes from is resolved for you — the plan they're on, the version of that plan they bought, an override negotiated with them specifically. What you configure is the promise; what your code sees is the answer.
+Where the value comes from is resolved for you: the plan they're on, the version of it they bought, extras they bought at checkout, an exception negotiated with them. What you configure is the promise; what your code sees is the answer.
 
 Every capability is one of three kinds.
 
@@ -24,16 +24,17 @@ Every capability is one of three kinds.
   </Tab>
   <Tab title="Quota">
     An allowance over a period — `limit`, `used`, `remaining`. You say what it counts (`minute`,
-    `token`) and how often it renews (daily, weekly, monthly, or on the billing cycle).
+    `token`) and how often it renews: every day, week, month or billing cycle, or never, for a
+    standing count like seats.
 
     ```typescript
     const result = await kerne.consume('api_calls', { customer: userId, delta: 1 });
     // { allowed, limit, used, remaining, overage_behavior }
     ```
 
-    `limit: null` means unlimited. What happens once the allowance runs out is a separate choice:
-    stop there, let it through untracked, or keep serving and charge for the excess. Counting and
-    charging are covered in [Pricing models and meters](/concepts/monetization/usage-billing).
+    `limit: null` means unlimited. What happens once the allowance runs out is a separate choice,
+    made on each plan: **Stop**, **Keep free** or **Bill it**. Counting and charging are covered in
+    [Pricing models and meters](/concepts/monetization/usage-billing).
 
   </Tab>
   <Tab title="Static">
@@ -50,7 +51,7 @@ Every capability is one of three kinds.
 
 These solve different problems - don't reach for one when you mean the other:
 
-- **`kerne.admin.grant()`** creates an override: a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift. It covers the whole customer, or [one counter](/sdks/server/admin/overrides) of a feature limited per dimension.
+- **An [exception](/concepts/monetization/overrides)** (`kerne.admin.grant()`) is a *replacement limit* that renews every period just like the plan's own limit, until it expires (or forever). This is "this customer has a 1,000/mo deal," not a one-time gift. It covers the whole customer, or [one counter](/sdks/server/admin#overrides) of a feature limited per dimension.
 - **`kerne.admin.adjustUsage()`** offsets the usage counter by a signed delta, once. This is "credit this customer 500 units back," and has no effect on their limit going forward.
 
 ## Next
@@ -59,7 +60,7 @@ These solve different problems - don't reach for one when you mean the other:
   <Card title="Offers and versions" icon="layer-group" href="/concepts/monetization/products-and-plans">
     Why changing a plan doesn't change existing customers.
   </Card>
-  <Card title="Checking an entitlement" icon="check" href="/sdks/server/entitlements/allows-enforce-check">
+  <Card title="Checking an entitlement" icon="check" href="/sdks/server/entitlements#check-access">
     `allows()` / `check()` / `enforce()`, and every field a check returns.
   </Card>
 </CardGroup>

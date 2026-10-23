@@ -1,0 +1,134 @@
+---
+title: 'Entitlements'
+description: 'Check access, consume a quota, list what a customer has'
+---
+
+## Check access
+
+```typescript
+const canExport = await kerne.allows('export_pdf', { customer: userId }); // boolean
+
+await kerne.enforce('export_pdf', { customer: userId }); // throws if denied
+
+const check = await kerne.check('api_calls', { customer: userId }); // the full result
+```
+
+All three run the same check. A denial makes `allows()` return `false` and `enforce()` throw an [`EntitlementDeniedError`](#handle-a-denial). Network and authentication errors throw in all three.
+
+<ParamField path="featureKey" type="string" required>
+  The feature key, as set in the dashboard.
+</ParamField>
+<ParamField path="customer" type="string">
+  The customer to check. Required with a secret key; omit it on a `withToken()` client to check that
+  user.
+</ParamField>
+<ParamField path="requested" type="number" default="1">
+  For a quota: whether the customer can use this many more units.
+</ParamField>
+<ParamField path="dimension" type="string">
+  For a quota counted per machine, project or seat: which one. See [Dimensions](#dimensions).
+</ParamField>
+
+## Read the result
+
+`check()` and `consume()` return:
+
+| Field                        | Meaning                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `allowed`                    | Whether the customer may do this now. **Gate on this.**                                                 |
+| `configured`                 | Whether a plan or an override mentions this feature for this customer. For diagnostics.                 |
+| `feature_type`               | `BOOLEAN`, `QUOTA`, `STATIC`, or `UNKNOWN` for a key that doesn't exist.                                |
+| `enabled`                    | Boolean features: on or off.                                                                            |
+| `limit`, `used`, `remaining` | Quotas: the included amount, what's been used, what's left. `null` means unlimited.                     |
+| `overage_behavior`           | What happens past `limit`: `BLOCK`, `ALLOW` or `BILL`.                                                  |
+| `access_limit`               | Where access stops: `limit` when the overage is blocked, otherwise the unit ceiling, or `null` if none. |
+| `cap_reached`                | The spending cap is reached. Billing has stopped, usage hasn't. Not an access signal.                   |
+| `has_override`               | An override applies to this customer.                                                                   |
+| `subscription_status`        | The customer's subscription status, or `NONE`.                                                          |
+| `value`                      | Static features: the configured value.                                                                  |
+
+<Warning>
+  When a quota's overage is `ALLOW` or `BILL`, `remaining` goes negative past `limit` while
+  `allowed` stays `true`: the customer hasn't hit a wall. Check `overage_behavior` before showing
+  "limit reached".
+</Warning>
+
+`configured: false` always comes with `allowed: false`: the key doesn't exist, or no plan, default plan or override grants the feature. Don't treat it as open by default.
+
+## Handle a denial
+
+`enforce()` throws an `EntitlementDeniedError` with the full result in `.check`, so a guard can tell why without a second call:
+
+```typescript
+import { EntitlementDeniedError } from '@kerne/server';
+
+try {
+  await kerne.enforce('api_calls', { customer: userId });
+} catch (err) {
+  if (err instanceof EntitlementDeniedError) {
+    // err.check.configured === false: not sold to this customer, not an upgrade case
+    return res.status(403).json({ error: 'upgrade_required' });
+  }
+  throw err;
+}
+```
+
+It has `code: 'ENTITLEMENT_DENIED'` and `statusCode: 403`. The SDK raises it after a successful check, so it has no `requestId`.
+
+## Consume a quota
+
+When the action you gate is the usage itself, `consume()` checks the limit and records the usage in one atomic step, so two concurrent requests can't both pass a blocked limit.
+
+```typescript
+const result = await kerne.consume('api_calls', {
+  customer: userId,
+  delta: 1,
+  idempotencyKey: requestId,
+});
+```
+
+It returns the same result as `check()`. When `allowed` is `false`, nothing was recorded.
+
+<ParamField path="customer" type="string">
+  Required with a secret key. The customer must already exist: `consume()` never creates one.
+</ParamField>
+<ParamField path="delta" type="number" default="1">
+  A whole number. Fractions are rejected, not rounded, so count in the smallest unit you bill.
+</ParamField>
+<ParamField path="idempotencyKey" type="string">
+  A retry with the same key returns the first result instead of counting again.
+</ParamField>
+<ParamField path="dimension" type="string">
+  See [Dimensions](#dimensions).
+</ParamField>
+
+`consume()` only works on quota features. On a boolean or static feature it throws a `ValidationError`.
+
+## Dimensions
+
+A quota can be counted per machine, project or seat. Pass `dimension` to say which one:
+
+```typescript
+await kerne.consume('cutter_minutes', {
+  customer: customerId,
+  dimension: 'cutter_42',
+  delta: 60,
+});
+```
+
+| Plan setting            | Effect                                                                  |
+| ----------------------- | ----------------------------------------------------------------------- |
+| Shared allowance        | One counter per customer. `dimension` is recorded for attribution only. |
+| Allowance per dimension | One counter per dimension. `dimension` is required.                     |
+
+A `dimension` on a feature that has none is rejected, and so is a missing one when the plan counts per dimension. A customer can use up to 1,000 dimensions per feature per period; a call naming a new one past that is refused.
+
+## List entitlements
+
+```typescript
+const { plan_slug, subscription_status, entitlements } = await kerne.entitlements({
+  customer: userId,
+});
+```
+
+Every entitlement in one call, for a "your plan" screen. Entries have no `allowed` field because the list can be up to 60 seconds old: decide whether an action may run with `check()` or `consume()`.

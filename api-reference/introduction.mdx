@@ -1,0 +1,37 @@
+---
+title: 'REST API'
+sidebarTitle: 'Introduction'
+description: 'Base URL, authentication and response format'
+---
+
+The SDKs wrap these endpoints. Call them directly from any language.
+
+## Base URL
+
+```
+https://api.kerne.io/v1
+```
+
+## Authentication
+
+Every request carries your app id in `x-app-id`. Most also carry a bearer token:
+
+```bash
+curl "https://api.kerne.io/v1/billing/entitlements/export_pdf?customer=user_123" \
+  -H "x-app-id: $KERNE_APP_ID" \
+  -H "Authorization: Bearer $KERNE_SECRET_KEY"
+```
+
+| Token                 | Use                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| Secret key (`sk_...`) | From your backend. Acts on any customer: name it with `customer`.                                       |
+| User access token     | Acts as that user, on their own data only.                                                              |
+| None                  | Public routes: pricing, auth config, sign-up and login, joining the waitlist, validating an invitation. |
+
+Never send your secret key from a browser.
+
+## Responses
+
+Requests and responses are JSON. A successful response is the resource itself, without an envelope. Errors share one shape, described in [Errors](/concepts/error-codes).
+
+Every response has an `X-Request-Id` header. Include it when you report a problem.

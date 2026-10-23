@@ -1,117 +1,75 @@
 ---
 title: 'Connect your billing provider'
 sidebarTitle: 'Connect billing provider'
-description: 'Connect Stripe and implement subscription billing'
+description: 'Connect Stripe, price a plan, and send customers to checkout'
 ---
 
-This guide walks through connecting a payment provider, configuring a plan, and implementing checkout - creating the actual product/plan/price catalog is a dashboard task, not something your app's code does at runtime.
+## 1. Connect Stripe
 
-## Prerequisites
+In the dashboard, go to **Settings → Payment provider** and click **Connect** next to Stripe. Authorize Kerne on Stripe and you come back connected.
 
-- A Kerne app
-- A Stripe account
-- Your app already configured with authentication - see [Authentication setup](/guides/getting-started/authentication-setup)
+Stripe is the only provider you can connect today. If you already have subscribers there, click **Import existing subscriptions** once connected.
 
-## 1. Connect a payment provider
+## 2. Price a plan
 
-In the Kerne dashboard: **Settings → Billing → Connect Stripe**, then complete the OAuth flow. Use test mode during development.
+In **Catalog**, open your product and click **+** to add a plan. Name it, type its price in the plan's column, then **Save → Update this offer**. Kerne creates the price at Stripe, in your Stripe account's currency.
 
-<Note>Other providers may come sooner or later, and Stripe is the only one supported for now.</Note>
+An empty price means the plan isn't sold on that billing label, and `0` means it's free. To sell yearly as well as monthly, add a second label.
 
-## 2. Create a product and plan
+## 3. Send the customer to checkout
 
-This is a dashboard action, not an SDK call - catalog configuration (products, plans, prices) is control-plane: it's you configuring your own SaaS, not something your running app does. In the dashboard: **Billing → Products** → create a product → add a plan with pricing.
-
-## 3. Display pricing
-
-<Tip>
-This section builds a pricing page from the raw data, to show what's underneath. For a complete one already wired to checkout - plan cards, a price-label toggle - see [`<PricingTable>`](/sdks/client/react/ui/pricing-table) instead.
-</Tip>
-
-`kerne.billing.plans()` is the one catalog read exposed to your app - public, meant for a pricing page:
+From your backend:
 
 ```typescript
-// Anywhere - this route needs no session, just x-app-id
-const plans = await kerne.billing.plans('acme'); // product slug or id
+const { url } = await kerne.billing.checkout('pro-monthly', {
+  customer: user.id,
+  email: user.email,
+});
+
+res.redirect(303, url);
 ```
 
-`price.interval` is `{count}{unit}` (`unit` is `D`, `M`, or `Y` - e.g. `"1M"`, `"3M"`, `"1Y"`), not a word - never render it directly to an end user. Written out by hand below; `@kerne/react/ui` exports the same `formatInterval()` (and `formatMoney()`) if you're already pulling in that package:
+`pro-monthly` is the price's slug: the plan's slug, then the label's. Pass `email` unless Kerne already has one for this customer. A customer Kerne doesn't know yet is created here.
+
+With Kerne sign-in, React can start it from the browser for the signed-in user:
 
 ```tsx
 import { useCheckout } from '@kerne/react';
 
-const INTERVAL_UNIT = { D: 'day', M: 'month', Y: 'year' } as const;
-
-function formatInterval(interval: string): string {
-  const count = parseInt(interval, 10);
-  const unit = INTERVAL_UNIT[interval.slice(-1) as keyof typeof INTERVAL_UNIT];
-  return count === 1 ? unit : `${count} ${unit}s`;
-}
-
-function PricingPage({ plans }) {
+function UpgradeButton() {
   const { openCheckout } = useCheckout();
-
-  return (
-    <div>
-      {plans.map((plan) => (
-        <div key={plan.id}>
-          <h3>{plan.name}</h3>
-          {plan.prices.map((price) => (
-            <button key={price.id} onClick={() => openCheckout(price.id)}>
-              Subscribe - {price.amount / 100} {price.currency}/{formatInterval(price.interval)}
-            </button>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <button onClick={() => openCheckout('pro-monthly')}>Upgrade to Pro</button>;
 }
 ```
 
-<Warning>
-  Checkout takes a **price** id (`plan.prices[i].id`), not the plan's own id - a plan can have
-  several prices (monthly, yearly).
-</Warning>
+For a whole pricing page, [`<PricingTable>`](/sdks/client/react/ui/pricing-table) renders your plans and starts checkout for you.
 
-## 4. Implement checkout
+## 4. After payment
 
-```tsx
-import { useCheckout } from '@kerne/react';
+The customer lands on your hosted portal, which sends them back to **Send users back to**, or to your **Production URL** if that's empty. Both are in **Settings → General**.
 
-function UpgradeButton({ planPriceId }: { planPriceId: string }) {
-  const { openCheckout } = useCheckout();
+The subscription starts when Stripe confirms the payment, sometimes a few seconds after the customer is back. Don't assume it exists on the first page load.
 
-  return <button onClick={() => openCheckout(planPriceId)}>Upgrade</button>;
-}
+## 5. Let customers manage their subscription
+
+```typescript
+const { url } = await kerne.billing.portal({ customer: user.id });
+res.redirect(303, url);
 ```
 
-## 5. Handle success
+This opens Stripe's billing portal: card, invoices, cancellation. In React, `usePortal().openPortal()` does the same for the signed-in user.
 
-The subscription is created once the provider confirms payment (asynchronously - not necessarily the instant the browser lands back on your app after checkout):
+## Next
 
-```tsx
-function SuccessPage() {
-  return (
-    <div>
-      <h1>Welcome to Pro!</h1>
-      <p>Your subscription is now active.</p>
-    </div>
-  );
-}
-```
-
-## 6. Provide a billing portal
-
-```tsx
-import { usePortal } from '@kerne/react';
-
-function BillingSettings() {
-  const { openPortal } = usePortal();
-  return <button onClick={() => openPortal()}>Manage subscription</button>;
-}
-```
-
-## Next steps
-
-- [Gating features](/guides/billing/enforcing-limits-without-breaking-ux) to gate on what a customer bought
-- [Design pricing](/guides/billing/designing-pricing) for best practices
+<CardGroup cols={2}>
+  <Card
+    title="Add usage limits"
+    icon="gauge"
+    href="/guides/billing/enforcing-limits-without-breaking-ux"
+  >
+    Check what a customer bought before letting them do it.
+  </Card>
+  <Card title="Billing reference" icon="code" href="/sdks/server/billing">
+    Plans, checkout, plan changes and cancellation.
+  </Card>
+</CardGroup>

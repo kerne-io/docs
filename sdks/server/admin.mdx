@@ -1,0 +1,58 @@
+---
+title: 'Admin'
+description: 'Overrides and usage corrections for one customer'
+---
+
+These require your secret key. Call them from your own back office, never from a request an end user controls. An override changes a limit for as long as it lasts; a usage correction changes a counter once.
+
+## Overrides
+
+An override replaces one customer's limit for a feature. It renews every period like the plan's limit, until it expires.
+
+```typescript
+await kerne.admin.grant('api_calls', {
+  customer: userId,
+  value: '50000',
+  reason: 'Annual contract',
+  expiresAt: '2027-01-01T00:00:00.000Z', // omit for no expiry
+});
+
+const all = await kerne.admin.listGrants();
+const forCustomer = await kerne.admin.listGrants(userId);
+
+await kerne.admin.revokeGrant(overrideId);
+```
+
+`grant()` creates the override, or updates the customer's existing one for that feature, and creates the customer if it doesn't exist yet. It changes the limit only: what happens past the limit still comes from the plan. Expired overrides stay in `listGrants()` with `is_expired: true`. `grant()` needs exceptions on your Kerne plan, or it fails with `K5002`.
+
+On a quota counted per dimension, `dimension` changes a single counter:
+
+```typescript
+await kerne.admin.grant('machine_minutes', {
+  customer: userId,
+  dimension: 'machine_42',
+  value: '180',
+  reason: 'Loaner machine',
+});
+```
+
+The most specific override wins: the counter's own, then the customer's, then the plan. "Every machine at 3 hours, this one at 5" is two grants. A `dimension` only takes effect when the plan counts that feature per dimension.
+
+## Usage corrections
+
+```typescript
+// Credit 5 units back. Atomic, safe alongside consume()
+await kerne.admin.adjustUsage('api_calls', {
+  customer: userId,
+  delta: -5,
+  idempotencyKey: refundId,
+});
+
+// Set an exact value. Can race a concurrent consume()
+await kerne.admin.setUsage('storage_megabytes', { customer: userId, value: 12800 });
+
+// Back to zero, rollover included. Omit featureKey to reset every quota
+await kerne.admin.resetUsage({ customer: userId, featureKey: 'api_calls' });
+```
+
+Prefer `adjustUsage()`: it never reads the counter first. Values are whole numbers.
