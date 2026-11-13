@@ -59,27 +59,27 @@ A few subclasses are raised **client-side** before a request goes out - `Entitle
 
 ## Resources (K4xxx)
 
-| Code            | Description                                                  |
-| --------------- | ------------------------------------------------------------ |
-| `K4001`         | Resource not found.                                          |
-| `K4002`         | App not found.                                               |
-| `K4003`         | User not found.                                              |
-| `K4004`         | Invitation not found.                                        |
-| `K4005`         | Waitlist entry not found.                                    |
-| `K4006`         | Resource conflict.                                           |
-| `K4007`-`K4009` | Resource creation/deletion/update failed.                    |
-| `K4011`-`K4016` | Product/plan/feature/subscription/plan price/pack not found. |
-| `K4019`         | Payment not found.                                           |
+| Code            | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `K4001`         | Resource not found.                                             |
+| `K4002`         | App not found.                                                  |
+| `K4003`         | User not found.                                                 |
+| `K4004`         | Invitation not found.                                           |
+| `K4005`         | Waitlist entry not found.                                       |
+| `K4006`         | Resource conflict.                                              |
+| `K4007`-`K4009` | Resource creation/deletion/update failed.                       |
+| `K4011`-`K4016` | Product, plan, feature, subscription, price or offer not found. |
+| `K4019`         | Payment not found.                                              |
 
 ## Billing and limits (K5xxx)
 
-| Code    | Description                                                            |
-| ------- | ---------------------------------------------------------------------- |
-| `K5001` | Resource quota exceeded.                                               |
-| `K5002` | Plan upgrade required.                                                 |
-| `K5003` | Billing payment failed.                                                |
-| `K5004` | No active pack for this plan (a plan with no entitlements configured). |
-| `K5005` | A pack can't be activated with no entitlements configured on it.       |
+| Code    | Description                          |
+| ------- | ------------------------------------ |
+| `K5001` | Resource quota exceeded.             |
+| `K5002` | Plan upgrade required.               |
+| `K5003` | Billing payment failed.              |
+| `K5004` | This plan has no offer on sale.      |
+| `K5005` | An empty offer can't be put on sale. |
 
 ## Rate limiting (K6xxx)
 

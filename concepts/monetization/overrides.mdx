@@ -1,6 +1,6 @@
 ---
-title: 'Overrides'
-sidebarTitle: 'Overrides'
+title: 'Exceptions'
+sidebarTitle: 'Exceptions'
 description: 'When one customer needs different terms'
 ---
 
@@ -8,7 +8,9 @@ Sooner or later someone negotiates something your catalog doesn't sell. A yearly
 
 The tempting move is to create a plan for them. Don't — you'd be adding a product line to solve a conversation, and you'd carry it forever.
 
-An **override** is that deal, attached to one customer, outside your catalog. Every check that already exists in your code starts returning the right answer for them, and nothing changes for anyone else.
+An **exception** is that deal, attached to one customer, outside your catalog. Every check that already exists in your code starts returning the right answer for them, and nothing changes for anyone else.
+
+In the dashboard, open **Customers**, pick the customer, then the **Exceptions** tab. The API calls an exception an override: `kerne.admin.grant()`.
 
 ## Two different things, easy to confuse
 
@@ -16,10 +18,10 @@ Ask which one you mean before reaching for either:
 
 | | What it changes | How long |
 | --- | --- | --- |
-| **Override** | The **limit** — "this customer has a 1,000/mo deal" | Renews every period like the plan's own limit, until it expires |
+| **Exception** | The **limit** — "this customer has a 1,000/mo deal" | Renews every period like the plan's own limit, until it expires |
 | **Usage adjustment** | The **counter** — "credit them 500 units back" | Once |
 
-An override is a standing arrangement. An adjustment is a correction. Giving someone a one-time refund by raising their limit means quietly raising it every month forever.
+An exception is a standing arrangement. An adjustment is a correction. Giving someone a one-time refund by raising their limit means quietly raising it every month forever.
 
 ```typescript
 // A standing deal
@@ -36,24 +38,24 @@ await kerne.admin.adjustUsage('api_calls', { customer: userId, delta: -5000 });
 
 ## Whole customer, or one counter
 
-Without a dimension, an override covers the customer: on a feature counted per machine or per project, every counter gets that limit of its own.
+Without a dimension, an exception covers the customer: on a feature counted per machine or per project, every counter gets that limit of its own.
 
-With one, only that counter moves. The two stack, **most specific first** — a counter uses its own override if it has one, the customer's otherwise, the plan's if neither exists.
+With one, only that counter moves. The two stack, **most specific first** — a counter uses its own exception if it has one, the customer's otherwise, the plan's if neither exists.
 
-So "every machine to 3h, except this one at 5h" is two overrides, not a list of every machine.
+So "every machine to 3h, except this one at 5h" is two exceptions, not a list of every machine.
 
 <Note>
   Naming a dimension only does something when the plan limits that feature per dimension. Under a
-  shared pool the override still saves but never resolves — you can't carve a private allowance out of
+  shared pool the exception still saves but never applies — you can't carve a private allowance out of
   a pool by naming one machine.
 </Note>
 
-## What an override does not touch
+## What an exception doesn't touch
 
-- **What happens past the limit.** Block, tolerate, or charge for the excess is always read from the plan's own entitlement. An override moves the number, not the behavior.
+- **What happens past the limit.** Stop, keep free or bill is always read from the plan. An exception changes the number, not the behavior.
 - **Periods, resets and rollover.** Only the limit itself.
 
-Expired overrides stay in the list rather than disappearing, so you keep the audit trail of what was promised to whom. A check result carries `has_override` when one applied.
+Expired exceptions stay in the list, so you keep a record of what was promised to whom. A check result carries `has_override` when one applied.
 
 ## Next
 
@@ -61,7 +63,7 @@ Expired overrides stay in the list rather than disappearing, so you keep the aud
   <Card title="Handle customer exceptions" icon="user-pen" href="/guides/billing/customer-exceptions">
     The practical walkthrough, with the common cases.
   </Card>
-  <Card title="Overrides reference" icon="code" href="/sdks/server/admin#overrides">
+  <Card title="Admin reference" icon="code" href="/sdks/server/admin#overrides">
     `grant` / `listGrants` / `revokeGrant`, every option.
   </Card>
 </CardGroup>

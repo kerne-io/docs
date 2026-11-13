@@ -26,7 +26,7 @@ Four kinds of rule, and they compose:
     happens once it runs out.
   </Card>
   <Card title="What was agreed with them specifically" icon="user-pen">
-    Overrides — the negotiated limit, the goodwill credit, the deal that exists for exactly one
+    Exceptions: the negotiated limit, the loaner machine, the deal that exists for exactly one
     customer and isn't part of your catalog.
   </Card>
 </CardGroup>
@@ -41,8 +41,8 @@ Your app names a **capability** — `export_pdf`, `api_calls`, `support_level` �
 Feature asked about
   → the customer's subscription (or your default plan, if they have none)
   → the version of the offer they bought
-  → what that version grants for this feature
-  → an override, if one exists for this customer
+  → what that version grants for this feature, plus extras bought at checkout
+  → an exception, if one exists for this customer
   → their usage counter, for anything with an allowance
   → the answer
 ```
@@ -73,7 +73,7 @@ Every decision is about someone — the `customer` your SDK calls name. Usually 
   <Card title="Meters & usage" icon="gauge" href="/concepts/monetization/usage-billing">
     Flat vs metered, what a meter measures, and spending caps.
   </Card>
-  <Card title="Overrides" icon="user-pen" href="/concepts/monetization/overrides">
+  <Card title="Exceptions" icon="user-pen" href="/concepts/monetization/overrides">
     Different terms for one customer, outside your catalog.
   </Card>
 </CardGroup>

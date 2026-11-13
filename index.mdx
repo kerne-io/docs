@@ -61,8 +61,8 @@ if (await kerne.allows('export_pdf', { customer: userId })) {
     icon="clock-rotate-left"
     href="/concepts/monetization/products-and-plans"
   >
-    Publish a new version of what you sell without silently changing the terms of customers who
-    already bought the old one.
+    Sell a new version of your offer without silently changing the terms of customers who already
+    bought the old one.
   </Card>
   <Card title="Control access" icon="key" href="/concepts/monetization/entitlements">
     Turn what a customer is entitled to into a decision your application can enforce on every
@@ -106,7 +106,7 @@ if (await kerne.allows('export_pdf', { customer: userId })) {
 
 Kerne is not a payment processor. Stripe still moves the money, holds the card details, and handles the legal side of billing.
 
-The split is clean: your provider is told what to charge, Kerne decides what that entitles someone to. Your own code never names a plan, a price, or a provider.
+The split is clean: your provider is told what to charge, Kerne decides what that entitles someone to. Your access checks never name a plan, a price, or a provider.
 
 ## Start here
 

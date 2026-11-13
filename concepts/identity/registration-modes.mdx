@@ -1,56 +1,65 @@
 ---
-title: "Registration modes"
-description: "Controlling who can sign up"
+title: 'Registration modes'
+description: 'Controlling who can sign up'
 ---
 
-Whether `kerne.auth.signup()` succeeds depends on two settings, read from `GET /v1/auth/config` (`kerne.auth.config()`) and checked in this order:
+Who can create an account is one setting for the whole project: **Settings → Authentication → Who can sign up**. New projects start as **Invite only**.
 
-1. **User limit.** If `user_registration_limit` is set and the tenant already has that many active users, every signup is rejected - regardless of `registration_mode`.
-2. **`registration_mode`.** One tenant-wide setting, one of three values:
-   - `OPEN` - any signup succeeds.
-   - `INVITE_ONLY` - the signup must include a valid `invitationToken` or `invitationCode` (see [Invitations](/sdks/server/waitlist-invitations#invite-by-email)) - anything else is rejected.
-   - `CLOSED` - no self-service signup at all; every user comes from your own backend instead.
+| Mode            | Who can sign up                                                                                            |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Open**        | Anyone. Invitations still work.                                                                            |
+| **Invite only** | People with a valid invitation: see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas). |
+| **Closed**      | Nobody. You add people yourself, with **Members → Add member**.                                            |
 
-## Waitlist vs. invitations
+**User limit**, on the same screen, refuses sign-ups once that many accounts exist, whatever the mode.
 
-These are two separate mechanisms - joining a waitlist does not grant registration access by itself, and doesn't put a user into any kind of pending account state:
+A refused sign-up fails with `K1001`. Kerne checks on its side, so a request that skips your frontend is refused too.
 
-- **Waitlist** (`kerne.waitlist.join()`) just collects interest before you're ready to onboard everyone - an email and optional metadata, nothing more. An admin later invites specific entries, at which point they go through the same invitation flow as anyone else.
-- **Invitations** (tokens or reusable codes, `kerne.invitations.*`) are what actually unlock a signup when `registration_mode` is `INVITE_ONLY`.
+## Waitlist and invitations
 
-## Checking the current config
+These are two separate things. Joining the waitlist doesn't let anyone in, and doesn't create an account.
+
+- The **waitlist** collects interest: an email and optional details. You later invite the people you pick.
+- **Invitations** are what let someone sign up on an invite-only project: a link emailed to one address, or a code you hand out.
+
+## Reading the mode from your app
 
 ```typescript
 const config = await kerne.auth.config();
-// { registration_mode, enable_magic_link, enable_credentials,
-//   oauth_providers, portal_url, user_registration_limit, app_name }
+// config.registration_mode: 'OPEN' | 'INVITE_ONLY' | 'CLOSED'
 ```
 
-Use this to render the right signup form client-side (e.g. hide the password field if `enable_credentials` is `false`) instead of hardcoding assumptions about how your tenant is configured.
-
-For a walkthrough of building an invite-only product end to end, see [Implement invite-only SaaS](/guides/auth/implement-invite-only-saas).
+Build your sign-up form from it, for example an invitation code field on an invite-only project, instead of hardcoding how the project is set up. In React, use `useAuthConfig()`. Every field is in [Auth config](/sdks/server/authentication#auth-config).
 
 ## Which one to pick
 
 <CardGroup cols={2}>
   <Card title="Consumer / self-serve" icon="users">
-    `OPEN`. Friction is the enemy — every extra step loses signups.
+    **Open**. Every extra step loses sign-ups.
   </Card>
   <Card title="Early access / high-touch" icon="building">
-    `INVITE_ONLY`, or a waitlist first. Fewer, better-qualified signups, and room to onboard people by
-    hand while you're still learning what they need.
+    **Invite only**, or a waitlist first. Fewer, better-qualified sign-ups, and room to onboard
+    people by hand.
   </Card>
 </CardGroup>
 
-You can move between them later; switching to open doesn't invalidate codes you already handed out. Set it in the dashboard under **Settings → Authentication**.
+You can switch later. Opening sign-up doesn't invalidate codes you already handed out.
 
 ## Next
 
 <CardGroup cols={2}>
-  <Card title="Implement invite-only SaaS" icon="user-plus" href="/guides/auth/implement-invite-only-saas">
-    Codes, tokens, and the signup flow end to end.
+  <Card
+    title="Implement invite-only SaaS"
+    icon="user-plus"
+    href="/guides/auth/implement-invite-only-saas"
+  >
+    Invitations, codes, and the sign-up flow.
   </Card>
-  <Card title="Set up authentication" icon="key" href="/guides/getting-started/authentication-setup">
-    Login, registration and route protection.
+  <Card
+    title="Set up authentication"
+    icon="key"
+    href="/guides/getting-started/authentication-setup"
+  >
+    The hosted portal, or your own forms.
   </Card>
 </CardGroup>

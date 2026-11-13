@@ -21,7 +21,7 @@ These accept **only** your secret key, called from your own backend, never from 
 - Listing or managing other users (`GET`/`PATCH /v1/users/:id` for anyone but yourself)
 - Registering or looking up customers (`kerne.customers.upsert` / `get` / `list` / `update`)
 - Usage corrections (`kerne.admin.setUsage` / `adjustUsage` / `resetUsage`)
-- Entitlement overrides (`kerne.admin.grant` / `revokeGrant`)
+- Exceptions (`kerne.admin.grant` / `revokeGrant`)
 - Waitlist and invitation management
 
 ## Building your own admin panel
@@ -36,7 +36,7 @@ Kerne has no opinion on who counts as an admin inside your product. That's yours
   <Card title="Usage corrections" icon="sliders" href="/sdks/server/admin#usage-corrections">
     `setUsage` / `adjustUsage` / `resetUsage` reference.
   </Card>
-  <Card title="Overrides" icon="user-pen" href="/sdks/server/admin#overrides">
+  <Card title="Exceptions" icon="user-pen" href="/sdks/server/admin#overrides">
     `grant` / `revokeGrant` — the one-customer exception.
   </Card>
 </CardGroup>

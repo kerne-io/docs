@@ -6,7 +6,7 @@ description: 'Who an access decision applies to'
 
 Every access decision is about someone. Kerne actually holds two different records for that someone, and it matters which one you mean.
 
-A **`User`** is a login: email, password, session. A **`Customer`** is a billable identity — who a subscription, a usage counter, or an override belongs to. Every entitlement or billing call names a `customer`, never a `user`.
+A **`User`** is a login: email, password, session. A **`Customer`** is a billable identity — who a subscription, a usage counter, or an exception belongs to. Every entitlement or billing call names a `customer`, never a `user`.
 
 The two are linked automatically for anyone who signs up through Kerne's own auth: `Customer.external_id` is set to `User.id` at signup, invisibly. You never wire this up — pass the user's id as `customer` on any server-side call and it resolves.
 

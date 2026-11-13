@@ -1,0 +1,49 @@
+---
+title: 'Go live'
+description: 'What to check before real customers arrive'
+---
+
+The dashboard shows the same checklist in your project. Four items block a launch; the rest make it look like yours.
+
+## Before you launch
+
+<Steps>
+  <Step title="Connect Stripe">
+    **Settings → Payment provider**. No plan can carry a price without it. See [Connect your billing provider](/guides/getting-started/subscription-setup).
+  </Step>
+  <Step title="Finish your catalog">
+    In **Catalog**: a product, its plans, and at least one feature. Check that every plan you sell has a price, and that **Default** includes what a customer should get before paying.
+  </Step>
+  <Step title="Set your production URL">
+    **Settings → General → Production URL**. After checkout or sign-in, customers are sent back there. Set **Send users back to** if they should land on another page.
+  </Step>
+  <Step title="Restrict allowed domains">
+    **Settings → API keys → Allowed domains**. While the list is empty, any website can call Kerne with your app id. Add your app's domain; `*.example.com` covers its subdomains.
+
+    Once the list has an entry, every other origin is refused, your local one included: add `localhost:3000` if you still develop against this project.
+
+  </Step>
+</Steps>
+
+## Also worth doing
+
+- **Decide who can sign up.** New projects are invite only. Open sign-up under **Settings → Authentication → Who can sign up** if anyone should be able to create an account.
+- **Add your branding.** A logo and a primary color, in **Settings → General**, make the hosted portal look like your product.
+- **Turn on magic link** if you want sign-in without a password: **Settings → Authentication**.
+- **Save Stripe's customer portal settings once**, in your Stripe dashboard. Stripe refuses to open its billing portal in live mode until you have.
+- **Check where your secret key lives.** Server only, never in a browser bundle or a mobile app. If it ever leaked, rotate it in **Settings → API keys**: the old key stops working at once.
+
+## Try it end to end
+
+Before announcing anything, go through it once as a customer: sign up, subscribe to a plan, come back to your app, use a limited feature, open the billing portal, cancel. Then look at that customer under **Customers** in the dashboard.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Change your pricing" icon="pen-to-square" href="/guides/billing/change-your-pricing">
+    What happens to existing customers when you edit a plan.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/concepts/error-codes">
+    Every error code, and the request id to send us.
+  </Card>
+</CardGroup>

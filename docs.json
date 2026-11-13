@@ -91,7 +91,8 @@
             "pages": [
               "guides/first-access-decision",
               "guides/getting-started/subscription-setup",
-              "guides/getting-started/authentication-setup"
+              "guides/getting-started/authentication-setup",
+              "guides/go-live"
             ]
           },
           {
